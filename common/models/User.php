@@ -71,11 +71,11 @@ class User extends ActiveRecord implements IdentityInterface
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
                 ]
             ],
-            'blameable' => [
-                'class' => BlameableBehavior::className(),
-                'createdByAttribute' => 'created_by',
-                'updatedByAttribute' => 'updated_by'
-            ]
+//            'blameable' => [
+//                'class' => BlameableBehavior::className(),
+//                'createdByAttribute' => 'created_by',
+//                'updatedByAttribute' => 'updated_by'
+//            ]
         ];
     }
 
@@ -86,6 +86,8 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['phone'], 'required', 'except' => ['change_pass']],
+            ['email', 'trim'],
+            ['email', 'email'],
             ['password', 'string', 'min' => 6],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
 
@@ -102,15 +104,15 @@ class User extends ActiveRecord implements IdentityInterface
     public function getPhotoPath()
     {
         if ($this->photo) {
-            return Yii::$app->request->getHostInfo() . "/photo/users/" . $this->id . "/" . $this->photo;
+            return Yii::$app->request->getHostInfo() . '/photo/users/' . $this->id . '/' . $this->photo;
         } else {
-            return Yii::$app->request->getHostInfo() . "/photo/users/empty.jpg";
+            return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
         }
     }
 
     public function getPhotoDir()
     {
-        return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . "/" . $this->photo;
+        return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
     }
 
     public function one_fields()
@@ -140,7 +142,7 @@ class User extends ActiveRecord implements IdentityInterface
         $result['models'] = ArrayHelper::toArray($result['models'],
 
             [
-                'common\models\User' => [
+                User::className() => [
                     'id',
                     'first_name',
                     'middle_name',

@@ -2,11 +2,16 @@
 
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
+use common\components\traits\errors;
+use common\components\traits\soft;
+use common\components\traits\findRecords;
 /**
  * This is the model class for table "category".
  *
@@ -23,8 +28,13 @@ use yii\db\ActiveRecord;
  * @property TagCategory[] $tagCategories
  * @property Tag[] $tags
  */
-class Category extends ActiveRecord
+class Category extends ExtendedActiveRecord
 {
+
+    use soft;
+    use findRecords;
+    use errors;
+
     public function behaviors()
     {
         return [
@@ -56,9 +66,19 @@ class Category extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'created_at', 'created_by'], 'required'],
+            [['name'], 'required'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'string', 'max' => 255],
+        ];
+    }
+
+    public function fields()
+    {
+        return [
+            'id',
+//            'name' => function($model){
+//                return $model->name.'-'.$model->id;
+//            }
         ];
     }
 
@@ -78,6 +98,33 @@ class Category extends ActiveRecord
         ];
     }
 
+    public function oneFields()
+    {
+
+        $result = [
+                'id' => $this->id,
+                'name' => $this->name,
+                'status' => $this->status,
+                'created_by' => $this->created_by,
+                'updated_by' => $this->updated_by,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at,
+        ];
+        return $result;
+    }
+
+    public function allFields($result)
+    {
+        $result['models'] = ArrayHelper::toArray($result['models'],
+            [
+                Category::className() => [
+                    'id',
+                    'name'
+                ],
+            ]
+        );
+        return $result;
+    }
     /**
      * @return \yii\db\ActiveQuery
      */

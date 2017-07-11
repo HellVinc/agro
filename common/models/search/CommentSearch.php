@@ -5,25 +5,26 @@ namespace common\models\search;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Category;
+use common\models\Comment;
 
 /**
- * CategorySearch represents the model behind the search form about `common\models\Category`.
+ * CommentSearch represents the model behind the search form about `common\models\Comment`.
  */
-class CategorySearch extends Category
+class CommentSearch extends Comment
 {
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['name'], 'safe'],
+            [['id', 'advertisement_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['text'], 'safe'],
         ];
     }
 
@@ -39,11 +40,13 @@ class CategorySearch extends Category
     /**
      * Creates data provider instance with search query applied
      *
+     * @param array $params
+     *
      * @return ActiveDataProvider
      */
     public function search()
     {
-        $query = Category::find();
+        $query = Comment::find();
 
         // add conditions that should always apply here
 
@@ -57,6 +60,7 @@ class CategorySearch extends Category
             ],
         ]);
 
+
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
@@ -66,6 +70,8 @@ class CategorySearch extends Category
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'advertisement_id' => $this->advertisement_id,
+            'viewed' => $this->viewed,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -73,7 +79,7 @@ class CategorySearch extends Category
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        $query->andFilterWhere(['like', 'text', $this->text]);
 
         return $dataProvider;
     }

@@ -18,10 +18,10 @@ class m170707_112702_create_attachment_table extends Migration
             'table' => $this->string(255)->notNull(),
             'extension' => $this->string(255)->notNull(),
             'url' => $this->string(255)->notNull(),
-            'status' => $this->smallInteger(1)->defaultValue(0),
-            'created_at' => $this->integer()->notNull(),
+            'status' => $this->smallInteger(1)->defaultValue(10),
+            'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
-            'created_by' => $this->integer()->notNull(),
+            'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
         ]);
     }

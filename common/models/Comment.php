@@ -2,10 +2,17 @@
 
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+
+use common\components\traits\errors;
+use common\components\traits\soft;
+use common\components\traits\findRecords;
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "comment".
  *
@@ -21,8 +28,12 @@ use yii\db\ActiveRecord;
  *
  * @property Advertisement $advertisement
  */
-class Comment extends ActiveRecord
+class Comment extends ExtendedActiveRecord
 {
+    use soft;
+    use findRecords;
+    use errors;
+
     public function behaviors()
     {
         return [
@@ -77,6 +88,36 @@ class Comment extends ActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
+    }
+
+    public function oneFields()
+    {
+
+        $result = [
+            'id' => $this->id,
+            'name' => $this->text,
+            'viewed' => $this->viewed,
+            'status' => $this->status,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+        return $result;
+    }
+
+    public function allFields($result)
+    {
+        $result['models'] = ArrayHelper::toArray($result['models'],
+            [
+                Comment::className() => [
+                    'id',
+                    'text',
+                    'viewed'
+                ],
+            ]
+        );
+        return $result;
     }
 
     /**

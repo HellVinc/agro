@@ -17,10 +17,10 @@ class m170707_122230_create_comment_table extends Migration
             'advertisement_id' => $this->integer(),
             'text' => $this->text()->notNull(),
             'viewed' => $this->integer(),
-            'status' => $this->smallInteger(1)->defaultValue(0),
-            'created_at' => $this->integer()->notNull(),
+            'status' => $this->smallInteger(1)->defaultValue(10),
+            'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
-            'created_by' => $this->integer()->notNull(),
+            'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
         ]);
     }

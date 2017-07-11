@@ -17,11 +17,13 @@ class m170707_112701_create_advertisement_table extends Migration
             'category_id' => $this->integer()->notNull(),
             'title' => $this->string(255)->notNull(),
             'text' => $this->text()->notNull(),
+            'latitude' => $this->string(32),
+            'longitude' => $this->string(32),
             'ad_type' => $this->integer(1)->notNull(), // buy or sell
-            'status' => $this->smallInteger(1)->defaultValue(0),
-            'created_at' => $this->integer()->notNull(),
+            'status' => $this->smallInteger(1)->defaultValue(10),
+            'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
-            'created_by' => $this->integer()->notNull(),
+            'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
         ]);
     }

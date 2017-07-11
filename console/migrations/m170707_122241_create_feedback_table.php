@@ -16,10 +16,10 @@ class m170707_122241_create_feedback_table extends Migration
             'id' => $this->primaryKey(),
             'message' => $this->text()->notNull(),
             'rating' => $this->integer(),
-            'status' => $this->smallInteger(1)->defaultValue(0),
-            'created_at' => $this->integer()->notNull(),
+            'status' => $this->smallInteger(1)->defaultValue(10),
+            'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
-            'created_by' => $this->integer()->notNull(),
+            'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
         ]);
     }

@@ -15,9 +15,7 @@ use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
-/**
- * Default controller for the `v1` module
- */
+
 class UserController extends Controller
 {
 //    public function behaviors()

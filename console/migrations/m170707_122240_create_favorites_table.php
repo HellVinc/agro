@@ -16,10 +16,10 @@ class m170707_122240_create_favorites_table extends Migration
             'id' => $this->primaryKey(),
             'parent_id' => $this->integer()->notNull(),
             'table' => $this->string()->notNull(),
-            'status' => $this->smallInteger(1)->defaultValue(0),
-            'created_at' => $this->integer()->notNull(),
+            'status' => $this->smallInteger(1)->defaultValue(10),
+            'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
-            'created_by' => $this->integer()->notNull(),
+            'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
         ]);
     }

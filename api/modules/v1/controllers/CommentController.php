@@ -2,19 +2,18 @@
 
 namespace api\modules\v1\controllers;
 
-use common\models\User;
 use Yii;
-use common\models\Category;
-use common\models\search\CategorySearch;
-use yii\helpers\ArrayHelper;
+use common\models\Comment;
+use common\models\search\CommentSearch;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use common\models\User;
 
 /**
- * CategoryController implements the CRUD actions for Category model.
+ * CommentController implements the CRUD actions for Comment model.
  */
-class CategoryController extends Controller
+class CommentController extends Controller
 {
     /**
      * @inheritdoc
@@ -32,18 +31,19 @@ class CategoryController extends Controller
 //    }
 
     /**
-     * Lists all Category models.
+     * Lists all Comment models.
      * @return mixed
      */
     public function actionAll()
     {
-        $model = new CategorySearch();
+        $model = new CommentSearch();
         $result = $model->searchAll(Yii::$app->request->get());
         return $result ? $model->allFields($result) : $model->getErrors();
     }
 
     /**
-     * Displays a single Category model.
+     * Displays a single Comment model.
+     * @param integer $id
      * @return mixed
      */
     public function actionOne()
@@ -53,13 +53,13 @@ class CategoryController extends Controller
     }
 
     /**
-     * Creates a new Category model.
+     * Creates a new Comment model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Category();
+        $model = new Comment();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
@@ -69,7 +69,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Updates an existing Category model.
+     * Updates an existing Comment model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -88,25 +88,27 @@ class CategoryController extends Controller
     }
 
     /**
-     * Deletes an existing Category model.
+     * Deletes an existing Comment model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
      * @return mixed
      */
     public function actionDelete($id)
     {
         return $this->findModel($id)->delete(true);
+
     }
 
     /**
-     * Finds the Category model based on its primary key value.
+     * Finds the Comment model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Category the loaded model
+     * @return Comment the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Category::findOne($id)) !== null) {
+        if (($model = Comment::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
             } else {

@@ -18,10 +18,10 @@ class m170707_154632_create_message_table extends Migration
             'user_id' => $this->integer()->notNull(),
             'text' => $this->text()->notNull(),
             'checked' => $this->integer()->defaultValue(0)->notNull(),
-            'status' => $this->smallInteger(1)->defaultValue(0),
-            'created_at' => $this->integer()->notNull(),
+            'status' => $this->smallInteger(1)->defaultValue(10),
+            'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
-            'created_by' => $this->integer()->notNull(),
+            'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
         ]);
     }
