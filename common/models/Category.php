@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
+
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;

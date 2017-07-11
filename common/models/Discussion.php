@@ -2,10 +2,17 @@
 
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+
+use common\components\traits\errors;
+use common\components\traits\soft;
+use common\components\traits\findRecords;
+use common\components\traits\modelWithFiles;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "discussion".
@@ -23,8 +30,13 @@ use yii\db\ActiveRecord;
  * @property Category $category
  * @property Message[] $messages
  */
-class Discussion extends ActiveRecord
+class Discussion extends ExtendedActiveRecord
 {
+    use modelWithFiles;
+    use soft;
+    use findRecords;
+    use errors;
+
     public function behaviors()
     {
         return [
@@ -57,7 +69,7 @@ class Discussion extends ActiveRecord
     public function rules()
     {
         return [
-            [['category_id', 'title', 'description', 'created_at', 'created_by'], 'required'],
+            [['category_id', 'title', 'description'], 'required'],
             [['category_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['description'], 'string'],
             [['title'], 'string', 'max' => 255],
@@ -81,6 +93,40 @@ class Discussion extends ActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
+    }
+
+    public function oneFields()
+    {
+
+        $result = [
+            'id' => $this->id,
+            'category_name' => $this->category->name,
+            'title' => $this->title,
+            'description' => $this->description,
+            'status' => $this->status,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+        return $result;
+    }
+
+    public function allFields($result)
+    {
+        $result['models'] = ArrayHelper::toArray($result['models'],
+            [
+                Category::className() => [
+                    'id',
+                    'category_name' => function($model){
+                        return $model->category->name;
+                    },
+                    'title',
+                    'description'
+                ],
+            ]
+        );
+        return $result;
     }
 
     /**
