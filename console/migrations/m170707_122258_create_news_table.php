@@ -15,7 +15,7 @@ class m170707_122258_create_news_table extends Migration
         $this->createTable('news', [
             'id' => $this->primaryKey(),
             'title' => $this->string(255),
-            'test' => $this->text(),
+            'text' => $this->text(),
             'url' => $this->text(),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),

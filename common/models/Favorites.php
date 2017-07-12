@@ -94,8 +94,8 @@ class Favorites extends ExtendedActiveRecord
             return Discussion::findOne($this->object_id);
         }
 
-        if($this->type == self::TYPE_DISCUSSION){
-            return Discussion::findOne($this->object_id);
+        if($this->type == self::TYPE_ADVIRTESEMENT){
+            return Advertisement::findOne($this->object_id);
         }
 
         return null;

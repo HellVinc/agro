@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -12,9 +13,12 @@ use yii\db\ActiveRecord;
  *
  * @property integer $id
  * @property integer $category_id
+ * @property integer $tag_id
  * @property string $title
  * @property string $text
- * @property integer $ad_type
+ * @property string $latitude
+ * @property string $longitude
+ * @property integer $deal_type
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -24,7 +28,7 @@ use yii\db\ActiveRecord;
  * @property Category $category
  * @property Comment[] $comments
  */
-class Advertisement extends ActiveRecord
+class Advertisement extends ExtendedActiveRecord
 {
     public static $buy = 1;
     public static $sell = 2;
@@ -61,11 +65,12 @@ class Advertisement extends ActiveRecord
     public function rules()
     {
         return [
-            [['category_id', 'title', 'text', 'ad_type', 'created_at', 'created_by'], 'required'],
-            [['category_id', 'ad_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['text'], 'string'],
+            [['tag_id', 'title', 'text', 'ad_type'], 'required'],
+            [['tag_id', 'deal_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
+            [['latitude', 'longitude'], 'string', 'max' => 32],
+            [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }
 
@@ -103,7 +108,7 @@ class Advertisement extends ActiveRecord
      */
     public function getCategory()
     {
-        return $this->hasOne(Category::className(), ['id' => 'category_id']);
+        return $this->hasOne(Category::className(), ['id' => 'tag_id']);
     }
 
     /**
@@ -111,7 +116,7 @@ class Advertisement extends ActiveRecord
      */
     public function getTag()
     {
-        return $this->hasOne(Tag::className(), ['id' => 'category_id']);
+        return $this->hasOne(Tag::className(), ['id' => 'tag_id']);
     }
 
     /**

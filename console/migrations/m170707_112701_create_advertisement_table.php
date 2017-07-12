@@ -14,12 +14,12 @@ class m170707_112701_create_advertisement_table extends Migration
     {
         $this->createTable('advertisement', [
             'id' => $this->primaryKey(),
-            'category_id' => $this->integer()->notNull(),
+            'tag_id' => $this->integer()->notNull(),
             'title' => $this->string(255)->notNull(),
             'text' => $this->text()->notNull(),
             'latitude' => $this->string(32),
             'longitude' => $this->string(32),
-            'ad_type' => $this->integer(1)->notNull(), // buy or sell
+            'deal_type' => $this->integer(1)->notNull(), // buy or sell
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

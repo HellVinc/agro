@@ -3,63 +3,61 @@
 namespace api\modules\v1\controllers;
 
 use Yii;
-use common\models\Favorites;
-use common\models\search\FavoritesSearch;
-use yii\db\Query;
+use common\models\Tag;
+use common\models\search\TagSearch;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * FavoritesController implements the CRUD actions for Favorites model.
+ * TagController implements the CRUD actions for Tag model.
  */
-class FavoritesController extends Controller
+class TagController extends Controller
 {
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
-//        ];
-//    }
-
-    /**
-     * Lists all Favorites models.
-     * @return mixed
-     */
-    public function actionIndex()
+    public function behaviors()
     {
-        $model = new FavoritesSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? $model->allFields($result) : $model->getErrors();
-
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ],
+        ];
     }
 
     /**
-     * Displays a single Favorites model.
+     * Lists all Tag models.
      * @return mixed
      */
-    public function actionView()
+    public function actionAll()
+    {
+        $model = new TagSearch();
+        $result = $model->searchAll(Yii::$app->request->get());
+        return $result ? $model->allFields($result) : $model->getErrors();
+    }
+
+    /**
+     * Displays a single Tag model.
+     * @return mixed
+     */
+    public function actionOne()
     {
         $model = $this->findModel(Yii::$app->request->get('id'));
         return $model->oneFields();
     }
 
     /**
-     * Creates a new Favorites model.
+     * Creates a new Tag model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Favorites();
+        $model = new Tag();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
@@ -69,7 +67,7 @@ class FavoritesController extends Controller
     }
 
     /**
-     * Updates an existing Favorites model.
+     * Updates an existing Tag model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -77,6 +75,7 @@ class FavoritesController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
                 'category' => $model,
@@ -87,7 +86,7 @@ class FavoritesController extends Controller
     }
 
     /**
-     * Deletes an existing Favorites model.
+     * Deletes an existing Tag model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -98,21 +97,20 @@ class FavoritesController extends Controller
     }
 
     /**
-     * Finds the Favorites model based on its primary key value.
+     * Finds the Tag model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Favorites the loaded model
+     * @return Tag the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Favorites::findOne($id)) !== null) {
+        if (($model = Tag::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
             } else {
                 throw new NotFoundHttpException('The record was archived.');
-            }
-        } else {
+            }        } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }

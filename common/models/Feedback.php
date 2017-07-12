@@ -2,24 +2,32 @@
 
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use common\components\traits\errors;
+use common\components\traits\soft;
+use common\components\traits\findRecords;
 /**
  * This is the model class for table "feedback".
  *
  * @property integer $id
  * @property string $message
- * @property integer $rating
+ * @property integer $viewed
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
  */
-class Feedback extends ActiveRecord
+class Feedback extends ExtendedActiveRecord
 {
+    use soft;
+    use findRecords;
+    use errors;
+
     public function behaviors()
     {
         return [
@@ -53,7 +61,7 @@ class Feedback extends ActiveRecord
         return [
             [['message', 'created_at', 'created_by'], 'required'],
             [['message'], 'string'],
-            [['rating', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];
     }
 
@@ -65,7 +73,7 @@ class Feedback extends ActiveRecord
         return [
             'id' => 'ID',
             'message' => 'Message',
-            'rating' => 'Rating',
+            'viewed' => 'Viewed',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',

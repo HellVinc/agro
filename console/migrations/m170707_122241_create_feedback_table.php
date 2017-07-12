@@ -15,7 +15,7 @@ class m170707_122241_create_feedback_table extends Migration
         $this->createTable('feedback', [
             'id' => $this->primaryKey(),
             'message' => $this->text()->notNull(),
-            'rating' => $this->integer(),
+            'viewed' => $this->integer()->notNull()->defaultValue(0),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

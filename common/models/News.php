@@ -2,16 +2,22 @@
 
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use common\components\traits\errors;
+use common\components\traits\soft;
+use common\components\traits\findRecords;
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "news".
  *
  * @property integer $id
  * @property string $title
- * @property string $test
+ * @property string $text
  * @property string $url
  * @property integer $status
  * @property integer $created_at
@@ -19,8 +25,11 @@ use yii\db\ActiveRecord;
  * @property integer $created_by
  * @property integer $updated_by
  */
-class News extends ActiveRecord
+class News extends ExtendedActiveRecord
 {
+    use soft;
+    use findRecords;
+    use errors;
     public function behaviors()
     {
         return [
@@ -58,13 +67,11 @@ class News extends ActiveRecord
     public function rules()
     {
         return [
-            [['test', 'url'], 'string'],
+            [['text', 'url'], 'string'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['created_at', 'created_by'], 'required'],
             [['title'], 'string', 'max' => 255],
         ];
     }
-
     /**
      * @inheritdoc
      */
@@ -73,7 +80,7 @@ class News extends ActiveRecord
         return [
             'id' => 'ID',
             'title' => 'Title',
-            'test' => 'Test',
+            'text' => 'Text',
             'url' => 'Url',
             'status' => 'Status',
             'created_at' => 'Created At',
@@ -82,4 +89,36 @@ class News extends ActiveRecord
             'updated_by' => 'Updated By',
         ];
     }
+    public function oneFields()
+    {
+
+        $result = [
+            'id' => $this->id,
+            'title' => $this->title,
+            'text' => $this->text,
+            'url' => $this->url,
+            'status' => $this->status,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+        return $result;
+    }
+
+    public function allFields($result)
+    {
+        $result['models'] = ArrayHelper::toArray($result['models'],
+            [
+                Category::className() => [
+                    'id',
+                    'title',
+                    'text',
+                    'url'
+                ],
+            ]
+        );
+        return $result;
+    }
+
 }
