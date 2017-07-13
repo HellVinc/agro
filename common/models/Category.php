@@ -4,6 +4,9 @@ namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "category".
@@ -27,6 +30,24 @@ class Category extends ExtendedActiveRecord
     public static function tableName()
     {
         return 'category';
+    }
+
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
+                ]
+            ],
+            'blameable' => [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by'
+            ]
+        ];
     }
 
     /**
