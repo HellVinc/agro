@@ -59,7 +59,7 @@ class Feedback extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['message', 'created_at', 'created_by'], 'required'],
+            [['message'], 'required'],
             [['message'], 'string'],
             [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];

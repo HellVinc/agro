@@ -19,7 +19,7 @@ class m170707_112701_create_advertisement_table extends Migration
             'text' => $this->text()->notNull(),
             'latitude' => $this->string(32),
             'longitude' => $this->string(32),
-            'deal_type' => $this->integer(1)->notNull(), // buy or sell
+            'type' => $this->integer(1),// buy or sell
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

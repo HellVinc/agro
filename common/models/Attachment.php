@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\UploadFile;
 use Yii;
 use common\components\traits\errors;
 use common\components\traits\soft;
@@ -63,7 +64,7 @@ class Attachment extends ActiveRecord
     public function rules()
     {
         return [
-            [['parent_id', 'table', 'extension', 'url', 'created_at', 'created_by'], 'required'],
+            [['parent_id', 'table', 'extension', 'url'], 'required'],
             [['parent_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['table', 'extension', 'url'], 'string', 'max' => 255],
         ];
@@ -79,7 +80,7 @@ class Attachment extends ActiveRecord
     public static function uploadOne($name, $id, $table)
     {
         $file = new self();
-        $result = Yii::$app->uploadFile->upload($name, $id, $table);
+        $result = (new UploadFile())->upload($name, $id, $table);
         if (!$result) {
             return $file->addError('error', 'File not saved');
         }
@@ -114,7 +115,6 @@ class Attachment extends ActiveRecord
             }
             return $this;
         } else {
-            //TODO : test with Vova
 
             return self::uploadOne('file', $this->id, $this->tableName());
         }

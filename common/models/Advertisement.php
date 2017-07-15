@@ -3,11 +3,14 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\modelWithFiles;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-
+use common\components\traits\errors;
+use common\components\traits\soft;
+use common\components\traits\findRecords;
 /**
  * This is the model class for table "advertisement".
  *
@@ -18,7 +21,7 @@ use yii\db\ActiveRecord;
  * @property string $text
  * @property string $latitude
  * @property string $longitude
- * @property integer $deal_type
+ * @property integer $type
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -30,8 +33,15 @@ use yii\db\ActiveRecord;
  */
 class Advertisement extends ExtendedActiveRecord
 {
-    public static $buy = 1;
-    public static $sell = 2;
+    use soft;
+    use findRecords;
+    use errors;
+    use modelWithFiles;
+
+    const TYPE_BUY = 1;
+    const TYPE_SELL = 2;
+    const TYPE_CHAT = 3;
+    const TYPE_FINANCE = 3;
 
     public function behaviors()
     {
@@ -65,8 +75,8 @@ class Advertisement extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['tag_id', 'title', 'text', 'ad_type'], 'required'],
-            [['tag_id', 'deal_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['tag_id', 'title', 'text', 'type'], 'required'],
+            [['tag_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
@@ -95,12 +105,12 @@ class Advertisement extends ExtendedActiveRecord
 
     public function getBuyCount()
     {
-        return Advertisement::find()->where(['ad_type' => 1])->count();
+        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_BUY])->count();
     }
 
     public function getSellCount()
     {
-        return Advertisement::find()->where(['ad_type' => 2])->count();
+        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_SELL])->count();
     }
 
     /**

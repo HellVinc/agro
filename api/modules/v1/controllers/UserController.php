@@ -4,6 +4,7 @@ namespace api\modules\v1\controllers;
 
 use common\models\Advertisement;
 use common\models\Category;
+use common\models\News;
 use common\models\User;
 use frontend\models\SignupForm;
 use Yii;
@@ -95,6 +96,12 @@ class UserController extends Controller
 //
 //        return $behaviors;
 //    }
+
+    public function actionTest()
+    {
+
+    }
+
     /**
      * @return string
      */
@@ -114,8 +121,12 @@ class UserController extends Controller
 
     public function actionMenu()
     {
-        $buy = Advertisement::find()->where(['ad_type' => 1])->count();
-        $sell = Advertisement::find()->where(['ad_type' => 2])->count();
+        $result['buy'] = Advertisement::find()->where(['type' => Advertisement::TYPE_BUY])->count();
+        $result['sell'] = Advertisement::find()->where(['type' => Advertisement::TYPE_SELL])->count();
+        $result['chat'] = Advertisement::find()->where(['type' => Advertisement::TYPE_CHAT])->count();
+        $result['finance'] = Advertisement::find()->where(['type' => Advertisement::TYPE_FINANCE])->count();
+        $result['news'] = News::find()->where(['status' => News::STATUS_ACTIVE])->count();
+        return $result;
     }
 
     /**

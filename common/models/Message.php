@@ -64,7 +64,7 @@ class Message extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['discussion_id', 'user_id', 'text', 'created_at', 'created_by'], 'required'],
+            [['discussion_id', 'user_id', 'text'], 'required'],
             [['discussion_id', 'user_id', 'checked', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'string'],
             [['discussion_id'], 'exist', 'skipOnError' => true, 'targetClass' => Discussion::className(), 'targetAttribute' => ['discussion_id' => 'id']],

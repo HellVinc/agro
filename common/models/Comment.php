@@ -65,7 +65,7 @@ class Comment extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['advertisement_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['advertisement_id', 'viewed', 'status'], 'integer'],
             [['text', 'created_at', 'created_by'], 'required'],
             [['text'], 'string'],
             [['advertisement_id'], 'exist', 'skipOnError' => true, 'targetClass' => Advertisement::className(), 'targetAttribute' => ['advertisement_id' => 'id']],

@@ -66,7 +66,7 @@ class Favorites extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['object_id', 'type', 'created_at', 'created_by'], 'required'],
+            [['object_id', 'type'], 'required'],
             [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];
     }

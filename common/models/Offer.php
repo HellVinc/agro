@@ -2,8 +2,8 @@
 
 namespace common\models;
 
-use common\components\helpers\ExtendedActiveRecord;
 use Yii;
+use common\components\helpers\ExtendedActiveRecord;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -16,6 +16,9 @@ use common\components\traits\findRecords;
  * @property integer $id
  * @property string $title
  * @property string $description
+ * @property string $viewed
+ * @property string $checked
+ * @property string $done
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -30,6 +33,16 @@ class Offer extends ExtendedActiveRecord
     use soft;
     use findRecords;
     use errors;
+
+    const TYPE_UNVIEWED = 0;
+    const TYPE_VIEWED = 1;
+
+    const TYPE_UNCHECKED = 0;
+    const TYPE_CHECKED = 1;
+
+    const TYPE_DONE = 0;
+    const TYPE_NOT_DONE = 1;
+
     public function behaviors()
     {
         return [
@@ -61,7 +74,7 @@ class Offer extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description', 'created_at', 'created_by'], 'required'],
+            [['title', 'description'], 'required'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'description'], 'string', 'max' => 255],
         ];
@@ -76,6 +89,9 @@ class Offer extends ExtendedActiveRecord
             'id' => 'ID',
             'title' => 'Title',
             'description' => 'Description',
+            'viewed' => 'Viewed',
+            'checked' => 'Checked',
+            'done' => 'Done',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',

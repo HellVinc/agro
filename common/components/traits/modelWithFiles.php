@@ -2,8 +2,8 @@
 
 namespace common\components\traits;
 
+use common\models\Attachment;
 use Yii;
-use common\models\File;
 
 trait modelWithFiles
 {
@@ -12,7 +12,7 @@ trait modelWithFiles
     public function checkFiles()
     {
         if ($_FILES) {
-            $file = new File();
+            $file = new Attachment();
             $res = $file->saveModel($this);
             if ($res && $res->getErrors()) {
                 $this->addError('error', $res->getErrors());
@@ -26,7 +26,7 @@ trait modelWithFiles
     {
         if ($this->files) {
             //удаляем записи принадлежности
-            $result = File::removeWithParent($this->files);
+            $result = Attachment::removeWithParent($this->files);
             if ($result->errors) {
                 $this->addError('error', $result->errors);
             }

@@ -7,6 +7,10 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
+use common\components\traits\errors;
+use common\components\traits\soft;
+use common\components\traits\findRecords;
 
 /**
  * This is the model class for table "category".
@@ -24,6 +28,12 @@ use yii\db\ActiveRecord;
  */
 class Category extends ExtendedActiveRecord
 {
+    use soft;
+    use findRecords;
+    use errors;
+
+    const TYPE_TRADE = 1;
+    const TYPE_CHAT = 2;
     /**
      * @inheritdoc
      */
@@ -77,6 +87,41 @@ class Category extends ExtendedActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
+    }
+
+    public function oneFields()
+    {
+
+        $result = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'type' => $this->getType(),
+            'status' => $this->status,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+        return $result;
+    }
+
+    public function allFields($result)
+    {
+        $result['models'] = ArrayHelper::toArray($result['models'],
+            [
+                Comment::className() => [
+                    'id',
+                    'name',
+                    'type'
+                ],
+            ]
+        );
+        return $result;
+    }
+
+    public function getType()
+    {
+        return $this->type == Category::TYPE_TRADE ? 'trage' : 'chat';
     }
 
     /**

@@ -5,7 +5,6 @@ use common\components\traits\errors;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
 
-use common\components\helpers\ExtendedActiveRecord;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\BlameableBehavior;
@@ -157,6 +156,9 @@ class User extends ActiveRecord implements IdentityInterface
         return $result;
     }
 
+
+
+    
     /**
      * @inheritdoc
      */
@@ -286,5 +288,21 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserRatings()
+    {
+        return $this->hasMany(UserRating::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRatings()
+    {
+        return $this->hasMany(Rating::className(), ['id' => 'rating_id'])->viaTable('user_rating', ['user_id' => 'id']);
     }
 }
