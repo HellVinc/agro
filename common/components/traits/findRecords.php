@@ -3,25 +3,32 @@
 namespace common\components\traits;
 
 use Yii;
+use yii\debug\models\timeline\DataProvider;
 
 trait findRecords
 {
     # search records
 
-    public function searchAll($request =  null)
+    /**
+     * @param null $request
+     * @return DataProvider
+     */
+    public function searchAll($request = null)
     {
         $this->status = 10;
         if ($request && (!$this->load([soft::lastNameClass(static::className()) => $request]) || !$this->validate())) {
-            return false;
+            return null;
         }
+
         $dataProvider = $this->search();
-        $models = $dataProvider->getModels();
-        
-        return [
-            'models' => $models,
-//            'count_page' => $dataProvider->pagination->pageCount,
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+
+        return $dataProvider;
+
+//        return [
+//            'models' => $models,
+////            'count_page' => $dataProvider->pagination->pageCount,
+//            'count_model' => $dataProvider->getTotalCount()
+//        ];
 
     }
 }

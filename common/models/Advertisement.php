@@ -11,12 +11,14 @@ use yii\db\ActiveRecord;
 use common\components\traits\errors;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "advertisement".
  *
  * @property integer $id
- * @property integer $category_id
  * @property integer $tag_id
+ * @property integer $category_id
  * @property string $title
  * @property string $text
  * @property string $latitude
@@ -28,8 +30,12 @@ use common\components\traits\findRecords;
  * @property integer $created_by
  * @property integer $updated_by
  *
- * @property Category $category
+ * @property integer $category
+ * @property integer $photo
+ *
+ * @property Tag $tag
  * @property Comment[] $comments
+ * @property Attachment[] $attachments
  */
 class Advertisement extends ExtendedActiveRecord
 {
@@ -38,10 +44,16 @@ class Advertisement extends ExtendedActiveRecord
     use errors;
     use modelWithFiles;
 
+    public $category_id;
+    public $photo;
+
+    const NOT_DELETED = 10;
+    const DELETED = 0;
+
     const TYPE_BUY = 1;
     const TYPE_SELL = 2;
     const TYPE_CHAT = 3;
-    const TYPE_FINANCE = 3;
+    const TYPE_FINANCE = 4;
 
     public function behaviors()
     {
@@ -91,10 +103,9 @@ class Advertisement extends ExtendedActiveRecord
     {
         return [
             'id' => 'ID',
-            'category_id' => 'Category ID',
             'title' => 'Title',
             'text' => 'Text',
-            'ad_type' => 'Ad Type',
+            'type' => 'Type',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -102,6 +113,52 @@ class Advertisement extends ExtendedActiveRecord
             'updated_by' => 'Updated By',
         ];
     }
+
+    public function oneFields()
+    {
+
+        $result = [
+            'id' => $this->id,
+            'title' => $this->title,
+            'text' => $this->text,
+            'type' => $this->type,
+            'status' => $this->status,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'files' => $this->attachments
+        ];
+        return $result;
+    }
+
+    public static function allFields($result)
+    {
+        return ArrayHelper::toArray($result,
+            [
+                Advertisement::className() => [
+                    'id',
+                    'title',
+                    'text',
+                    'type',
+                    'created_at',
+                    'updated_at',
+                    'created_by',
+                    'attachments'
+                ],
+            ]
+        );
+    }
+
+    public function getPhotoPath()
+    {
+        if ($this->photo) {
+            return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
+        }
+            return Yii::$app->request->getHostInfo() . '/photo/books/empty_book.jpg';
+
+    }
+
 
     public function getBuyCount()
     {
@@ -113,12 +170,9 @@ class Advertisement extends ExtendedActiveRecord
         return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_SELL])->count();
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCategory()
+    public function getAttachments()
     {
-        return $this->hasOne(Category::className(), ['id' => 'tag_id']);
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::NOT_DELETED]);
     }
 
     /**

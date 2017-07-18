@@ -23,7 +23,7 @@ class NewsSearch extends News
     {
         return [
             [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'test', 'url'], 'safe'],
+            [['title', 'text', 'url'], 'safe'],
         ];
     }
 
@@ -77,7 +77,7 @@ class NewsSearch extends News
         ]);
 
         $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'test', $this->test])
+            ->andFilterWhere(['like', 'text', $this->text])
             ->andFilterWhere(['like', 'url', $this->url]);
 
         return $dataProvider;

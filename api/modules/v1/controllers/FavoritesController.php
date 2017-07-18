@@ -38,7 +38,7 @@ class FavoritesController extends Controller
     {
         $model = new FavoritesSearch();
         $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? $model->allFields($result) : $model->getErrors();
+        return $result ? Favorites::allFields($result) : $model->getErrors();
 
     }
 

@@ -15,7 +15,7 @@ use yii\db\ActiveRecord;
  * This is the model class for table "attachment".
  *
  * @property integer $id
- * @property integer $parent_id
+ * @property integer $object_id
  * @property string $table
  * @property string $extension
  * @property string $url
@@ -27,6 +27,8 @@ use yii\db\ActiveRecord;
  */
 class Attachment extends ActiveRecord
 {
+    const NOT_DELETED = 10;
+    const DELETED = 0;
 
     use soft;
     use findRecords;
@@ -64,8 +66,8 @@ class Attachment extends ActiveRecord
     public function rules()
     {
         return [
-            [['parent_id', 'table', 'extension', 'url'], 'required'],
-            [['parent_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['`object_id', 'table', 'extension', 'url'], 'required'],
+            [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['table', 'extension', 'url'], 'string', 'max' => 255],
         ];
     }
@@ -84,7 +86,7 @@ class Attachment extends ActiveRecord
         if (!$result) {
             return $file->addError('error', 'File not saved');
         }
-        $file->parent_id = $id;
+        $file->object_id = $id;
         $file->table = $table;
         $file->created_at = time();
         $file->created_by = Yii::$app->user->id;
@@ -135,13 +137,13 @@ class Attachment extends ActiveRecord
 
     public function getFilePath()
     {
-        return Yii::$app->request->hostInfo . "/files/" . $this->table . "/" . $this->parent_id ."/". $this->url;
+        return Yii::$app->request->hostInfo . "/files/" . $this->table . "/" . $this->object_id ."/". $this->url;
     }
 
     public function getFileDir()
     {
 
-        return dirname(Yii::getAlias('@app')) . '/files/' . $this->table . "/" . $this->parent_id ."/". $this->url;
+        return dirname(Yii::getAlias('@app')) . '/files/' . $this->table . "/" . $this->object_id ."/". $this->url;
     }
 
     /**
@@ -167,7 +169,7 @@ class Attachment extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'parent_id' => 'Parent ID',
+            'object_id' => 'Object ID',
             'table' => 'Table',
             'extension' => 'Extension',
             'url' => 'Url',

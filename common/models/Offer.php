@@ -103,14 +103,6 @@ class Offer extends ExtendedActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getOfferTags()
-    {
-        return $this->hasMany(OfferTag::className(), ['offer_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getTags()
     {
         return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('offer_tag', ['offer_id' => 'id']);

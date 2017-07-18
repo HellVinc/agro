@@ -10,6 +10,7 @@ use common\components\traits\findRecords;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "tag".
@@ -24,7 +25,6 @@ use yii\db\ActiveRecord;
  * @property integer $updated_by
  *
  * @property Advertisement[] $advertisements
- * @property Discussion[] $discussions
  * @property Category $category
  */
 class Tag extends ExtendedActiveRecord
@@ -59,6 +59,11 @@ class Tag extends ExtendedActiveRecord
         ];
     }
 
+//    public function fields()
+//    {
+//        return ['name'];
+//    }
+
     /**
      * @inheritdoc
      */
@@ -90,20 +95,47 @@ class Tag extends ExtendedActiveRecord
         ];
     }
 
+    public static function getFields($models, array $attributes = ['id', 'Name', 'category_id']){
+        return ArrayHelper::toArray($models, [Tag::className() => $attributes]);
+    }
+
+    public static function allFields($models)
+    {
+        return ArrayHelper::toArray($models,
+
+            [
+                Tag::className() => [
+                    'id',
+                    'Name',
+                    'category_id'
+                ],
+            ]
+        );
+    }
+
+//    public function fields()
+//    {
+//        return [
+//            'id',
+//            'Name',
+//            'category_id'
+//        ];
+//    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return '#'.$this->name;
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getAdvertisements()
     {
         return $this->hasMany(Advertisement::className(), ['tag_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getDiscussions()
-    {
-        return $this->hasMany(Discussion::className(), ['tag_id' => 'id']);
     }
 
     /**

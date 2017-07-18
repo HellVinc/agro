@@ -7,6 +7,7 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use common\components\traits\errors;
 use common\components\traits\soft;
@@ -25,6 +26,8 @@ use common\components\traits\findRecords;
  * @property integer $updated_by
  *
  * @property Tag[] $tags
+ * @property Advertisement[] $advertisementsBuy
+
  */
 class Category extends ExtendedActiveRecord
 {
@@ -34,6 +37,10 @@ class Category extends ExtendedActiveRecord
 
     const TYPE_TRADE = 1;
     const TYPE_CHAT = 2;
+    const TYPE_FINANCE = 3;
+
+    const DEF_F = ['id', 'Name', 'category_id'];
+
     /**
      * @inheritdoc
      */
@@ -105,23 +112,61 @@ class Category extends ExtendedActiveRecord
         return $result;
     }
 
-    public function allFields($result)
+    public static function allFields($result)
     {
-        $result['models'] = ArrayHelper::toArray($result['models'],
+
+        return ArrayHelper::toArray($result,
             [
-                Comment::className() => [
+                Category::className() => [
                     'id',
-                    'name',
-                    'type'
+                    'Name',
+                    'tags' => function($model){
+                        /** @var $model Category */
+                        return Tag::getFields($model->tags, self::DEF_F);
+//                        return $model->getTags()->select('name')->column();
+
+                    }
                 ],
             ]
         );
-        return $result;
+    }
+
+    public static function getFields($models)
+    {
+
+        return ArrayHelper::toArray($models,
+            [
+                Category::className() => [
+                    'id',
+                    'Name',
+//                    'tags' => function($model){
+//            /** @var $model Category */
+//                        return Tag::allFields($model->getTags()->all());
+////                        return $model->getTags()->select('name')->column();
+//
+//                    }
+                ],
+            ]
+        );
     }
 
     public function getType()
     {
-        return $this->type == Category::TYPE_TRADE ? 'trage' : 'chat';
+        if ($this->type == Category::TYPE_TRADE) {
+            return Category::TYPE_TRADE;
+        }
+        if ($this->type == Category::TYPE_CHAT) {
+            return $this->type == Category::TYPE_CHAT;
+        }
+        return $this->type == Category::TYPE_FINANCE;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return '#'.$this->name;
     }
 
     /**
@@ -130,5 +175,13 @@ class Category extends ExtendedActiveRecord
     public function getTags()
     {
         return $this->hasMany(Tag::className(), ['category_id' => 'id']);
+    }
+
+
+    public function getAdvertisementsBuy()
+    {
+        return $this->hasMany(Advertisement::className(), ['tag_id' => 'id'])
+            ->viaTable('tag', ['category_id' => 'id'])
+            ->where(['type' => Advertisement::TYPE_BUY])->count();
     }
 }

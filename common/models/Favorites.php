@@ -16,11 +16,9 @@ use yii\helpers\ArrayHelper;
  * This is the model class for table "favorites".
  *
  * @property integer $id
- * @property integer $parent_id
+ * @property integer $object_id
  * @property string $table
  * @property integer $status
- * @property integer $type
- * @property integer $object_id
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $created_by
@@ -31,9 +29,6 @@ class Favorites extends ExtendedActiveRecord
     use soft;
     use findRecords;
     use errors;
-
-    const TYPE_DISCUSSION = 1;
-    const TYPE_ADVIRTESEMENT = 2;
 
     public function behaviors()
     {
@@ -66,7 +61,7 @@ class Favorites extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['object_id', 'type'], 'required'],
+            [['object_id', 'table'], 'required'],
             [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];
     }
@@ -79,7 +74,7 @@ class Favorites extends ExtendedActiveRecord
         return [
             'id' => 'ID',
             'object_id' => 'Object ID',
-            'type' => 'Type',
+            'table' => 'Table',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -88,31 +83,14 @@ class Favorites extends ExtendedActiveRecord
         ];
     }
 
-    public function getObject(){
-
-        if($this->type == self::TYPE_DISCUSSION){
-            return Discussion::findOne($this->object_id);
-        }
-
-        if($this->type == self::TYPE_ADVIRTESEMENT){
-            return Advertisement::findOne($this->object_id);
-        }
-
-        return null;
-    }
-
-    public function getOneFavorite()
-    {
-        $class = $this->table;
-        News::className();
-    }
 
     public function oneFields()
     {
 
         $result = [
             'id' => $this->id,
-            'name' => $this->name,
+            'object_id' => $this->object_id,
+            'table' => $this->table,
             'status' => $this->status,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
@@ -122,9 +100,9 @@ class Favorites extends ExtendedActiveRecord
         return $result;
     }
 
-    public function allFields($result)
+    public static function allFields($result)
     {
-        $result['models'] = ArrayHelper::toArray($result['models'],
+        return ArrayHelper::toArray($result,
             [
                 Category::className() => [
                     'id',
@@ -132,6 +110,5 @@ class Favorites extends ExtendedActiveRecord
                 ],
             ]
         );
-        return $result;
     }
 }

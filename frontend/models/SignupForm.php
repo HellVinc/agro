@@ -22,7 +22,7 @@ class SignupForm extends Model
             ['phone', 'trim'],
             ['phone', 'required'],
             ['phone', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This phone has already been taken.'],
-            ['phone', 'integer', 'min' => 8],
+            ['phone', 'integer', 'min' => 10],
 
 //            ['email', 'trim'],
 //            ['email', 'required'],

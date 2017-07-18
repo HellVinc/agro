@@ -2,6 +2,7 @@
 
 namespace common\models\search;
 
+use common\models\Tag;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -23,7 +24,7 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'category_id', 'tag_id', 'deal_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'tag_id', 'category_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
@@ -67,13 +68,13 @@ class AdvertisementSearch extends Advertisement
             return $dataProvider;
         }
 
+        $query->joinWith(Tag::tableName());
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'category_id' => $this->category_id,
+            'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
-            'deal_type' => $this->deal_type,
-            'status' => $this->status,
+            'type' => $this->type,
+            'advertisement.status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
@@ -83,7 +84,8 @@ class AdvertisementSearch extends Advertisement
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'text', $this->text])
             ->andFilterWhere(['like', 'latitude', $this->latitude])
-            ->andFilterWhere(['like', 'longitude', $this->longitude]);
+            ->andFilterWhere(['like', 'longitude', $this->longitude])
+            ->andFilterWhere(['like', 'tag.category_id',$this->category_id]);
 
         return $dataProvider;
     }

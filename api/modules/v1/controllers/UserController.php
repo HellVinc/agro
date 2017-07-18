@@ -4,6 +4,7 @@ namespace api\modules\v1\controllers;
 
 use common\models\Advertisement;
 use common\models\Category;
+use common\models\LoginForm;
 use common\models\News;
 use common\models\User;
 use frontend\models\SignupForm;
@@ -99,7 +100,7 @@ class UserController extends Controller
 
     public function actionTest()
     {
-
+        return Category::findOne(1)->advertisementsBuy;
     }
 
     /**
@@ -108,8 +109,11 @@ class UserController extends Controller
     public function actionAll()
     {
         $model = new UserSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? $model->all_fields($result) : $model->getErrors();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => User::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
     }
 
     public function actionOne()
@@ -134,15 +138,45 @@ class UserController extends Controller
      */
     public function actionSignup()
     {
-        $model = new SignupForm();
-        if ($model->load(['SignupForm' => Yii::$app->request->post()])) {
-            if ($user = $model->signup()) {
-                if (Yii::$app->getUser()->login($user)) {
-                    return $this->goHome();
-                }
-            }
+        $model = new User();
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            return $model->signup();
         }
         return $model->errors;
+    }
+
+    public function actionLogin()
+    {
+        $model = new LoginForm();
+        if ($model->load(Yii::$app->request->post(), "")) {
+            if ($model->login()) {
+                $result = Yii::$app->user->identity->one_fields();
+                $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
+                return $result;
+
+            } else {
+                return ['error' => Yii::t('msg/error', 'Invalid login or password')];
+            }
+        }
+        return ['error' => Yii::t('msg/error', 'Error. Bad request.')];
+    }
+
+    /**
+     * Updates an existing User model.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionUpdate()
+    {
+        $model = User::findOne(['auth_key' => Yii::$app->request->post('auth_key')]);
+
+        if ($model->load(Yii::$app->request->post()) && $model->saveModel() && $model->checkFiles()) {
+            return [
+                'user' => $model,
+            ];
+        }
+        return ['errors' => $model->errors];
+
     }
 
     protected function findModel($id)

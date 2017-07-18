@@ -2,6 +2,7 @@
 namespace common\models;
 
 use common\components\traits\errors;
+use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
 
@@ -22,7 +23,6 @@ use yii\web\IdentityInterface;
  * @property string $last_name
  * @property string $password_hash
  * @property string $password_reset_token
- * @property string $email
  * @property string $phone
  * @property string $role
  * @property string $auth_key
@@ -35,6 +35,7 @@ use yii\web\IdentityInterface;
  * @property string $password write-only password
  *
  * @property  $photoPath
+ * @property Rating[] $ratings
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -42,7 +43,10 @@ class User extends ActiveRecord implements IdentityInterface
     use soft;
     use findRecords;
     use errors;
+    use modelWithFiles;
 
+    public $password;
+    public $photo;
 
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
@@ -55,6 +59,16 @@ class User extends ActiveRecord implements IdentityInterface
     public static function tableName()
     {
         return '{{%user}}';
+    }
+
+    public function fields()
+    {
+        return [
+            'first_name',
+            'last_name',
+            'Phone',
+            'auth_key',
+        ];
     }
 
     /**
@@ -84,15 +98,31 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
+            ['phone', 'trim'],
             [['phone'], 'required', 'except' => ['change_pass']],
-            ['email', 'trim'],
-            ['email', 'email'],
-            ['password', 'string', 'min' => 6],
+            ['phone', 'unique', 'message' => 'This phone has already been taken.'],
+            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-
+            ['password', 'required'],
+            ['password', 'string', 'min' => 6],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
+    }
+
+
+    /**
+     * Signs user up.
+     *
+     * @return User|null the saved model or null if saving fails
+     */
+
+    public function signup()
+    {
+        $this->setPassword($this->password);
+        $this->generateAuthKey();
+        $this->save();
+        return $this;
     }
 
     public function getPhone()
@@ -104,9 +134,9 @@ class User extends ActiveRecord implements IdentityInterface
     {
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/photo/users/' . $this->id . '/' . $this->photo;
-        } else {
-            return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
         }
+            return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
+
     }
 
     public function getPhotoDir()
@@ -114,7 +144,7 @@ class User extends ActiveRecord implements IdentityInterface
         return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
     }
 
-    public function one_fields()
+    public function oneFields()
     {
 
         $result = [
@@ -122,7 +152,6 @@ class User extends ActiveRecord implements IdentityInterface
                 'id' => $this->id,
                 'role' => $this->role,
                 'phone' => $this->phone,
-                'email' => $this->email,
                 'photo' => $this->photoPath,
                 'first_name' => $this->first_name,
                 'second_name' => $this->middle_name,
@@ -136,9 +165,9 @@ class User extends ActiveRecord implements IdentityInterface
         return $result;
     }
 
-    public function all_fields($result)
+    public static function allFields($result)
     {
-        $result['models'] = ArrayHelper::toArray($result['models'],
+        return ArrayHelper::toArray($result,
 
             [
                 User::className() => [
@@ -149,11 +178,10 @@ class User extends ActiveRecord implements IdentityInterface
                     'role',
                     'photoPath',
                     'Phone',
-                    'email',
+                    'rating'
                 ],
             ]
         );
-        return $result;
     }
 
 
@@ -168,7 +196,9 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $token
+     * @param null $type
+     * @throws NotSupportedException
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
@@ -219,6 +249,21 @@ class User extends ActiveRecord implements IdentityInterface
         $timestamp = (int) substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         return $timestamp + $expire >= time();
+    }
+
+    public function getRating()
+    {
+        $result = 0;
+        $ratings = $this->ratings;
+        foreach ($ratings as $one) {
+            $result += $one['rating'];
+        }
+        $count = $this->getRatings()->count();
+        if($count == 0)
+        {
+            return 0;
+        }
+        return $result/$this->getRatings()->count();
     }
 
     /**
@@ -293,16 +338,8 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUserRatings()
-    {
-        return $this->hasMany(UserRating::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getRatings()
     {
-        return $this->hasMany(Rating::className(), ['id' => 'rating_id'])->viaTable('user_rating', ['user_id' => 'id']);
+        return $this->hasMany(Rating::className(), ['user_id' => 'id']);
     }
 }

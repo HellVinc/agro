@@ -16,7 +16,6 @@ use Yii;
  * @property integer $created_by
  * @property integer $updated_by
  *
- * @property UserRating[] $userRatings
  * @property User[] $users
  */
 class Rating extends ExtendedActiveRecord
@@ -27,6 +26,11 @@ class Rating extends ExtendedActiveRecord
     public static function tableName()
     {
         return 'rating';
+    }
+
+    public function fields()
+    {
+        return ['rating'];
     }
 
     /**
@@ -59,16 +63,8 @@ class Rating extends ExtendedActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUserRatings()
+    public function getUser()
     {
-        return $this->hasMany(UserRating::className(), ['rating_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getUsers()
-    {
-        return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('user_rating', ['rating_id' => 'id']);
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 }

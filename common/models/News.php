@@ -30,6 +30,7 @@ class News extends ExtendedActiveRecord
     use soft;
     use findRecords;
     use errors;
+
     public function behaviors()
     {
         return [
@@ -106,11 +107,11 @@ class News extends ExtendedActiveRecord
         return $result;
     }
 
-    public function allFields($result)
+    public static function allFields($result)
     {
-        $result['models'] = ArrayHelper::toArray($result['models'],
+        return ArrayHelper::toArray($result,
             [
-                Category::className() => [
+                News::className() => [
                     'id',
                     'title',
                     'text',
@@ -118,7 +119,6 @@ class News extends ExtendedActiveRecord
                 ],
             ]
         );
-        return $result;
     }
 
 }

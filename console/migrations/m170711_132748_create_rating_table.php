@@ -15,6 +15,7 @@ class m170711_132748_create_rating_table extends Migration
         $this->createTable('rating', [
             'id' => $this->primaryKey(),
             'rating' => $this->integer()->notNull(),
+            'user_id' => $this->integer()->notNull(),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

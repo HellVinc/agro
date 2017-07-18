@@ -15,7 +15,7 @@ class m170707_122240_create_favorites_table extends Migration
         $this->createTable('favorites', [
             'id' => $this->primaryKey(),
             'object_id' => $this->integer()->notNull(),
-            'type' => $this->integer()->notNull(),
+            'table' => $this->string()->notNull(),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

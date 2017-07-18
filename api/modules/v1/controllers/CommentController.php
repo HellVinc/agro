@@ -38,7 +38,7 @@ class CommentController extends Controller
     {
         $model = new CommentSearch();
         $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? $model->allFields($result) : $model->getErrors();
+        return $result ? Comment::allFields($result) : $model->getErrors();
     }
 
     /**

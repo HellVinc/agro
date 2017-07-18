@@ -37,7 +37,7 @@ class AdvertisementController extends Controller
     {
         $model = new AdvertisementSearch();
         $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? $model->allFields($result) : $model->getErrors();
+        return $result ? Advertisement::allFields($result) : $model->getErrors();
     }
 
     /**

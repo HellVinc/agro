@@ -106,9 +106,9 @@ class Comment extends ExtendedActiveRecord
         return $result;
     }
 
-    public function allFields($result)
+    public static function allFields($result)
     {
-        $result['models'] = ArrayHelper::toArray($result['models'],
+        return ArrayHelper::toArray($result,
             [
                 Comment::className() => [
                     'id',
@@ -117,7 +117,6 @@ class Comment extends ExtendedActiveRecord
                 ],
             ]
         );
-        return $result;
     }
 
     /**

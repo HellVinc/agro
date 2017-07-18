@@ -17,17 +17,17 @@ class TagController extends Controller
     /**
      * @inheritdoc
      */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
+//    public function behaviors()
+//    {
+//        return [
+//            'verbs' => [
+//                'class' => VerbFilter::className(),
+//                'actions' => [
+//                    'delete' => ['POST'],
+//                ],
+//            ],
+//        ];
+//    }
 
     /**
      * Lists all Tag models.
@@ -37,18 +37,18 @@ class TagController extends Controller
     {
         $model = new TagSearch();
         $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? $model->allFields($result) : $model->getErrors();
+        return $result ? Tag::allFields($result) : $model->getErrors();
     }
 
-    /**
-     * Displays a single Tag model.
-     * @return mixed
-     */
-    public function actionOne()
-    {
-        $model = $this->findModel(Yii::$app->request->get('id'));
-        return $model->oneFields();
-    }
+//    /**
+//     * Displays a single Tag model.
+//     * @return mixed
+//     */
+//    public function actionOne()
+//    {
+//        $model = $this->findModel(Yii::$app->request->get('id'));
+//        return $model->oneFields();
+//    }
 
     /**
      * Creates a new Tag model.
@@ -61,9 +61,9 @@ class TagController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
-        } else {
-            return ['errors' => $model->errors];
         }
+
+        return ['errors' => $model->errors];
     }
 
     /**
