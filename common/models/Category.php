@@ -150,6 +150,11 @@ class Category extends ExtendedActiveRecord
         );
     }
 
+    public function setType($type)
+    {
+        return $this->type = $type;
+    }
+
     public function getType()
     {
         if ($this->type == Category::TYPE_TRADE) {
