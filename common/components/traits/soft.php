@@ -8,14 +8,6 @@ trait soft
 {
     # class name
 
-    public static function lastNameClass($class)
-    {
-        $array = explode('\\', $class);
-        return array_pop($array);
-    }
-
-    # load
-
     public function load($data, $formName = null)
     {
         $className = $this::lastNameClass(static::className());
@@ -25,6 +17,14 @@ trait soft
         }
 
         return parent::load([$className => $data], $formName);
+    }
+
+    # load
+
+    public static function lastNameClass($class)
+    {
+        $array = explode('\\', $class);
+        return array_pop($array);
     }
 
     public function remove()
@@ -39,10 +39,10 @@ trait soft
 
     public function saveModel()
     {
-        if($this->isNewRecord){
+        if ($this->isNewRecord) {
             $this->created_by = Yii::$app->user->id;
             $this->created_at = time();
-        }else{
+        } else {
             $this->updated_by = Yii::$app->user->id;
             $this->updated_at = time();
         }

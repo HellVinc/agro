@@ -5,10 +5,10 @@ use common\components\traits\errors;
 use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
+use common\components\helpers\ExtendedActiveRecord;
 
 use Yii;
 use yii\base\NotSupportedException;
-use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -37,9 +37,8 @@ use yii\web\IdentityInterface;
  * @property  $photoPath
  * @property Rating[] $ratings
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends ExtendedActiveRecord implements IdentityInterface
 {
-
     use soft;
     use findRecords;
     use errors;
@@ -84,11 +83,6 @@ class User extends ActiveRecord implements IdentityInterface
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
                 ]
             ],
-//            'blameable' => [
-//                'class' => BlameableBehavior::className(),
-//                'createdByAttribute' => 'created_by',
-//                'updatedByAttribute' => 'updated_by'
-//            ]
         ];
     }
 
@@ -103,8 +97,9 @@ class User extends ActiveRecord implements IdentityInterface
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-            ['password', 'required'],
+            ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],
+            ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
@@ -146,7 +141,6 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function oneFields()
     {
-
         $result = [
             'user' => [
                 'id' => $this->id,
@@ -167,8 +161,8 @@ class User extends ActiveRecord implements IdentityInterface
 
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-
+        return ArrayHelper::toArray(
+            $result,
             [
                 User::className() => [
                     'id',
@@ -199,6 +193,8 @@ class User extends ActiveRecord implements IdentityInterface
      * @param mixed $token
      * @param null $type
      * @throws NotSupportedException
+     *
+     * @return null
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
@@ -333,6 +329,11 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    function wtf()
+    {
+        return 'wtf?';
     }
 
     /**

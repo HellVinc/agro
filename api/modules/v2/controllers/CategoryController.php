@@ -64,7 +64,7 @@ class CategoryController extends Controller
         $model = new Category();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return Category::allFields($model);
+            return $model->oneFields();
         } else {
             return ['errors' => $model->errors];
         }
@@ -82,7 +82,7 @@ class CategoryController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
-                'category' => $model,
+                'category' => $model->oneFields(),
             ];
         } else {
             return ['errors' => $model->errors()];
@@ -92,11 +92,12 @@ class CategoryController extends Controller
     /**
      * Deletes an existing Category model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param $id
      * @return mixed
      */
     public function actionDelete($id)
     {
-        return $this->findModel($id)->delete(true);
+        return $this->findModel($id)->delete();
     }
 
     /**

@@ -139,6 +139,7 @@ class UserController extends Controller
     public function actionSignup()
     {
         $model = new User();
+        $model->scenario = 'signUp';
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             return $model->signup();
         }
