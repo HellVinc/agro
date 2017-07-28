@@ -10,6 +10,8 @@ use yii\db\ActiveRecord;
 use common\components\traits\errors;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "offer".
  *
@@ -40,8 +42,8 @@ class Offer extends ExtendedActiveRecord
     const TYPE_UNCHECKED = 0;
     const TYPE_CHECKED = 1;
 
-    const TYPE_DONE = 0;
-    const TYPE_NOT_DONE = 1;
+    const TYPE_NOT_DONE = 0;
+    const TYPE_DONE = 1;
 
     public function behaviors()
     {
@@ -75,8 +77,16 @@ class Offer extends ExtendedActiveRecord
     {
         return [
             [['title', 'description'], 'required'],
-            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['done', 'checked', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'description'], 'string', 'max' => 255],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            ['done', 'default', 'value' => self::TYPE_NOT_DONE],
+            ['done', 'in', 'range' => [self::TYPE_DONE, self::TYPE_NOT_DONE]],
+            ['checked', 'default', 'value' => self::TYPE_UNCHECKED],
+            ['checked', 'in', 'range' => [self::TYPE_UNCHECKED, self::TYPE_CHECKED]],
+            ['viewed', 'default', 'value' => self::TYPE_UNVIEWED],
+            ['viewed', 'in', 'range' => [self::TYPE_UNVIEWED, self::TYPE_VIEWED]],
         ];
     }
 
@@ -98,6 +108,31 @@ class Offer extends ExtendedActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
+    }
+
+    /**
+     * @param $models
+     * @param array $attributes
+     * @return array
+     */
+    public static function getFields($models, array $attributes = [
+        'id', 'title', 'description', 'viewed', 'checked', 'done', 'status',
+    ]) {
+        return ArrayHelper::toArray(
+            $models, [self::className() => $attributes]
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        $result = [
+            self::tableName() => self::getFields($this),
+            'label' => $this->attributeLabels()
+        ];
+        return $result;
     }
 
     /**

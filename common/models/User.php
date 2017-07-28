@@ -233,7 +233,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         // 'second_name' => $this->middle_name,
         $result = [
-            'user' => self::getFields($this, [
+            self::tableName() => self::getFields($this, [
                 'id', 'role', 'phone', 'photo', 'first_name', 'middle_name', 'last_name', 'created_at', 'updated_at',
             ]),
             'label' => $this->attributeLabels()

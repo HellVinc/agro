@@ -2,18 +2,18 @@
 
 namespace api\modules\v2\controllers;
 
-use common\models\Category;
-use common\models\search\CategorySearch;
 use Yii;
-use yii\filters\VerbFilter;
+use common\models\Offer;
+use common\models\search\OfferSearch;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
 /**
- * CategoryController implements the CRUD actions for Category model.
+ * OfferController implements the CRUD actions for Offer model.
  */
-class CategoryController extends Controller
+class OfferController extends Controller
 {
     /**
      * @inheritdoc
@@ -25,7 +25,7 @@ class CategoryController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'all' => ['get'],
-                    'create' => ['post'],
+                    //'create' => ['post'],
                     'update' => ['post'],
                     'delete' => ['delete'],
                 ],
@@ -39,43 +39,33 @@ class CategoryController extends Controller
      */
     public function actionAll()
     {
-        $model = new CategorySearch();
+        $model = new OfferSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
 
         return [
-            'models' => Category::allFields($dataProvider->getModels()),
+            'models' => Offer::getFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()
         ];
     }
 
 //    /**
-//     * Displays a single Category model.
+//     * Creates a new Offer model.
+//     * If creation is successful, the browser will be redirected to the 'view' page.
 //     * @return mixed
 //     */
-//    public function actionOne()
+//    public function actionCreate()
 //    {
-//        $model = $this->findModel(Yii::$app->request->get('id'));
-//        return $model->oneFields();
+//        $model = new Offer();
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return $model->oneFields();
+//        } else {
+//            return ['errors' => $model->errors];
+//        }
 //    }
 
     /**
-     * Creates a new Category model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new Category();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->oneFields();
-        } else {
-            return ['errors' => $model->errors];
-        }
-    }
-
-    /**
-     * Updates an existing Category model.
+     * Updates an existing Offer model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -85,16 +75,15 @@ class CategoryController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model->oneFields(),
-            ];
+            return $model->oneFields();
         } else {
             return ['errors' => $model->errors()];
         }
     }
 
+
     /**
-     * Deletes an existing Category model.
+     * Deletes an existing Offer model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
      * @return mixed
@@ -105,15 +94,15 @@ class CategoryController extends Controller
     }
 
     /**
-     * Finds the Category model based on its primary key value.
+     * Finds the Offer model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Category the loaded model
+     * @return Offer the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Category::findOne($id)) !== null) {
+        if (($model = Offer::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
             } else {
@@ -123,5 +112,4 @@ class CategoryController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
-
 }

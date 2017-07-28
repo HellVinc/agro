@@ -23,7 +23,7 @@ class OfferSearch extends Offer
     public function rules()
     {
         return [
-            [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'done', 'checked', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'description'], 'safe'],
         ];
     }
@@ -71,6 +71,9 @@ class OfferSearch extends Offer
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,
+            'done' => $this->done,
+            'checked' => $this->checked,
+            'viewed' => $this->viewed,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
