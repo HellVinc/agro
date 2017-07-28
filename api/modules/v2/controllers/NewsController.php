@@ -1,10 +1,11 @@
 <?php
 
-namespace api\modules\v1\controllers;
+namespace api\modules\v2\controllers;
 
 use Yii;
 use common\models\News;
 use common\models\search\NewsSearch;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -17,17 +18,21 @@ class NewsController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
-//        ];
-//    }
+    public function behaviors()
+    {
+        return ArrayHelper::merge(parent::behaviors(), [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'all' => ['get'],
+                    'create' => ['post'],
+                    'update' => ['post'],
+                    'delete' => ['delete'],
+                ],
+            ],
+        ]);
+    }
+
 
     /**
      * Lists all News models.
@@ -36,19 +41,14 @@ class NewsController extends Controller
     public function actionAll()
     {
         $model = new NewsSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? News::getFields($result) : $model->getErrors();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+
+        return [
+            'models' => News::getFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
     }
 
-    /**
-     * Displays a single News model.
-     * @return mixed
-     */
-    public function actionOne()
-    {
-        $model = $this->findModel(Yii::$app->request->get('id'));
-        return $model->oneFields();
-    }
 
     /**
      * Creates a new News model.
@@ -60,7 +60,7 @@ class NewsController extends Controller
         $model = new News();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
+            return $model->oneFields();
         } else {
             return ['errors' => $model->errors];
         }
@@ -77,9 +77,7 @@ class NewsController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model,
-            ];
+            return $model->oneFields();
         } else {
             return ['errors' => $model->errors()];
         }

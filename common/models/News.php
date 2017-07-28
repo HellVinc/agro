@@ -68,6 +68,7 @@ class News extends ExtendedActiveRecord
     public function rules()
     {
         return [
+            [['text', 'url', 'title'], 'required'],
             [['text', 'url'], 'string'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title'], 'string', 'max' => 255],
@@ -90,35 +91,43 @@ class News extends ExtendedActiveRecord
             'updated_by' => 'Updated By',
         ];
     }
-    public function oneFields()
-    {
 
-        $result = [
-            'id' => $this->id,
-            'title' => $this->title,
-            'text' => $this->text,
-            'url' => $this->url,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
-        return $result;
-    }
 
-    public static function allFields($result)
-    {
-        return ArrayHelper::toArray($result,
-            [
-                News::className() => [
-                    'id',
-                    'title',
-                    'text',
-                    'url'
-                ],
-            ]
+    /**
+     * @param $models
+     * @param array $attributes
+     * @return array
+     */
+    public static function getFields($models, array $attributes = ['id', 'title', 'text', 'url']) {
+        return ArrayHelper::toArray(
+            $models, [self::className() => $attributes]
         );
     }
 
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return self::getFields($this, [
+            'id',
+            'title',
+            'text',
+            'url',
+            'status',
+            'created_by',
+            'updated_by',
+            'created_at',
+            'updated_at',
+        ]);
+    }
+
+//    /**
+//     * @param $result
+//     * @return array
+//     */
+//    public static function allFields($result)
+//    {
+//        return self::getFields($result);
+//    }
 }
