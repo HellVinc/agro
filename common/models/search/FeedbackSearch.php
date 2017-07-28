@@ -24,6 +24,7 @@ class FeedbackSearch extends Feedback
     {
         return [
             [['id', 'rating', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['viewed'], 'boolean'],
             [['message'], 'safe'],
         ];
     }

@@ -34,7 +34,6 @@ class UserController extends Controller
 //            'class' => VerbFilter::className(),
 //            'actions' => [
 //                'all' => ['get'],
-//                'create' => ['post'],
 //                'update' => ['post'],
 //                'delete' => ['delete'],
 //            ],

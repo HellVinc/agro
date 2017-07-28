@@ -15,8 +15,9 @@ use common\components\traits\findRecords;
  *
  * @property integer $id
  * @property string $message
- * @property integer $viewed
+ * @property boolean $viewed
  * @property integer $status
+ * @property integer $user_id
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $created_by
@@ -59,9 +60,10 @@ class Feedback extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['message'], 'required'],
+            [['user_id', 'message'], 'required'],
             [['message'], 'string'],
-            [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['viewed'], 'boolean'],
+            [['user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];
     }
 

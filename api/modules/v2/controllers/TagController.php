@@ -2,12 +2,12 @@
 
 namespace api\modules\v2\controllers;
 
-use Yii;
 use common\models\Tag;
-use common\models\search\TagSearch;
+use Yii;
+use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * TagController implements the CRUD actions for Tag model.
@@ -17,32 +17,34 @@ class TagController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
+    public function behaviors()
+    {
+        return ArrayHelper::merge(parent::behaviors(), [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'create' => ['post'],
+                    'update' => ['post'],
+                    'delete' => ['delete'],
+                ],
+            ],
+        ]);
+    }
+
+//    /**
+//     * Lists all Tag models.
+//     * @return mixed
+//     */
+//    public function actionAll()
 //    {
+//        $model = new TagSearch();
+//        $dataProvider = $model->searchAll(Yii::$app->request->get());
+//
 //        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
+//            'models' => Tag::allFields($dataProvider->getModels()),
+//            'count_model' => $dataProvider->getTotalCount()
 //        ];
 //    }
-
-    /**
-     * Lists all Tag models.
-     * @return mixed
-     */
-    public function actionAll()
-    {
-        $model = new TagSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
-
-        return [
-            'models' => Tag::allFields($dataProvider->getModels()),
-            'count_model' => $dataProvider->getTotalCount()
-        ];
-    }
 
 //    /**
 //     * Displays a single Tag model.
@@ -64,7 +66,7 @@ class TagController extends Controller
         $model = new Tag();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return Tag::allFields($model);
+            return Tag::getFields($model);
         }
 
         return ['errors' => $model->errors];
@@ -114,7 +116,8 @@ class TagController extends Controller
                 return $model;
             } else {
                 throw new NotFoundHttpException('The record was archived.');
-            }        } else {
+            }
+        } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }

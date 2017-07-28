@@ -2,12 +2,13 @@
 
 namespace api\modules\v2\controllers;
 
-use Yii;
 use common\models\Category;
 use common\models\search\CategorySearch;
+use Yii;
+use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -17,17 +18,20 @@ class CategoryController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
-//        ];
-//    }
+    public function behaviors()
+    {
+        return ArrayHelper::merge(parent::behaviors(), [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'all' => ['get'],
+                    'create' => ['post'],
+                    'update' => ['post'],
+                    'delete' => ['delete'],
+                ],
+            ],
+        ]);
+    }
 
     /**
      * Lists all Category models.
@@ -44,15 +48,15 @@ class CategoryController extends Controller
         ];
     }
 
-    /**
-     * Displays a single Category model.
-     * @return mixed
-     */
-    public function actionOne()
-    {
-        $model = $this->findModel(Yii::$app->request->get('id'));
-        return $model->oneFields();
-    }
+//    /**
+//     * Displays a single Category model.
+//     * @return mixed
+//     */
+//    public function actionOne()
+//    {
+//        $model = $this->findModel(Yii::$app->request->get('id'));
+//        return $model->oneFields();
+//    }
 
     /**
      * Creates a new Category model.
@@ -90,17 +94,6 @@ class CategoryController extends Controller
     }
 
     /**
-     * Deletes an existing Category model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param $id
-     * @return mixed
-     */
-    public function actionDelete($id)
-    {
-        return $this->findModel($id)->delete();
-    }
-
-    /**
      * Finds the Category model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
@@ -118,5 +111,16 @@ class CategoryController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * Deletes an existing Category model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param $id
+     * @return mixed
+     */
+    public function actionDelete($id)
+    {
+        return $this->findModel($id)->delete();
     }
 }
