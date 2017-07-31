@@ -3,13 +3,13 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use Yii;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
+
 /**
  * This is the model class for table "feedback".
  *
@@ -64,6 +64,7 @@ class Feedback extends ExtendedActiveRecord
             [['message'], 'string'],
             [['viewed'], 'boolean'],
             [['user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
         ];
     }
 
@@ -77,10 +78,46 @@ class Feedback extends ExtendedActiveRecord
             'message' => 'Message',
             'viewed' => 'Viewed',
             'status' => 'Status',
+            'user_id' => 'User Id',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
     }
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
+    {
+        return self::getFields($result, [
+            'id',
+            'message',
+            'viewed',
+            'status',
+            'user_id',
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'message',
+                'viewed',
+                'status',
+                'user_id',
+                'created_at',
+                'updated_at',
+                'created_by',
+                'updated_by',
+            ]),
+        ];
+    }
+
 }
