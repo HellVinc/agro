@@ -139,6 +139,13 @@ class UserController extends Controller
     public function actionSignup()
     {
         $model = new User();
+        $userExists = (bool)User::find()->one();
+        $model->scenario = 'signUp';
+
+        if (!$userExists) {
+            $model->role = User::ROLE_ADMIN;
+        }
+
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             return $model->signup();
         }

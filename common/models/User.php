@@ -169,7 +169,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-            ['password', 'required', 'on' => 'password'],
+            ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],
             ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
@@ -198,12 +198,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
      */
     public function setPassword($password)
     {
-        $oldScenario = $this->scenario;
-        $this->scenario = 'password';
-        if ($this->validate(['password'])) {
-            $this->password_hash = Yii::$app->security->generatePasswordHash($password);
-        }
-        $this->scenario = $oldScenario;
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**
