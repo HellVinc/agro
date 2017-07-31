@@ -50,7 +50,7 @@ class UserController extends Controller
         $model = new UserSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         return [
-            'models' => User::getFields($dataProvider->getModels()),
+            'models' => User::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()
         ];
     }

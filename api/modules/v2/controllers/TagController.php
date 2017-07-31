@@ -66,7 +66,7 @@ class TagController extends Controller
         $model = new Tag();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return Tag::getFields($model);
+            return $model->oneFields();
         }
 
         return ['errors' => $model->errors];
@@ -83,9 +83,7 @@ class TagController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model,
-            ];
+            return $model->oneFields();
         } else {
             return ['errors' => $model->errors()];
         }

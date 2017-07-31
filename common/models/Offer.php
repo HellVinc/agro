@@ -2,15 +2,13 @@
 
 namespace common\models;
 
-use Yii;
 use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "offer".
@@ -110,17 +108,22 @@ class Offer extends ExtendedActiveRecord
         ];
     }
 
+
     /**
-     * @param $models
-     * @param array $attributes
+     * @param $result
      * @return array
      */
-    public static function getFields($models, array $attributes = [
-        'id', 'title', 'description', 'viewed', 'checked', 'done', 'status',
-    ]) {
-        return ArrayHelper::toArray(
-            $models, [self::className() => $attributes]
-        );
+    public static function allFields($result)
+    {
+        return self::getFields($result, [
+            'id',
+            'done',
+            'title',
+            'viewed',
+            'status',
+            'checked',
+            'description',
+        ]);
     }
 
     /**
@@ -128,11 +131,17 @@ class Offer extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        $result = [
-            self::tableName() => self::getFields($this),
-            'label' => $this->attributeLabels()
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'done',
+                'title',
+                'viewed',
+                'status',
+                'checked',
+                'description',
+            ]),
         ];
-        return $result;
     }
 
     /**

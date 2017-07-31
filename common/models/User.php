@@ -11,7 +11,6 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
 /**
@@ -170,7 +169,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-            ['password', 'required', 'on' => 'signUp'],
+            ['password', 'required', 'on' => 'password'],
             ['password', 'string', 'min' => 6],
             ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
@@ -199,7 +198,12 @@ class User extends ExtendedActiveRecord implements IdentityInterface
      */
     public function setPassword($password)
     {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        $oldScenario = $this->scenario;
+        $this->scenario = 'password';
+        if ($this->validate(['password'])) {
+            $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        }
+        $this->scenario = $oldScenario;
     }
 
     /**
@@ -229,29 +233,50 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
     }
 
-    public function oneFields()
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
     {
-        // 'second_name' => $this->middle_name,
-        $result = [
-            self::tableName() => self::getFields($this, [
-                'id', 'role', 'phone', 'photo', 'first_name', 'middle_name', 'last_name', 'created_at', 'updated_at',
-            ]),
-            'label' => $this->attributeLabels()
-        ];
-        return $result;
+        return self::getFields($result, [
+            'id',
+            'first_name',
+            'middle_name',
+            'second_name' => function ($model) {
+                // if no need -> delete me
+                return $model->middle_name;
+            },
+            'last_name',
+            'role',
+            'photoPath',
+            'Phone',
+            'rating',
+        ]);
     }
 
     /**
-     * @param $models
-     * @param array $attributes
      * @return array
      */
-    public static function getFields($models, array $attributes = [
-        'id', 'first_name', 'middle_name', 'last_name', 'role', 'photoPath', 'Phone', 'rating',
-    ]) {
-        return ArrayHelper::toArray(
-            $models, [self::className() => $attributes]
-        );
+    public function oneFields()
+    {
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'role',
+                'phone',
+                'photo',
+                'first_name',
+                'second_name' => function ($model) {
+                    // if no need -> delete me
+                    return $model->middle_name;
+                },
+                'middle_name',
+                'last_name',
+                'created_at',
+                'updated_at',
+            ]),
+        ];
     }
 
     public function getRating()
@@ -325,10 +350,5 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
-    }
-
-    function wtf()
-    {
-        return 'wtf?';
     }
 }

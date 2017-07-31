@@ -111,7 +111,7 @@ class UserController extends Controller
         $model = new UserSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         return [
-            'models' => User::getFields($dataProvider->getModels()),
+            'models' => User::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()
         ];
     }
@@ -119,7 +119,7 @@ class UserController extends Controller
     public function actionOne()
     {
         $user = $this->findModel(Yii::$app->request->get('id'));
-        $result = $user->one_fields();
+        $result = $user->oneFields();
         return $result;
     }
 
@@ -139,7 +139,6 @@ class UserController extends Controller
     public function actionSignup()
     {
         $model = new User();
-        $model->scenario = 'signUp';
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             return $model->signup();
         }

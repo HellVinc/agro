@@ -3,14 +3,12 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use Yii;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "news".
@@ -94,16 +92,18 @@ class News extends ExtendedActiveRecord
         ];
     }
 
-
     /**
-     * @param $models
-     * @param array $attributes
+     * @param $result
      * @return array
      */
-    public static function getFields($models, array $attributes = ['id', 'title', 'text', 'url']) {
-        return ArrayHelper::toArray(
-            $models, [self::className() => $attributes]
-        );
+    public static function allFields($result)
+    {
+        return self::getFields($result, [
+            'id',
+            'title',
+            'text',
+            'url'
+        ]);
     }
 
     /**
@@ -111,25 +111,18 @@ class News extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return self::getFields($this, [
-            'id',
-            'title',
-            'text',
-            'url',
-            'status',
-            'created_by',
-            'updated_by',
-            'created_at',
-            'updated_at',
-        ]);
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'title',
+                'text',
+                'url',
+                'status',
+                'created_by',
+                'updated_by',
+                'created_at',
+                'updated_at',
+            ]),
+        ];
     }
-
-//    /**
-//     * @param $result
-//     * @return array
-//     */
-//    public static function allFields($result)
-//    {
-//        return self::getFields($result);
-//    }
 }

@@ -37,7 +37,7 @@ class TagController extends Controller
     {
         $model = new TagSearch();
         $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? Tag::getFields($result) : $model->getErrors();
+        return $result ? Tag::allFields($result) : $model->getErrors();
     }
 
 //    /**

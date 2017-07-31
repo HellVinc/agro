@@ -3,14 +3,12 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use Yii;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "favorites".
@@ -83,32 +81,34 @@ class Favorites extends ExtendedActiveRecord
         ];
     }
 
-
-    public function oneFields()
-    {
-
-        $result = [
-            'id' => $this->id,
-            'object_id' => $this->object_id,
-            'table' => $this->table,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
-        return $result;
-    }
-
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Category::className() => [
-                    'id',
-                    'name'
-                ],
-            ]
-        );
+        return self::getFields($result, [
+            'id',
+            'name'
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'object_id',
+                'table',
+                'status',
+                'created_by',
+                'updated_by',
+                'created_at',
+                'updated_at',
+            ]),
+        ];
     }
 }

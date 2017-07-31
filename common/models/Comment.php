@@ -3,15 +3,12 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use Yii;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "comment".
@@ -90,33 +87,36 @@ class Comment extends ExtendedActiveRecord
         ];
     }
 
-    public function oneFields()
-    {
-
-        $result = [
-            'id' => $this->id,
-            'name' => $this->text,
-            'viewed' => $this->viewed,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
-        return $result;
-    }
-
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Comment::className() => [
-                    'id',
-                    'text',
-                    'viewed'
-                ],
-            ]
-        );
+        return self::getFields($result, [
+            'id',
+            'text',
+            'viewed'
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'name',
+                'viewed',
+                'status',
+                'created_by',
+                'updated_by',
+                'created_at',
+                'updated_at',
+            ]),
+        ];
     }
 
     /**

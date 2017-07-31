@@ -37,7 +37,7 @@ class NewsController extends Controller
     {
         $model = new NewsSearch();
         $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? News::getFields($result) : $model->getErrors();
+        return $result ? News::allFields($result) : $model->getErrors();
     }
 
     /**

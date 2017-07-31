@@ -45,7 +45,7 @@ class CategoryController extends Controller
             'count_model' => $dataProvider->getTotalCount()
         ];
 
-//        return $result ? Category::getFields($result['models']) : $model->getErrors();
+//        return $result ? Category::allFields($result['models']) : $model->getErrors();
     }
 
     /**

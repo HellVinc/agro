@@ -9,7 +9,6 @@ use common\components\traits\soft;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "tag".
@@ -41,18 +40,30 @@ class Tag extends ExtendedActiveRecord
     }
 
     /**
-     * @param $models
-     * @param array $attributes
+     * @param $result
      * @return array
      */
-    public static function getFields($models, array $attributes = ['id', 'Name', 'category_id'])
+    public static function allFields($result)
     {
-        return ArrayHelper::toArray(
-            $models,
-            [
-                self::className() => $attributes
-            ]
-        );
+        return self::getFields($result, [
+            'id',
+            'Name',
+            'category_id'
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'Name',
+                'category_id'
+            ]),
+        ];
     }
 
 //    public function fields()

@@ -43,7 +43,7 @@ class OfferController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get());
 
         return [
-            'models' => Offer::getFields($dataProvider->getModels()),
+            'models' => Offer::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()
         ];
     }

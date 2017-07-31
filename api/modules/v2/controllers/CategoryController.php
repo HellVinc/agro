@@ -85,9 +85,7 @@ class CategoryController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model->oneFields(),
-            ];
+            return $model->oneFields();
         } else {
             return ['errors' => $model->errors()];
         }

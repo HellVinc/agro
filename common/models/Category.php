@@ -3,15 +3,12 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use Yii;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\db\Query;
-use yii\helpers\ArrayHelper;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
 
 /**
  * This is the model class for table "category".
@@ -25,7 +22,6 @@ use common\components\traits\findRecords;
  * @property integer $updated_by
  *
  * @property Tag[] $tags
-
  */
 class Category extends ExtendedActiveRecord
 {
@@ -74,6 +70,7 @@ class Category extends ExtendedActiveRecord
             [['name'], 'required'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'string', 'max' => 255],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
         ];
     }
 
@@ -93,65 +90,46 @@ class Category extends ExtendedActiveRecord
         ];
     }
 
-    public function oneFields()
-    {
-
-        $result = [
-            'id' => $this->id,
-            'name' => $this->name,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
-        return $result;
-    }
-
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-
-        return ArrayHelper::toArray($result,
-            [
-                Category::className() => [
-                    'id',
-                    'Name',
-                    'tags' => function($model){
-                        /** @var $model Category */
-                        return Tag::getFields($model->tags, self::DEF_F);
-//                        return $model->getTags()->select('name')->column();
-                    }
-                ],
-            ]
-        );
+        return self::getFields($result, [
+            'id',
+            'Name',
+            'tags' => function ($model) {
+                /** @var $model Category */
+                return Tag::getFields($model->tags, self::DEF_F);
+            }
+        ]);
     }
 
-    public static function getFields($models)
+    /**
+     * @return array
+     */
+    public function oneFields()
     {
-
-        return ArrayHelper::toArray($models,
-            [
-                Category::className() => [
-                    'id',
-                    'Name',
-//                    'tags' => function($model){
-//            /** @var $model Category */
-//                        return Tag::allFields($model->getTags()->all());
-////                        return $model->getTags()->select('name')->column();
-//
-//                    }
-                ],
-            ]
-        );
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'name',
+                'status',
+                'created_by',
+                'updated_by',
+                'created_at',
+                'updated_at',
+            ]),
+        ];
     }
-
 
     /**
      * @return string
      */
     public function getName()
     {
-        return '#'.$this->name;
+        return '#' . $this->name;
     }
 
     /**

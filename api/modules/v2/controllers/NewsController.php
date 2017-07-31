@@ -44,7 +44,7 @@ class NewsController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get());
 
         return [
-            'models' => News::getFields($dataProvider->getModels()),
+            'models' => News::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()
         ];
     }

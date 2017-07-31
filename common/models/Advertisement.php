@@ -114,40 +114,45 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function oneFields()
     {
-
-        $result = [
-            'id' => $this->id,
-            'title' => $this->title,
-            'text' => $this->text,
-            'type' => $this->type,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'files' => $this->attachments
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'title',
+                'text',
+                'type',
+                'status',
+                'created_by',
+                'updated_by',
+                'created_at',
+                'updated_at',
+                'files' => function($model) {
+                    return $model->attachments;
+                }
+            ]),
         ];
-        return $result;
     }
 
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Advertisement::className() => [
-                    'id',
-                    'title',
-                    'text',
-                    'type',
-                    'created_at',
-                    'updated_at',
-                    'created_by',
-                    'attachments'
-                ],
-            ]
-        );
+        return self::getFields($result, [
+            'id',
+            'title',
+            'text',
+            'type',
+            'created_at',
+            'updated_at',
+            'created_by',
+            'attachments'
+        ]);
     }
 
     public function getPhotoPath()
@@ -158,7 +163,6 @@ class Advertisement extends ExtendedActiveRecord
             return Yii::$app->request->getHostInfo() . '/photo/books/empty_book.jpg';
 
     }
-
 
     public function getBuyCount()
     {
