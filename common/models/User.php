@@ -52,6 +52,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     const ROLE_ADMIN = 1;
     const ROLE_CLIENT = 2;
 
+    const SCENARIO_EDIT = 'edit';
+    const SCENARIO_REGISTER = 'register';
+
     /**
      * @inheritdoc
      */
@@ -59,12 +62,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         return '{{%user}}';
     }
-
-//    /** deprecated */
-//    public static function allFields($result)
-//    {
-//        return self::getFields($result);
-//    }
 
     /**
      * @inheritdoc
@@ -174,6 +171,14 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+        ];
+    }
+
+    public function scenarios()
+    {
+        return [
+            self::SCENARIO_REGISTER => ['phone', 'password', '!role', '!status'],
+            self::SCENARIO_EDIT => ['phone', 'password', 'first_name', 'middle_name', 'last_name'],
         ];
     }
 

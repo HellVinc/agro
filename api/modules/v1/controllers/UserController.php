@@ -98,13 +98,8 @@ class UserController extends Controller
 //        return $behaviors;
 //    }
 
-    public function actionTest()
-    {
-        return Category::findOne(1)->advertisementsBuy;
-    }
-
     /**
-     * @return string
+     * @return array
      */
     public function actionAll()
     {
@@ -140,7 +135,7 @@ class UserController extends Controller
     {
         $model = new User();
         $userExists = (bool)User::find()->one();
-        $model->scenario = 'signUp';
+        $model->scenario = User::SCENARIO_REGISTER;
 
         if (!$userExists) {
             $model->role = User::ROLE_ADMIN;
@@ -157,7 +152,7 @@ class UserController extends Controller
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post(), "")) {
             if ($model->login()) {
-                $result = Yii::$app->user->identity->one_fields();
+                $result = Yii::$app->user->identity->oneFields();
                 $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
                 return $result;
 
@@ -176,11 +171,10 @@ class UserController extends Controller
     public function actionUpdate()
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->post('auth_key')]);
+        $model->scenario = User::SCENARIO_EDIT;
 
         if ($model->load(Yii::$app->request->post()) && $model->saveModel() && $model->checkFiles()) {
-            return [
-                'user' => $model,
-            ];
+            return $model->oneFields();
         }
         return ['errors' => $model->errors];
 
