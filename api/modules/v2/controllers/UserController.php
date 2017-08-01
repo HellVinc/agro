@@ -48,7 +48,7 @@ class UserController extends Controller
     public function actionAll()
     {
         $model = new UserSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
         return [
             'models' => User::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()

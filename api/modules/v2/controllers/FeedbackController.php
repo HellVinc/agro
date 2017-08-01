@@ -39,7 +39,7 @@ class FeedbackController extends Controller
     public function actionAll()
     {
         $model = new FeedbackSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
         return [
             'models' => Feedback::allFields($dataProvider->getModels()),

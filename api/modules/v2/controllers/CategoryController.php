@@ -40,7 +40,7 @@ class CategoryController extends Controller
     public function actionAll()
     {
         $model = new CategorySearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
         return [
             'models' => Category::allFields($dataProvider->getModels()),

@@ -40,7 +40,7 @@ class OfferController extends Controller
     public function actionAll()
     {
         $model = new OfferSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
         return [
             'models' => Offer::allFields($dataProvider->getModels()),
