@@ -135,7 +135,6 @@ class UserController extends Controller
     {
         $model = new User();
         $userExists = (bool)User::find()->one();
-        $model->scenario = User::SCENARIO_REGISTER;
 
         if (!$userExists) {
             $model->role = User::ROLE_ADMIN;
@@ -171,7 +170,6 @@ class UserController extends Controller
     public function actionUpdate()
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->post('auth_key')]);
-        $model->scenario = User::SCENARIO_EDIT;
 
         if ($model->load(Yii::$app->request->post()) && $model->saveModel() && $model->checkFiles()) {
             return $model->oneFields();

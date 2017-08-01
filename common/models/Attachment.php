@@ -98,11 +98,10 @@ class Attachment extends ActiveRecord
 
     public function remove()
     {
-        $className = $this::lastNameClass(static::className());
         $data = [
             'deleted' => 1
         ];
-        parent::load([$className => $data]);
+        parent::load([$this->formName() => $data]);
         return $this->save();
     }
 

@@ -52,9 +52,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     const ROLE_ADMIN = 1;
     const ROLE_CLIENT = 2;
 
-    const SCENARIO_EDIT = 'edit';
-    const SCENARIO_REGISTER = 'register';
-
     /**
      * @inheritdoc
      */
@@ -166,19 +163,11 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-            ['password', 'required', 'on' => 'signUp'],
+            ['password', 'required'],
             ['password', 'string', 'min' => 6],
             ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-        ];
-    }
-
-    public function scenarios()
-    {
-        return [
-            self::SCENARIO_REGISTER => ['phone', 'password', '!role', '!status'],
-            self::SCENARIO_EDIT => ['phone', 'password', 'first_name', 'middle_name', 'last_name'],
         ];
     }
 
@@ -243,10 +232,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'id',
             'first_name',
             'middle_name',
-            'second_name' => function ($model) {
-                // if no need -> delete me
-                return $model->middle_name;
-            },
             'last_name',
             'role',
             'photoPath',
@@ -267,10 +252,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                 'phone',
                 'photo',
                 'first_name',
-                'second_name' => function ($model) {
-                    // if no need -> delete me
-                    return $model->middle_name;
-                },
                 'middle_name',
                 'last_name',
                 'created_at',

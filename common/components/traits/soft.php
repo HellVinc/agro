@@ -10,13 +10,11 @@ trait soft
 
     public function load($data, $formName = null)
     {
-        $className = $this::lastNameClass(static::className());
-
-        if (array_key_exists($className, $data)) {
+        if (array_key_exists($this->formName(), $data)) {
             return parent::load($data, $formName);
         }
 
-        return parent::load([$className => $data], $formName);
+        return parent::load([$this->formName() => $data], $formName);
     }
 
     # load
@@ -29,11 +27,10 @@ trait soft
 
     public function remove()
     {
-        $className = $this::lastNameClass(static::className());
         $data = [
             'status' => 10
         ];
-        parent::load([$className => $data]);
+        parent::load([$this->formName() => $data]);
         return $this->save();
     }
 
