@@ -135,6 +135,7 @@ class UserController extends Controller
     {
         $model = new User();
         $userExists = (bool)User::find()->one();
+        $model->setScenario('signUp');
 
         if (!$userExists) {
             $model->role = User::ROLE_ADMIN;
