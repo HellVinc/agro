@@ -53,6 +53,9 @@ class Advertisement extends ExtendedActiveRecord
     const TYPE_CHAT = 3;
     const TYPE_FINANCE = 4;
 
+    const TYPE_UNVIEWED = 0;
+    const TYPE_VIEWED = 1;
+
     public function behaviors()
     {
         return [
@@ -90,7 +93,9 @@ class Advertisement extends ExtendedActiveRecord
             [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
-            [['viewed'], 'boolean'],
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+            [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
+            [['viewed'], 'in', 'range' => [self::TYPE_VIEWED, self::TYPE_UNVIEWED]],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }

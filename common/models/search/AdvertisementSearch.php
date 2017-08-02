@@ -26,9 +26,8 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'tag_id', 'category_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'trade', 'viewed', 'tag_id', 'category_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
-            [['trade', 'viewed'], 'boolean'],
         ];
     }
 

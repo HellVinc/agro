@@ -25,7 +25,6 @@ use yii\db\ActiveRecord;
  * @property integer $created_by
  * @property integer $updated_by
  *
- * @property OfferTag[] $offerTags
  * @property Tag[] $tags
  */
 class Offer extends ExtendedActiveRecord
@@ -77,14 +76,14 @@ class Offer extends ExtendedActiveRecord
             [['title', 'description'], 'required'],
             [['done', 'checked', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'description'], 'string', 'max' => 255],
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-            ['done', 'default', 'value' => self::TYPE_NOT_DONE],
-            ['done', 'in', 'range' => [self::TYPE_DONE, self::TYPE_NOT_DONE]],
-            ['checked', 'default', 'value' => self::TYPE_UNCHECKED],
-            ['checked', 'in', 'range' => [self::TYPE_UNCHECKED, self::TYPE_CHECKED]],
-            ['viewed', 'default', 'value' => self::TYPE_UNVIEWED],
-            ['viewed', 'in', 'range' => [self::TYPE_UNVIEWED, self::TYPE_VIEWED]],
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+            [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['done'], 'default', 'value' => self::TYPE_NOT_DONE],
+            [['done'], 'in', 'range' => [self::TYPE_DONE, self::TYPE_NOT_DONE]],
+            [['checked'], 'default', 'value' => self::TYPE_UNCHECKED],
+            [['checked'], 'in', 'range' => [self::TYPE_UNCHECKED, self::TYPE_CHECKED]],
+            [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
+            [['viewed'], 'in', 'range' => [self::TYPE_UNVIEWED, self::TYPE_VIEWED]],
         ];
     }
 
