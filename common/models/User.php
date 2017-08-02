@@ -236,6 +236,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'role',
             'photoPath',
             'Phone',
+            'status',
             'rating',
         ]);
     }
@@ -251,6 +252,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                 'role',
                 'phone',
                 'photo',
+                'status',
                 'first_name',
                 'middle_name',
                 'last_name',

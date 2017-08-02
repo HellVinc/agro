@@ -55,7 +55,7 @@ class FeedbackController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, true);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
@@ -79,13 +79,14 @@ class FeedbackController extends Controller
      * Finds the Feedback model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
+     * @param bool $all
      * @return Feedback the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel($id, $all = false)
     {
         if (($model = Feedback::findOne($id)) !== null) {
-            if ($model->status !== 0) {
+            if ($all || $model->status !== 0) {
                 return $model;
             } else {
                 throw new NotFoundHttpException('The record was archived.');
