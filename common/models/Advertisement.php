@@ -24,6 +24,7 @@ use yii\helpers\ArrayHelper;
  * @property string $latitude
  * @property string $longitude
  * @property integer $type
+ * @property integer $viewed
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -46,9 +47,6 @@ class Advertisement extends ExtendedActiveRecord
 
     public $category_id;
     public $photo;
-
-    const NOT_DELETED = 10;
-    const DELETED = 0;
 
     const TYPE_BUY = 1;
     const TYPE_SELL = 2;
@@ -92,6 +90,7 @@ class Advertisement extends ExtendedActiveRecord
             [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
+            [['viewed'], 'boolean'],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }
@@ -106,6 +105,7 @@ class Advertisement extends ExtendedActiveRecord
             'title' => 'Title',
             'text' => 'Text',
             'type' => 'Type',
+            'viewed' => 'Viewed',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -126,6 +126,7 @@ class Advertisement extends ExtendedActiveRecord
                 'title',
                 'text',
                 'type',
+                'viewed',
                 'status',
                 'created_by',
                 'updated_by',
@@ -150,6 +151,7 @@ class Advertisement extends ExtendedActiveRecord
             'text',
             'type',
             'status',
+            'viewed',
             'created_at',
             'updated_at',
             'created_by',
@@ -162,8 +164,8 @@ class Advertisement extends ExtendedActiveRecord
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
         }
-            return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
 
+        return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
     }
 
 
@@ -179,7 +181,7 @@ class Advertisement extends ExtendedActiveRecord
 
     public function getAttachments()
     {
-        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::NOT_DELETED]);
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
     }
 
     /**

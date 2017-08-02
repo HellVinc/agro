@@ -28,7 +28,7 @@ class AdvertisementSearch extends Advertisement
         return [
             [['id', 'tag_id', 'category_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
-            ['trade', 'integer'],
+            [['trade', 'viewed'], 'boolean'],
         ];
     }
 
@@ -73,6 +73,8 @@ class AdvertisementSearch extends Advertisement
         // grid filtering conditions
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
+            'viewed' => $this->viewed,
+            'status' => $this->status,
             'tag_id' => $this->tag_id,
             'advertisement.status' => $this->status,
             'created_at' => $this->created_at,

@@ -20,6 +20,7 @@ class m170707_112701_create_advertisement_table extends Migration
             'latitude' => $this->string(32),
             'longitude' => $this->string(32),
             'type' => $this->integer(1),// buy or sell
+            'viewed' => $this->smallInteger(1)->defaultValue(0),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
