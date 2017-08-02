@@ -18,6 +18,8 @@ class AdvertisementSearch extends Advertisement
         'id' => SORT_ASC,
     ];
 
+    public $trade = 0;
+
     /**
      * @inheritdoc
      */
@@ -26,6 +28,7 @@ class AdvertisementSearch extends Advertisement
         return [
             [['id', 'tag_id', 'category_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
+            ['trade', 'integer'],
         ];
     }
 
@@ -73,13 +76,15 @@ class AdvertisementSearch extends Advertisement
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
-            'type' => $this->type,
             'advertisement.status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
+
+        // if 'trade' == 1 {show buy and sell} else {use orig type param}
+        $query->andFilterWhere(['type' => $this->trade == 1 ? [1, 2] : $this->type]);
 
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'text', $this->text])

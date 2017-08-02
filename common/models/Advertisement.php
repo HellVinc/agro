@@ -114,6 +114,7 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
+
     /**
      * @return array
      */
@@ -148,6 +149,7 @@ class Advertisement extends ExtendedActiveRecord
             'title',
             'text',
             'type',
+            'status',
             'created_at',
             'updated_at',
             'created_by',
@@ -160,9 +162,10 @@ class Advertisement extends ExtendedActiveRecord
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
         }
-            return Yii::$app->request->getHostInfo() . '/photo/books/empty_book.jpg';
+            return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
 
     }
+
 
     public function getBuyCount()
     {

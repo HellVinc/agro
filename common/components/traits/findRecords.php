@@ -19,7 +19,8 @@ trait findRecords
             return null;
         }
 
-        if ($onlyActive || $this->status === null) {
+       //if ($onlyActive || $this->status === null) {
+        if ($onlyActive) {
             $this->status = self::STATUS_ACTIVE;
         }
 
