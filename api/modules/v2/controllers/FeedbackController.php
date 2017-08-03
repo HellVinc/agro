@@ -21,6 +21,19 @@ class FeedbackController extends Controller
     public function behaviors()
     {
         return ArrayHelper::merge(parent::behaviors(), [
+            //'authenticator' => [
+            //    'class' => QueryParamAuth::className(),
+            //    'tokenParam' => 'auth_key',
+            //],
+            //'access' => [
+            //    'class' => AccessControl::className(),
+            //    'rules' => [
+            //        [
+            //            'allow' => true,
+            //            'roles' => ['admin'],
+            //        ],
+            //    ],
+            //],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [

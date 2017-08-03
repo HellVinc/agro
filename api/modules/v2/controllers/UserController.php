@@ -5,42 +5,42 @@ namespace api\modules\v2\controllers;
 use common\models\search\UserSearch;
 use common\models\User;
 use Yii;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
+use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
 
 class UserController extends Controller
 {
-//    public function behaviors()
-//    {
-//        $behaviors = parent::behaviors();
-//        $behaviors['authenticator'] = [
-//            'class' => QueryParamAuth::className(),
-//            'tokenParam' => 'auth_key'
-//        ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'rules' => [
-//                [
-//                    'allow' => true,
-//                    'roles' => [
-//                        'admin'
-//                    ],
-//                ],
-//            ],
-//        ];
-//
-//        $behaviors['verbFilter'] = [
-//            'class' => VerbFilter::className(),
-//            'actions' => [
-//                'all' => ['get'],
-//                'update' => ['post'],
-//                'delete' => ['delete'],
-//            ],
-//        ];
-//
-//        return $behaviors;
-//    }
+    public function behaviors()
+    {
+        return ArrayHelper::merge(parent::behaviors(), [
+            //'authenticator' => [
+            //    'class' => QueryParamAuth::className(),
+            //    'tokenParam' => 'auth_key',
+            //],
+            //'access' => [
+            //    'class' => AccessControl::className(),
+            //    'rules' => [
+            //        [
+            //            'allow' => true,
+            //            'roles' => ['admin'],
+            //        ],
+            //    ],
+            //],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'all' => ['get'],
+                    'update' => ['post'],
+                    'delete' => ['delete'],
+                ],
+            ],
+        ]);
+    }
 
     /**
      * @return array
@@ -83,18 +83,6 @@ class UserController extends Controller
 
     }
 
-
-    /**
-     * Deletes an existing Category model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param $id
-     * @return mixed
-     */
-    public function actionDelete($id)
-    {
-        return $this->findModel($id)->delete();
-    }
-
     /**
      * Finds the User model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
@@ -114,5 +102,16 @@ class UserController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * Deletes an existing Category model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param $id
+     * @return mixed
+     */
+    public function actionDelete($id)
+    {
+        return $this->findModel($id)->delete();
     }
 }
