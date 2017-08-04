@@ -73,7 +73,7 @@ class AdvertisementSearch extends Advertisement
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'viewed' => $this->viewed,
-            'status' => $this->status,
+            //'status' => $this->status,
             'tag_id' => $this->tag_id,
             'advertisement.status' => $this->status,
             'created_at' => $this->created_at,
