@@ -161,7 +161,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'trim'],
             [['phone'], 'required', 'except' => ['change_pass']],
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
-            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
+            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format, use 123456789'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
             ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],
@@ -235,7 +235,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'last_name',
             'role',
             'photoPath',
-            'Phone',
+            'phone' => function($model) {
+                return $model->Phone;
+            },
             'status',
             'rating',
         ]);
@@ -250,7 +252,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             strtolower($this->getClassName()) => self::getFields($this, [
                 'id',
                 'role',
-                'phone',
+                'phone' => function($model) {
+                    return $model->Phone;
+                },
                 'photo',
                 'status',
                 'first_name',

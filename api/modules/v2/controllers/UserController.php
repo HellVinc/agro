@@ -66,16 +66,24 @@ class UserController extends Controller
 
     /**
      * Updates an existing User model.
-     * @param integer $id
      * @return mixed
      */
-    public function actionUpdate($id)
+    public function actionUpdate()
     {
+        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
+
         $model = $this->findModel($id, true);
         $post = Yii::$app->request->post();
 
-        if ($post['password'] && $model->validate(['password'])) {
-            $model->setPassword($post['password']);
+        if ($post) {
+            if ($post['password'] && $model->validate(['password'])) {
+                $model->setPassword($post['password']);
+            }
+
+            // if ($post['phone'] && preg_match('/^((?:(?:\+?3)?8)?0)\d{9}$/', $post['phone'])) {
+            //     // remove +380
+            //     $post['phone'] = (int)preg_replace('/^((?:(?:\+?3)?8)?0)\d{9}$/', '', $post['phone']);
+            // }
         }
 
         if ($model->load($post) && $model->saveModel() && $model->checkFiles()) {
