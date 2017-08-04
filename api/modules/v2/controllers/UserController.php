@@ -51,6 +51,8 @@ class UserController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
         return [
             'models' => User::allFields($dataProvider->getModels()),
+            'current_page' => $dataProvider->pagination->page,
+            'count_page' => $dataProvider->pagination->pageCount,
             'count_model' => $dataProvider->getTotalCount()
         ];
     }
@@ -84,27 +86,6 @@ class UserController extends Controller
     }
 
     /**
-     * Finds the User model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @param bool $all
-     * @return User the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id, $all = false)
-    {
-        if (($model = User::findOne($id)) !== null) {
-            if ($all || $model->status !== 0) {
-                return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
-            }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
-    }
-
-    /**
      * Deletes an existing Category model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
@@ -113,5 +94,26 @@ class UserController extends Controller
     public function actionDelete($id)
     {
         return $this->findModel($id)->delete();
+    }
+
+    /**
+     * Finds the User model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @param bool $ignoreStatus
+     * @return User the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id, $ignoreStatus = false)
+    {
+        if (($model = User::findOne($id)) !== null) {
+            if ($ignoreStatus || $model->status !== 0) {
+                return $model;
+            } else {
+                throw new NotFoundHttpException('The record was archived.');
+            }
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

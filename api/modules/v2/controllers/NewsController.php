@@ -58,6 +58,8 @@ class NewsController extends Controller
 
         return [
             'models' => News::allFields($dataProvider->getModels()),
+            'current_page' => $dataProvider->pagination->page,
+            'count_page' => $dataProvider->pagination->pageCount,
             'count_model' => $dataProvider->getTotalCount()
         ];
     }
@@ -111,14 +113,14 @@ class NewsController extends Controller
      * Finds the News model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @param bool $all
+     * @param bool $ignoreStatus
      * @return News the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id, $all = false)
+    protected function findModel($id, $ignoreStatus = false)
     {
         if (($model = News::findOne($id)) !== null) {
-            if ($all || $model->status !== 0) {
+            if ($ignoreStatus || $model->status !== 0) {
                 return $model;
             } else {
                 throw new NotFoundHttpException('The record was archived.');
