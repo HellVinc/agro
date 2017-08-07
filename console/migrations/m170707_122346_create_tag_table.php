@@ -15,7 +15,7 @@ class m170707_122346_create_tag_table extends Migration
         $this->createTable('tag', [
             'id' => $this->primaryKey(),
             'category_id' => $this->integer()->notNull(),
-            'name' => $this->string(255)->notNull()->unique(),
+            'name' => $this->string(255)->notNull(),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

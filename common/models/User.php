@@ -1,6 +1,8 @@
 <?php
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
+use common\components\helpers\ExtendedModel;
 use common\components\traits\errors;
 use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
@@ -37,7 +39,7 @@ use yii\web\IdentityInterface;
  * @property  $photoPath
  * @property Rating[] $ratings
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends ExtendedActiveRecord implements IdentityInterface
 {
 
     use soft;
@@ -58,18 +60,18 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function tableName()
     {
-        return '{{%user}}';
+        return 'user';
     }
 
-    public function fields()
-    {
-        return [
-            'first_name',
-            'last_name',
-            'Phone',
-            'auth_key',
-        ];
-    }
+//    public function fields()
+//    {
+//        return [
+//            'first_name',
+//            'last_name',
+//            'Phone',
+//            'auth_key',
+//        ];
+//    }
 
     /**
      * @inheritdoc
@@ -103,8 +105,9 @@ class User extends ActiveRecord implements IdentityInterface
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-            ['password', 'required'],
+            ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],
+            ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
@@ -132,12 +135,18 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getPhotoPath()
     {
-        if ($this->photo) {
-            return Yii::$app->request->getHostInfo() . '/photo/users/' . $this->id . '/' . $this->photo;
+        if ($this->attachments) {
+            return Yii::$app->request->getHostInfo() . '/files/user/' . $this->id . '/' . $this->attachments->url;
         }
             return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
 
     }
+
+    public function getAttachments()
+    {
+        return $this->hasOne(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
+    }
+
 
     public function getPhotoDir()
     {
@@ -148,19 +157,16 @@ class User extends ActiveRecord implements IdentityInterface
     {
 
         $result = [
-            'user' => [
                 'id' => $this->id,
                 'role' => $this->role,
                 'phone' => $this->phone,
                 'photo' => $this->photoPath,
+                'auth_key' => $this->auth_key,
                 'first_name' => $this->first_name,
                 'second_name' => $this->middle_name,
                 'last_name' => $this->last_name,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
-
-            ],
-            'label' => $this->attributeLabels()
         ];
         return $result;
     }
@@ -202,7 +208,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        return static::findOne(['auth_key' => $token]);
+//        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
     }
 
     /**
@@ -261,9 +268,9 @@ class User extends ActiveRecord implements IdentityInterface
         $count = $this->getRatings()->count();
         if($count == 0)
         {
-            return 0;
+            return $result;
         }
-        return $result/$this->getRatings()->count();
+        return round($result/$this->getRatings()->count(), 2);
     }
 
     /**

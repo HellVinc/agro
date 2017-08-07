@@ -73,7 +73,7 @@ class Tag extends ExtendedActiveRecord
             [['category_id', 'name'], 'required'],
             [['category_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'string', 'max' => 255],
-            [['name'], 'unique'],
+            [['name', 'category_id'], 'unique', 'targetAttribute' => ['name', 'category_id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
         ];
     }

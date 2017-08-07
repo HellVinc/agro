@@ -6,6 +6,8 @@ use common\models\User;
 use Yii;
 use common\models\Category;
 use common\models\search\CategorySearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -16,19 +18,18 @@ use yii\filters\VerbFilter;
  */
 class CategoryController extends Controller
 {
-    /**
-     * @inheritdoc
-     */
+
 //    public function behaviors()
 //    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
+//        $behaviors = parent::behaviors();
+//        $behaviors['verbFilter'] = [
+//            'class' => VerbFilter::className(),
+//            'actions' => [
+//                'all' => ['get'],
+//                'one' => ['get'],
 //            ],
 //        ];
+//        return $behaviors;
 //    }
 
     /**
@@ -52,46 +53,46 @@ class CategoryController extends Controller
      * Displays a single Category model.
      * @return mixed
      */
-    public function actionOne()
+    public function actionOne($id)
     {
-        $model = $this->findModel(Yii::$app->request->get('id'));
+        $model = $this->findModel($id);
         return $model->oneFields();
     }
 
-    /**
-     * Creates a new Category model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new Category();
+//    /**
+//     * Creates a new Category model.
+//     * If creation is successful, the browser will be redirected to the 'view' page.
+//     * @return mixed
+//     */
+//    public function actionCreate()
+//    {
+//        $model = new Category();
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return $model->id;
+//        } else {
+//            return ['errors' => $model->errors];
+//        }
+//    }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
-        } else {
-            return ['errors' => $model->errors];
-        }
-    }
-
-    /**
-     * Updates an existing Category model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model,
-            ];
-        } else {
-            return ['errors' => $model->errors()];
-        }
-    }
+//    /**
+//     * Updates an existing Category model.
+//     * If update is successful, the browser will be redirected to the 'view' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return [
+//                'category' => $model,
+//            ];
+//        } else {
+//            return ['errors' => $model->errors()];
+//        }
+//    }
 
     /**
      * Deletes an existing Category model.

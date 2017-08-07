@@ -2,45 +2,41 @@
 
 namespace common\models;
 
-use Yii;
 use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
+
 /**
- * This is the model class for table "offer".
+ * This is the model class for table "room".
  *
  * @property integer $id
  * @property string $title
  * @property string $description
- * @property string $viewed
- * @property string $checked
- * @property string $done
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
  *
- * @property Tag[] $tags
+ * @property Message[] $messages
  */
-class Offer extends ExtendedActiveRecord
+class Room extends ExtendedActiveRecord
 {
     use soft;
     use findRecords;
     use errors;
-
-    const TYPE_UNVIEWED = 0;
-    const TYPE_VIEWED = 1;
-
-    const TYPE_UNCHECKED = 0;
-    const TYPE_CHECKED = 1;
-
-    const TYPE_DONE = 0;
-    const TYPE_NOT_DONE = 1;
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return 'room';
+    }
 
     public function behaviors()
     {
@@ -59,13 +55,6 @@ class Offer extends ExtendedActiveRecord
             ]
         ];
     }
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'offer';
-    }
 
     /**
      * @inheritdoc
@@ -74,8 +63,9 @@ class Offer extends ExtendedActiveRecord
     {
         return [
             [['title', 'description'], 'required'],
+            [['description'], 'string'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'description'], 'string', 'max' => 255],
+            [['title'], 'string', 'max' => 255],
         ];
     }
 
@@ -88,9 +78,6 @@ class Offer extends ExtendedActiveRecord
             'id' => 'ID',
             'title' => 'Title',
             'description' => 'Description',
-            'viewed' => 'Viewed',
-            'checked' => 'Checked',
-            'done' => 'Done',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -102,8 +89,8 @@ class Offer extends ExtendedActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTags()
+    public function getMessages()
     {
-        return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('offer_tag', ['offer_id' => 'id']);
+        return $this->hasMany(Message::className(), ['room_id' => 'id']);
     }
 }

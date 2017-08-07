@@ -5,6 +5,8 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Offer;
 use common\models\search\OfferSearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -17,17 +19,50 @@ class OfferController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
-//        ];
-//    }
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'create',
+                'update',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => ['@'],
+
+                ],
+            ],
+        ];
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['delete'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
 
     /**
@@ -41,9 +76,8 @@ class OfferController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
-        } else {
-            return ['errors' => $model->errors];
         }
+            return ['errors' => $model->errors];
     }
 
     /**
@@ -58,12 +92,12 @@ class OfferController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
-                'category' => $model,
+                strtolower($model->getClassName()) => $model
             ];
-        } else {
+        }
             return ['errors' => $model->errors()];
         }
-    }
+
 
     /**
      * Finds the Offer model based on its primary key value.

@@ -3,87 +3,48 @@
 namespace api\modules\v1\controllers;
 
 use Yii;
-use common\models\Comment;
-use common\models\search\CommentSearch;
-use yii\filters\AccessControl;
-use yii\filters\auth\QueryParamAuth;
+use common\models\Attachment;
+use common\models\search\AttachmentSearch;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use common\models\User;
 
 /**
- * CommentController implements the CRUD actions for Comment model.
+ * AttachmentController implements the CRUD actions for Attachment model.
  */
-class CommentController extends Controller
+class AttachmentController extends Controller
 {
     /**
      * @inheritdoc
      */
 //    public function behaviors()
 //    {
-//        $behaviors = parent::behaviors();
-//        $behaviors['authenticator'] = [
-//            'class' => QueryParamAuth::className(),
-//            'tokenParam' => 'auth_key',
-//            'only' => [
-//                'update',
-//                'create',
-//                'delete',
-//            ],
-//        ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
+//        return [
+//            'verbs' => [
+//                'class' => VerbFilter::className(),
+//                'actions' => [
+//                    'delete' => ['POST'],
 //                ],
 //            ],
 //        ];
-//
-//        $behaviors['verbFilter'] = [
-//            'class' => VerbFilter::className(),
-//            'actions' => [
-//                'all' => ['get'],
-//                'one' => ['get'],
-//                'create' => ['post'],
-//                'update' => ['post'],
-//                'delete' => ['delete'],
-//            ],
-//        ];
-//
-//        return $behaviors;
 //    }
 
     /**
-     * Lists all Comment models.
+     * Lists all Attachment models.
      * @return mixed
      */
     public function actionAll()
     {
-        $model = new CommentSearch();
+        $model = new AttachmentSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         return [
-            'models' => Comment::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page+1,
-            'count_model' => $dataProvider->totalCount
+            'models' => Attachment::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
         ];
     }
 
     /**
-     * Displays a single Comment model.
+     * Displays a single Attachment model.
      * @param integer $id
      * @return mixed
      */
@@ -94,13 +55,13 @@ class CommentController extends Controller
     }
 
     /**
-     * Creates a new Comment model.
+     * Creates a new Attachment model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Comment();
+        $model = new Attachment();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
@@ -110,7 +71,7 @@ class CommentController extends Controller
     }
 
     /**
-     * Updates an existing Comment model.
+     * Updates an existing Attachment model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -124,7 +85,7 @@ class CommentController extends Controller
                 strtolower($model->getClassName()) => $model
             ];
         }
-            return ['errors' => $model->errors()];
+        return ['errors' => $model->errors()];
 
     }
 
@@ -139,17 +100,16 @@ class CommentController extends Controller
         return $this->findModel(Yii::$app->request->post('id'))->delete(true);
 
     }
-
     /**
-     * Finds the Comment model based on its primary key value.
+     * Finds the Attachment model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Comment the loaded model
+     * @return Attachment the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Comment::findOne($id)) !== null) {
+        if (($model = Attachment::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
             } else {

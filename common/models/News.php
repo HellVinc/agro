@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\modelWithFiles;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -24,12 +25,16 @@ use yii\helpers\ArrayHelper;
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
+ * @property integer $photo
  */
 class News extends ExtendedActiveRecord
 {
     use soft;
     use findRecords;
     use errors;
+    use modelWithFiles;
+
+    public $photo;
 
     public function behaviors()
     {
@@ -90,6 +95,16 @@ class News extends ExtendedActiveRecord
             'updated_by' => 'Updated By',
         ];
     }
+
+    public function getPhotoPath()
+    {
+        if ($this->photo) {
+            return Yii::$app->request->getHostInfo() . '/files/news/' . $this->id . '/' . $this->photo;
+        }
+        return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
+
+    }
+
     public function oneFields()
     {
 
@@ -103,6 +118,7 @@ class News extends ExtendedActiveRecord
             'updated_by' => $this->updated_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'img' => $this->getPhotoPath()
         ];
         return $result;
     }
@@ -115,7 +131,11 @@ class News extends ExtendedActiveRecord
                     'id',
                     'title',
                     'text',
-                    'url'
+                    'url',
+                    'img' => function($model){
+            /** News @var $model */
+                        return $model->getPhotoPath();
+                    }
                 ],
             ]
         );

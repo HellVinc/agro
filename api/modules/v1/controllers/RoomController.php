@@ -3,109 +3,73 @@
 namespace api\modules\v1\controllers;
 
 use Yii;
-use common\models\News;
-use common\models\search\NewsSearch;
-use yii\filters\AccessControl;
-use yii\filters\auth\QueryParamAuth;
+use common\models\Room;
+use common\models\search\RoomSearch;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * NewsController implements the CRUD actions for News model.
+ * RoomController implements the CRUD actions for Room model.
  */
-class NewsController extends Controller
+class RoomController extends Controller
 {
     /**
      * @inheritdoc
      */
 //    public function behaviors()
 //    {
-//        $behaviors = parent::behaviors();
-//        $behaviors['authenticator'] = [
-//            'class' => QueryParamAuth::className(),
-//            'tokenParam' => 'auth_key',
-//            'only' => [
-//                'update',
-//                'create',
-//                'delete',
-//            ],
-//        ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
+//        return [
+//            'verbs' => [
+//                'class' => VerbFilter::className(),
+//                'actions' => [
+//                    'delete' => ['POST'],
 //                ],
 //            ],
 //        ];
-//
-//        $behaviors['verbFilter'] = [
-//            'class' => VerbFilter::className(),
-//            'actions' => [
-//                'all' => ['get'],
-//                'one' => ['get'],
-//                'create' => ['post'],
-//                'update' => ['post'],
-//                'delete' => ['delete'],
-//            ],
-//        ];
-//
-//        return $behaviors;
 //    }
 
     /**
-     * Lists all News models.
+     * Lists all Room models.
      * @return mixed
      */
     public function actionAll()
     {
-        $model = new NewsSearch();
+        $model = new RoomSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         return [
-            'models' => News::allFields($dataProvider->getModels()),
+            'models' => Room::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()
         ];
     }
 
     /**
-     * Displays a single News model.
+     * Displays a single Room model.
+     * @param integer $id
      * @return mixed
      */
     public function actionOne()
     {
         return $this->findModel(Yii::$app->request->get('id'))->oneFields();
+
     }
 
     /**
-     * Creates a new News model.
+     * Creates a new Room model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new News();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles()) {
+        $model = new Room();
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
         }
         return ['errors' => $model->errors];
     }
 
     /**
-     * Updates an existing News model.
+     * Updates an existing Room model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -123,7 +87,7 @@ class NewsController extends Controller
     }
 
     /**
-     * Deletes an existing News model.
+     * Deletes an existing Room model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -134,15 +98,15 @@ class NewsController extends Controller
     }
 
     /**
-     * Finds the News model based on its primary key value.
+     * Finds the Room model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return News the loaded model
+     * @return Room the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = News::findOne($id)) !== null) {
+        if (($model = Room::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
             }

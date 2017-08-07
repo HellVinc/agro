@@ -50,10 +50,10 @@ class Advertisement extends ExtendedActiveRecord
     const NOT_DELETED = 10;
     const DELETED = 0;
 
-    const TYPE_BUY = 1;
-    const TYPE_SELL = 2;
-    const TYPE_CHAT = 3;
-    const TYPE_FINANCE = 4;
+//    const TYPE_BUY = 1;
+//    const TYPE_SELL = 2;
+//    const TYPE_CHAT = 3;
+//    const TYPE_FINANCE = 4;
 
     public function behaviors()
     {
@@ -155,19 +155,8 @@ class Advertisement extends ExtendedActiveRecord
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
         }
-            return Yii::$app->request->getHostInfo() . '/photo/books/empty_book.jpg';
+            return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
 
-    }
-
-
-    public function getBuyCount()
-    {
-        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_BUY])->count();
-    }
-
-    public function getSellCount()
-    {
-        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_SELL])->count();
     }
 
     public function getAttachments()

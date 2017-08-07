@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
+use function foo\func;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -51,6 +52,7 @@ class Comment extends ExtendedActiveRecord
             ]
         ];
     }
+
     /**
      * @inheritdoc
      */
@@ -66,7 +68,7 @@ class Comment extends ExtendedActiveRecord
     {
         return [
             [['advertisement_id', 'viewed', 'status'], 'integer'],
-            [['text', 'created_at', 'created_by'], 'required'],
+            [['text'], 'required'],
             [['text'], 'string'],
             [['advertisement_id'], 'exist', 'skipOnError' => true, 'targetClass' => Advertisement::className(), 'targetAttribute' => ['advertisement_id' => 'id']],
         ];
@@ -90,18 +92,25 @@ class Comment extends ExtendedActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function oneFields()
     {
 
         $result = [
             'id' => $this->id,
-            'name' => $this->text,
+            'advertisement_id' => $this->advertisement_id,
+            'text' => $this->text,
             'viewed' => $this->viewed,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'date' => $this->created_at,
+            'user' => $this->getUser(),
+            'avatar' => User::findOne(['id' => $this->created_by])->photoPath,
+//            'status' => $this->status,
+//            'created_by' => $this->created_by,
+//            'updated_by' => $this->updated_by,
+//            'created_at' => $this->created_at,
+//            'updated_at' => $this->updated_at,
         ];
         return $result;
     }
@@ -113,10 +122,28 @@ class Comment extends ExtendedActiveRecord
                 Comment::className() => [
                     'id',
                     'text',
-                    'viewed'
+                    'viewed',
+                    'date' => function ($model) {
+                        return $model->created_at;
+                    },
+                    'User',
+                    'avatar' => function ($model){
+                        /** @var Comment $model */
+                        return User::findOne($model->created_by)->photoPath;
+
+                    }
                 ],
             ]
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getUser()
+    {
+        $var = User::findOne($this->created_by);
+        return $var->first_name . ' ' . $var->last_name;
     }
 
     /**

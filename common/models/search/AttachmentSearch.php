@@ -5,25 +5,26 @@ namespace common\models\search;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Category;
+use common\models\Attachment;
 
 /**
- * CategorySearch represents the model behind the search form about `common\models\Category`.
+ * AttachmentSearch represents the model behind the search form about `common\models\Attachment`.
  */
-class CategorySearch extends Category
+class AttachmentSearch extends Attachment
 {
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['name'], 'safe'],
+            [['id', 'object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['table', 'extension', 'url'], 'safe'],
         ];
     }
 
@@ -43,7 +44,7 @@ class CategorySearch extends Category
      */
     public function search()
     {
-        $query = Category::find()->where(['status' => 10]);
+        $query = Attachment::find();
 
         // add conditions that should always apply here
 
@@ -66,7 +67,7 @@ class CategorySearch extends Category
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'type' => $this->type,
+            'object_id' => $this->object_id,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -74,7 +75,9 @@ class CategorySearch extends Category
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        $query->andFilterWhere(['like', 'table', $this->table])
+            ->andFilterWhere(['like', 'extension', $this->extension])
+            ->andFilterWhere(['like', 'url', $this->url]);
 
         return $dataProvider;
     }

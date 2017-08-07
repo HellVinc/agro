@@ -6,6 +6,8 @@ use Yii;
 use common\models\Favorites;
 use common\models\search\FavoritesSearch;
 use yii\db\Query;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -18,28 +20,65 @@ class FavoritesController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
-//        ];
-//    }
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'create',
+                'update',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => ['@'],
+
+                ],
+            ],
+        ];
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['delete'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * Lists all Favorites models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionAll()
     {
         $model = new FavoritesSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? Favorites::allFields($result) : $model->getErrors();
-
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => Favorites::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
     }
 
     /**
@@ -48,8 +87,7 @@ class FavoritesController extends Controller
      */
     public function actionView()
     {
-        $model = $this->findModel(Yii::$app->request->get('id'));
-        return $model->oneFields();
+        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
     }
 
     /**
@@ -63,9 +101,9 @@ class FavoritesController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
-        } else {
-            return ['errors' => $model->errors];
         }
+        return ['errors' => $model->errors];
+
     }
 
     /**
@@ -79,12 +117,12 @@ class FavoritesController extends Controller
         $model = $this->findModel($id);
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
-                'category' => $model,
+                strtolower($model->getClassName()) => $model
             ];
-        } else {
-            return ['errors' => $model->errors()];
         }
+        return ['errors' => $model->errors()];
     }
+
 
     /**
      * Deletes an existing Favorites model.

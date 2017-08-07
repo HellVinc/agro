@@ -5,12 +5,12 @@ namespace common\models\search;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Category;
+use common\models\Room;
 
 /**
- * CategorySearch represents the model behind the search form about `common\models\Category`.
+ * RoomSearch represents the model behind the search form about `common\models\Room`.
  */
-class CategorySearch extends Category
+class RoomSearch extends Room
 {
     public $size = 10;
     public $sort = [
@@ -22,8 +22,8 @@ class CategorySearch extends Category
     public function rules()
     {
         return [
-            [['id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['name'], 'safe'],
+            [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['title', 'description'], 'safe'],
         ];
     }
 
@@ -39,11 +39,13 @@ class CategorySearch extends Category
     /**
      * Creates data provider instance with search query applied
      *
+     * @param array $params
+     *
      * @return ActiveDataProvider
      */
     public function search()
     {
-        $query = Category::find()->where(['status' => 10]);
+        $query = Room::find();
 
         // add conditions that should always apply here
 
@@ -66,7 +68,6 @@ class CategorySearch extends Category
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'type' => $this->type,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -74,7 +75,8 @@ class CategorySearch extends Category
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        $query->andFilterWhere(['like', 'title', $this->title])
+            ->andFilterWhere(['like', 'description', $this->description]);
 
         return $dataProvider;
     }

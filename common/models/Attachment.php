@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\helpers\ExtendedActiveRecord;
 use common\components\UploadFile;
 use Yii;
 use common\components\traits\errors;
@@ -10,6 +11,7 @@ use common\components\traits\findRecords;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "attachment".
@@ -24,8 +26,9 @@ use yii\db\ActiveRecord;
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
+ * @property integer $fileDir
  */
-class Attachment extends ActiveRecord
+class Attachment extends ExtendedActiveRecord
 {
     const NOT_DELETED = 10;
     const DELETED = 0;
@@ -66,10 +69,45 @@ class Attachment extends ActiveRecord
     public function rules()
     {
         return [
-            [['`object_id', 'table', 'extension', 'url'], 'required'],
+            [['object_id', 'table', 'extension', 'url'], 'required'],
             [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['table', 'extension', 'url'], 'string', 'max' => 255],
         ];
+    }
+
+    public function oneFields()
+    {
+
+        $result = [
+            'id' => $this->id,
+            'object_id' => $this->object_id,
+            'table' => $this->table,
+            'extension' => $this->extension,
+            'url' => $this->url,
+            'status' => $this->status,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+        return $result;
+    }
+
+    public static function allFields($result)
+    {
+        return ArrayHelper::toArray($result,
+            [
+                Advertisement::className() => [
+                    'id',
+                    'object_id',
+                    'table',
+                    'extension',
+                    'created_at',
+                    'updated_at',
+                    'created_by'
+                ],
+            ]
+        );
     }
 
     public function fields()
@@ -116,10 +154,8 @@ class Attachment extends ActiveRecord
                 }
             }
             return $this;
-        } else {
-
-            return self::uploadOne('file', $this->id, $this->tableName());
         }
+            return self::uploadOne('file', $this->id, $this->tableName());
     }
 
     public static function removeWithParent($all)
@@ -137,13 +173,13 @@ class Attachment extends ActiveRecord
 
     public function getFilePath()
     {
-        return Yii::$app->request->hostInfo . "/files/" . $this->table . "/" . $this->object_id ."/". $this->url;
+        return Yii::$app->request->hostInfo . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
     }
 
     public function getFileDir()
     {
 
-        return dirname(Yii::getAlias('@app')) . '/files/' . $this->table . "/" . $this->object_id ."/". $this->url;
+        return dirname(Yii::getAlias('@app')) . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
     }
 
     /**
