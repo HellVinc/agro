@@ -133,13 +133,11 @@ class Advertisement extends ExtendedActiveRecord
                 'type',
                 'viewed',
                 'status',
-                'created_by',
+                'created_by' => 'user',
                 'updated_by',
                 'created_at',
                 'updated_at',
-                'files' => function($model) {
-                    return $model->attachments;
-                }
+                'attachments'
             ]),
         ];
     }
@@ -159,10 +157,21 @@ class Advertisement extends ExtendedActiveRecord
             'viewed',
             'created_at',
             'updated_at',
-            'created_by',
+            'created_by' => 'user',
             'attachments'
         ]);
     }
+
+    public function getUser()
+    {
+        return User::getFields($this->createdUser, ['id', 'phone' => 'Phone']);
+    }
+
+    public function getCreatedUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'created_by']);//->andOnCondition(['user.status' => self::STATUS_ACTIVE]);
+    }
+
 
     public function getPhotoPath()
     {
