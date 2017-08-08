@@ -24,7 +24,7 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'tag_id', 'category_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'tag_id', 'trade_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
@@ -61,31 +61,24 @@ class AdvertisementSearch extends Advertisement
             ],
         ]);
 
-
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
-
-        $query->joinWith(Tag::tableName());
+        $query->joinWith('tag');
         // grid filtering conditions
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
-            'type' => $this->type,
+            'trade_type' => $this->trade_type,
             'advertisement.status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
+            'advertisement.created_at' => $this->created_at,
+            'advertisement.updated_at' => $this->updated_at,
+            'advertisement.created_by' => $this->created_by,
+            'advertisement.updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'text', $this->text])
             ->andFilterWhere(['like', 'latitude', $this->latitude])
             ->andFilterWhere(['like', 'longitude', $this->longitude])
-            ->andFilterWhere(['like', 'tag.category_id',$this->category_id]);
+            ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
 
         return $dataProvider;
     }

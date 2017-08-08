@@ -183,7 +183,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                     'last_name',
                     'role',
                     'photoPath',
-                    'Phone',
+                    'phone' => 'Phone',
                     'rating'
                 ],
             ]

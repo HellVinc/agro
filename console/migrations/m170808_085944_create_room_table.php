@@ -3,19 +3,18 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `discussion`.
+ * Handles the creation of table `room`.
  */
-class m170707_154146_create_discussion_table extends Migration
+class m170808_085944_create_room_table extends Migration
 {
     /**
      * @inheritdoc
      */
-    public function up()
+    public function safeUp()
     {
-        $this->createTable('discussion', [
+        $this->createTable('room', [
             'id' => $this->primaryKey(),
-            'category_id' => $this->integer()->notNull(),
-            'tag_id' => $this->integer()->notNull(),
+            'type' => $this->integer()->notNull(),
             'title' => $this->string(255)->notNull(),
             'description' => $this->text()->notNull(),
             'status' => $this->smallInteger(1)->defaultValue(10),
@@ -29,8 +28,8 @@ class m170707_154146_create_discussion_table extends Migration
     /**
      * @inheritdoc
      */
-    public function down()
+    public function safeDown()
     {
-        $this->dropTable('discussion');
+        $this->dropTable('room');
     }
 }

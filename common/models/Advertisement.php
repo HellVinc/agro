@@ -87,8 +87,8 @@ class Advertisement extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['tag_id', 'title', 'text', 'type'], 'required'],
-            [['tag_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['tag_id', 'title', 'text', 'trade_type'], 'required'],
+            [['tag_id', 'trade_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
@@ -105,7 +105,7 @@ class Advertisement extends ExtendedActiveRecord
             'id' => 'ID',
             'title' => 'Title',
             'text' => 'Text',
-            'type' => 'Type',
+            'trade_type' => 'Trade Type',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -121,7 +121,6 @@ class Advertisement extends ExtendedActiveRecord
             'id' => $this->id,
             'title' => $this->title,
             'text' => $this->text,
-            'type' => $this->type,
             'status' => $this->status,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
@@ -140,7 +139,6 @@ class Advertisement extends ExtendedActiveRecord
                     'id',
                     'title',
                     'text',
-                    'type',
                     'created_at',
                     'updated_at',
                     'created_by',
