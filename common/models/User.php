@@ -235,9 +235,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'last_name',
             'role',
             'photoPath',
-            'phone' => function($model) {
-                return $model->Phone;
-            },
+            'phone' => 'Phone',
             'status',
             'rating',
         ]);
@@ -252,9 +250,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             strtolower($this->getClassName()) => self::getFields($this, [
                 'id',
                 'role',
-                'phone' => function($model) {
-                    return $model->Phone;
-                },
+                'phone' => 'Phone',
                 'photo',
                 'status',
                 'first_name',

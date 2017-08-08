@@ -48,10 +48,10 @@ class Advertisement extends ExtendedActiveRecord
     public $category_id;
     public $photo;
 
-    const TYPE_BUY = 1;
-    const TYPE_SELL = 2;
-    const TYPE_CHAT = 3;
-    const TYPE_FINANCE = 4;
+    //const TYPE_BUY = 1;
+    //const TYPE_SELL = 2;
+    //const TYPE_CHAT = 3;
+    //const TYPE_FINANCE = 4;
 
     const TYPE_UNVIEWED = 0;
     const TYPE_VIEWED = 1;
@@ -88,8 +88,8 @@ class Advertisement extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['tag_id', 'title', 'text', 'type'], 'required'],
-            [['tag_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['tag_id', 'title', 'text'], 'required'],
+            [['tag_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
@@ -109,7 +109,6 @@ class Advertisement extends ExtendedActiveRecord
             'id' => 'ID',
             'title' => 'Title',
             'text' => 'Text',
-            'type' => 'Type',
             'viewed' => 'Viewed',
             'status' => 'Status',
             'created_at' => 'Created At',
@@ -130,7 +129,6 @@ class Advertisement extends ExtendedActiveRecord
                 'id',
                 'title',
                 'text',
-                'type',
                 'viewed',
                 'status',
                 'created_by' => 'user',
@@ -152,7 +150,6 @@ class Advertisement extends ExtendedActiveRecord
             'id',
             'title',
             'text',
-            'type',
             'status',
             'viewed',
             'created_at',
