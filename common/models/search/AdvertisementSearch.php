@@ -24,7 +24,7 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'tag_id', 'trade_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['id', 'tag_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
@@ -66,7 +66,6 @@ class AdvertisementSearch extends Advertisement
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
-            'trade_type' => $this->trade_type,
             'advertisement.status' => $this->status,
             'advertisement.created_at' => $this->created_at,
             'advertisement.updated_at' => $this->updated_at,

@@ -128,6 +128,15 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return $this;
     }
 
+    public function saveUpdate()
+    {
+        if(Yii::$app->request->post('password')){
+            $this->setPassword($this->password);
+            $this->save();
+            return $this;
+        }
+    }
+
     public function getPhone()
     {
         return '+380' . $this->phone;
@@ -315,7 +324,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
      */
     public function setPassword($password)
     {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+      $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**

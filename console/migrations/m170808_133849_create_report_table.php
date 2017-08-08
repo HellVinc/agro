@@ -3,21 +3,20 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `attachment`.
+ * Handles the creation of table `report`.
  */
-class m170707_112702_create_attachment_table extends Migration
+class m170808_133849_create_report_table extends Migration
 {
     /**
      * @inheritdoc
      */
-    public function up()
+    public function safeUp()
     {
-        $this->createTable('attachment', [
+        $this->createTable('report', [
             'id' => $this->primaryKey(),
             'object_id' => $this->integer()->notNull(),
             'table' => $this->string(255)->notNull(),
-            'extension' => $this->string(255)->notNull(),
-            'url' => $this->string(255)->notNull(),
+            'text' => $this->text()->notNull(),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
@@ -29,8 +28,8 @@ class m170707_112702_create_attachment_table extends Migration
     /**
      * @inheritdoc
      */
-    public function down()
+    public function safeDown()
     {
-        $this->dropTable('attachment');
+        $this->dropTable('report');
     }
 }

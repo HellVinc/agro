@@ -14,7 +14,7 @@ class m170808_085944_create_room_table extends Migration
     {
         $this->createTable('room', [
             'id' => $this->primaryKey(),
-            'type' => $this->integer()->notNull(),
+            'category_id' => $this->integer(),
             'title' => $this->string(255)->notNull(),
             'description' => $this->text()->notNull(),
             'status' => $this->smallInteger(1)->defaultValue(10),
