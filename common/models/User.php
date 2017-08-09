@@ -161,7 +161,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'trim'],
             [['phone'], 'required', 'except' => ['change_pass']],
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
-            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format, use 123456789'],
+            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format, use 8 digit'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
             ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],

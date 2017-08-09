@@ -118,45 +118,27 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
-
-    /**
-     * @return array
-     */
-    public function oneFields()
+    public function fields()
     {
         return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'title',
-                'text',
-                'viewed',
-                'status',
-                'created_by' => 'user',
-                'updated_by',
-                'created_at',
-                'updated_at',
-                'attachments'
-            ]),
-        ];
-    }
-
-    /**
-     * @param $result
-     * @return array
-     */
-    public static function allFields($result)
-    {
-        return self::getFields($result, [
             'id',
             'title',
             'text',
-            'status',
             'viewed',
+            'status',
+            'created_by' => 'user',
+            'updated_by',
             'created_at',
             'updated_at',
-            'created_by' => 'user',
             'attachments'
-        ]);
+        ];
+    }
+
+    public function extraFields()
+    {
+        return [
+            'photoPath'
+        ];
     }
 
     public function getUser()
