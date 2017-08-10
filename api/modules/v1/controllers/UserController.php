@@ -153,18 +153,20 @@ class UserController extends Controller
 
     /**
      * Updates an existing User model.
-     * @param integer $id
      * @return mixed
      */
     public function actionUpdate()
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
 
-        if ($model->load(['User' => Yii::$app->request->post()]) && $model->save() && $model->checkFiles()) {
+        if ($model->load(['User' => Yii::$app->request->post()])   && $model->save()) {
 //            if(Yii::$app->request->post('password')){
 //                return  $model->saveUpdate();
 //            }
 //          $model->save();
+            $model->image_file = 'photo';
+
+             $model->savePhoto();
             return $model;
         }
         return ['errors' => $model->errors];
@@ -179,7 +181,7 @@ class UserController extends Controller
      */
     public function actionDelete($id)
     {
-        return $this->findModel($id)->delete(true);
+        return $this->findModel($id)->delete();
     }
 
 

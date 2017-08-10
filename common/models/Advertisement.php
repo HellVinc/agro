@@ -23,7 +23,7 @@ use yii\helpers\ArrayHelper;
  * @property string $text
  * @property string $latitude
  * @property string $longitude
- * @property integer $type
+ * @property integer $trade_type
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -50,10 +50,8 @@ class Advertisement extends ExtendedActiveRecord
     const NOT_DELETED = 10;
     const DELETED = 0;
 
-//    const TYPE_BUY = 1;
-//    const TYPE_SELL = 2;
-//    const TYPE_CHAT = 3;
-//    const TYPE_FINANCE = 4;
+    const TYPE_BUY = 1;
+    const TYPE_SELL = 2;
 
     public function behaviors()
     {

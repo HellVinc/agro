@@ -20,6 +20,7 @@ use yii\helpers\ArrayHelper;
  * @property string $title
  * @property string $text
  * @property string $url
+ * @property string $type
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -74,7 +75,7 @@ class News extends ExtendedActiveRecord
     {
         return [
             [['text', 'url'], 'string'],
-            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title'], 'string', 'max' => 255],
         ];
     }
@@ -88,6 +89,7 @@ class News extends ExtendedActiveRecord
             'title' => 'Title',
             'text' => 'Text',
             'url' => 'Url',
+            'type' => 'Type',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -112,7 +114,8 @@ class News extends ExtendedActiveRecord
             'id' => $this->id,
             'title' => $this->title,
             'text' => $this->text,
-            'url' => $this->url,
+            'url' => 'http://myagro/files/skFHvafJvs0.jpg',
+            'type' => $this->type,
             'status' => $this->status,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
@@ -132,9 +135,18 @@ class News extends ExtendedActiveRecord
                     'title',
                     'text',
                     'url',
+                    'type',
                     'img' => function($model){
             /** News @var $model */
-                        return $model->getPhotoPath();
+                        return 'http://192.168.0.133/files/skFHvafJvs0.jpg';
+                    },
+                    'created_at' => function($model) {
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'url1' => function($model){
+                        /** News @var $model */
+                        $url = parse_url($model->url);
+                        return $url['scheme'] . '://' . $url['host'];
                     }
                 ],
             ]

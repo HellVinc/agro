@@ -18,7 +18,7 @@ use common\components\traits\findRecords;
  *
  * @property integer $id
  * @property string $name
- * @property string $type
+ * @property string $category_type
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -35,8 +35,8 @@ class Category extends ExtendedActiveRecord
     use findRecords;
     use errors;
 
-    const TYPE_BUY = 1;
-    const TYPE_SELL = 2;
+    const TYPE_TRADE = 1;
+    const TYPE_CHAT = 2;
 
     const DEF_F = ['id', 'Name', 'category_id'];
 
@@ -73,8 +73,11 @@ class Category extends ExtendedActiveRecord
     {
         return [
             [['name'], 'required'],
-            [['type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['category_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'string', 'max' => 255],
+            ['category_type', 'in', 'range' => [self::TYPE_TRADE, self::TYPE_CHAT]],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
     }
 
@@ -86,7 +89,7 @@ class Category extends ExtendedActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Name',
-            'type' => 'Type',
+            'category_type' => 'Type',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -101,7 +104,7 @@ class Category extends ExtendedActiveRecord
         $result = [
             'id' => $this->id,
             'name' => $this->name,
-            'type' => $this->type,
+            'category_type' => $this->category_type,
             'status' => $this->status,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
@@ -119,7 +122,7 @@ class Category extends ExtendedActiveRecord
                 Category::className() => [
                     'id',
                     'Name',
-                    'type',
+                    'category_type',
                     'tags' => function($model){
                         /** @var $model Category */
                         return Tag::getFields($model->tags, self::DEF_F);
@@ -139,7 +142,7 @@ class Category extends ExtendedActiveRecord
                 Category::className() => [
                     'id',
                     'Name',
-                    'type',
+                    'category_type',
 //                    'tags' => function($model){
 //            /** @var $model Category */
 //                        return Tag::allFields($model->getTags()->all());

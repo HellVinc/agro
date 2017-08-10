@@ -1,4 +1,5 @@
 <?php
+
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
@@ -8,6 +9,7 @@ use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
 
+use common\components\UploadFile;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\BlameableBehavior;
@@ -36,6 +38,9 @@ use yii\web\IdentityInterface;
  * @property integer $updated_by
  * @property string $password write-only password
  *
+ * @property  $image_file
+ * @property  $extension
+ *
  * @property  $photoPath
  * @property Rating[] $ratings
  */
@@ -48,13 +53,16 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     use modelWithFiles;
 
     public $password;
-    public $photo;
+
+    public $image_file;
+    public $extension;
 
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
 
     const ROLE_ADMIN = 1;
     const ROLE_CLIENT = 2;
+
     /**
      * @inheritdoc
      */
@@ -105,6 +113,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
+            [['photo'], 'string', 'max' => 255],
+//            [['image_file'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
             ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],
             ['role', 'default', 'value' => self::ROLE_CLIENT],
@@ -130,11 +140,12 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function saveUpdate()
     {
-        if(Yii::$app->request->post('password')){
+        if (Yii::$app->request->post('password')) {
             $this->setPassword($this->password);
             $this->save();
             return $this;
         }
+        return $this->errors;
     }
 
     public function getPhone()
@@ -144,10 +155,41 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function getPhotoPath()
     {
-        if ($this->attachments) {
-            return Yii::$app->request->getHostInfo() . '/files/user/' . $this->id . '/' . $this->attachments->url;
+        if ($this->photo) {
+            return Yii::$app->request->getHostInfo() . '/photo/user/' . $this->id . '/' . $this->photo;
         }
-            return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
+        return Yii::$app->request->getHostInfo() . '/photo/user/empty.jpg';
+
+    }
+
+    public function getPhotoDir()
+    {
+        return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
+    }
+
+    public function savePhoto()
+    {
+        $result = (new UploadFile())->upload($this->image_file, $this->id, self::tableName(), 'photo');
+        if (!$result) {
+            return $this->addError('error', 'Image not saved');
+        }
+        if ($this->photo) {
+            $old_photo = $this->photo;
+        }
+        if ($this->save() && isset($old_photo)) {
+            $this->photo = $old_photo;
+            if (file_exists($this->photoDir)) {
+                unlink($this->photoDir);
+            }
+
+            $this->photo = $result;
+        } else {
+            $this->photo = $result;
+        }
+        if ($this->save()) {
+            return $this;
+        }
+        return $this->errors;
 
     }
 
@@ -157,25 +199,20 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     }
 
 
-    public function getPhotoDir()
-    {
-        return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
-    }
-
     public function oneFields()
     {
 
         $result = [
-                'id' => $this->id,
-                'role' => $this->role,
-                'phone' => $this->phone,
-                'photo' => $this->photoPath,
-                'auth_key' => $this->auth_key,
-                'first_name' => $this->first_name,
-                'second_name' => $this->middle_name,
-                'last_name' => $this->last_name,
-                'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at,
+            'id' => $this->id,
+            'role' => $this->role,
+            'phone' => $this->phone,
+            'photo' => $this->photoPath,
+            'auth_key' => $this->auth_key,
+            'first_name' => $this->first_name,
+            'second_name' => $this->middle_name,
+            'last_name' => $this->last_name,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
         return $result;
     }
@@ -200,8 +237,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     }
 
 
-
-    
     /**
      * @inheritdoc
      */
@@ -262,7 +297,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             return false;
         }
 
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $timestamp = (int)substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         return $timestamp + $expire >= time();
     }
@@ -275,11 +310,10 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             $result += $one['rating'];
         }
         $count = $this->getRatings()->count();
-        if($count == 0)
-        {
+        if ($count == 0) {
             return $result;
         }
-        return round($result/$this->getRatings()->count(), 2);
+        return round($result / $this->getRatings()->count(), 2);
     }
 
     /**
@@ -324,7 +358,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
      */
     public function setPassword($password)
     {
-      $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**

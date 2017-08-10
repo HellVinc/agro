@@ -32,12 +32,13 @@ class UploadFile extends Model
         ];
     }
 
-    public function upload($name, $row_id, $table)
+    public function upload($name, $row_id, $table, $type)
     {
         $this->file = UploadedFile::getInstanceByName($name);
         if ($this->validate()) {
             $this->name = substr(uniqid(rand(1, 6)), 0, 8);
-            $dir = dirname(Yii::getAlias('@app')) . '/files/' . $table;
+            $dir = dirname(Yii::getAlias('@app')) . "/$type/$table";
+
             if (!is_dir($dir)) {
                 FileHelper::createDirectory($dir);
             }
@@ -46,7 +47,7 @@ class UploadFile extends Model
                 FileHelper::createDirectory($dir);
             }
             if ($this->file->saveAs($dir . "/" . $this->name . '.' . $this->file->extension)) {
-                return $this;
+                return $this->name . '.' . $this->file->extension;
             }
             $this->addError('file', 'File not saved');
         }
