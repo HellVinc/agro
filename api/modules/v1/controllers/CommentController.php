@@ -77,7 +77,7 @@ class CommentController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         return [
             'models' => Comment::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page+1,
+            'current_page' => $dataProvider->pagination->page,
             'count_model' => $dataProvider->totalCount
         ];
     }
@@ -136,7 +136,7 @@ class CommentController extends Controller
      */
     public function actionDelete()
     {
-        return $this->findModel(Yii::$app->request->post('id'))->delete(true);
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
 
     }
 
@@ -152,11 +152,9 @@ class CommentController extends Controller
         if (($model = Comment::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+                throw new NotFoundHttpException('The record was archived.');
         }
+            throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

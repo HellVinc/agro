@@ -82,7 +82,10 @@ class UserController extends Controller
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
         if ($model) {
-            return $model->oneFields();
+            return [
+                'model' => $model->oneFields(),
+                'counts' => User::menu()
+            ];
         }
         return ['error' => 'Error. Bad auth_key.'];
     }
@@ -105,23 +108,6 @@ class UserController extends Controller
         return $this->findModel(Yii::$app->request->get('id'))->oneFields();
     }
 
-    public function actionMenu()
-    {
-        $result['buy'] = (new Query())->select('id')
-            ->from('advertisement')
-            ->leftJoin('tag', 'tag.id = advertisement.tag_id')
-            ->leftJoin('category', 'tag.category_id = category.id')
-            ->where(['category.type' => Category::TYPE_BUY])->count();
-        $result['sell'] = (new Query())->select('id')
-            ->from('advertisement')
-            ->leftJoin('tag', 'tag.id = advertisement.tag_id')
-            ->leftJoin('category', 'tag.category_id = category.id')
-            ->where(['category.type' => Category::TYPE_BUY])->count();
-        $result['chat'] = Message::find()->where(['status' => Message::STATUS_ACTIVE])->count();
-        $result['news'] = News::find()->where(['status' => News::STATUS_ACTIVE])->count();
-        return $result;
-    }
-
     /**
      * @return mixed
      */
@@ -142,7 +128,10 @@ class UserController extends Controller
             if ($model->login()) {
                 $result = Yii::$app->user->identity->oneFields();
                 $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
-                return $result;
+                return [
+                    'model' => $result,
+                    'counts' => User::menu()
+                ];
 
             }
             return ['error' => 'Invalid login or password'];

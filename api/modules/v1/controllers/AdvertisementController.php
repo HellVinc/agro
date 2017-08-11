@@ -2,6 +2,10 @@
 
 namespace api\modules\v1\controllers;
 
+use common\components\traits\errors;
+use common\models\Attachment;
+use common\models\Category;
+use common\models\search\CategorySearch;
 use Yii;
 use common\models\Advertisement;
 use common\models\search\AdvertisementSearch;
@@ -76,7 +80,9 @@ class AdvertisementController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         return [
             'models' => Advertisement::allFields($dataProvider->getModels()),
-            'count_model' => $dataProvider->getTotalCount()
+            'count_model' => $dataProvider->getTotalCount(),
+            'page_count' => $dataProvider->pagination->pageCount,
+            'current_page' => $dataProvider->pagination->page
         ];
     }
 
@@ -102,9 +108,8 @@ class AdvertisementController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
             return $model->id;
-        } else {
-            return ['errors' => $model->errors];
         }
+        return ['errors' => $model->errors];
     }
 
     /**
@@ -117,13 +122,17 @@ class AdvertisementController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && !$model->getErrors()) {
+            $fileCount = Attachment::find()->where(['object_id' => $model->id, 'table' => 'advertisement'])->count();
+            if ($fileCount > 3) {
+                return ['errors' => 'You can upload not more then 3 files'];
+            }
+            $model->checkFiles();
             return [
                 strtolower($model->getClassName()) => $model
             ];
-        } else {
-            return ['errors' => $model->errors()];
         }
+        return ['errors' => $model->errors];
     }
 
     /**
@@ -134,7 +143,7 @@ class AdvertisementController extends Controller
      */
     public function actionDelete($id)
     {
-        return $this->findModel($id)->delete(true);
+        return $this->findModel($id)->delete();
     }
 
     /**
@@ -149,11 +158,9 @@ class AdvertisementController extends Controller
         if (($model = Advertisement::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+                throw new NotFoundHttpException('The record was archived.');
         }
+            throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

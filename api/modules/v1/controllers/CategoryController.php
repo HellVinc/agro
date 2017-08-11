@@ -41,10 +41,8 @@ class CategoryController extends Controller
         $model = new CategorySearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
 
-        return [
-            'models' => Category::allFields($dataProvider->getModels()),
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+        return Category::allFields($dataProvider->getModels());
+//            'count_model' => $dataProvider->getTotalCount()
 
 //        return $result ? Category::getFields($result['models']) : $model->getErrors();
     }
@@ -101,7 +99,7 @@ class CategoryController extends Controller
      */
     public function actionDelete($id)
     {
-        return $this->findModel($id)->delete(true);
+        return $this->findModel($id)->delete();
     }
 
     /**
@@ -116,11 +114,10 @@ class CategoryController extends Controller
         if (($model = Category::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }
+

@@ -19,11 +19,7 @@ trait findRecords
         if ($request && (!$this->load([soft::lastNameClass(static::className()) => $request]) || !$this->validate())) {
             return null;
         }
-
-        $dataProvider = $this->search();
-
-        return $dataProvider;
-
+        return $this->search();
 //        return [
 //            'models' => $models,
 ////            'count_page' => $dataProvider->pagination->pageCount,

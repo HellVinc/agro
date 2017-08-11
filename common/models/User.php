@@ -15,6 +15,7 @@ use yii\base\NotSupportedException;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
@@ -182,9 +183,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                 unlink($this->photoDir);
             }
 
-            $this->photo = $result;
+            $this->photo = $result->name . '.' . $result->file->extension;
         } else {
-            $this->photo = $result;
+            $this->photo = $result->name . '.' . $result->file->extension;
         }
         if ($this->save()) {
             return $this;
@@ -314,6 +315,19 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             return $result;
         }
         return round($result / $this->getRatings()->count(), 2);
+    }
+
+    public static function menu()
+    {
+        $result['buy'] = (new Query())->select('id')
+            ->from('advertisement')
+            ->where(['trade_type' => Advertisement::TYPE_BUY])->count();
+        $result['sell'] = (new Query())->select('id')
+            ->from('advertisement')
+            ->where(['trade_type' => Advertisement::TYPE_SELL])->count();
+        $result['chat'] = Message::find()->where(['status' => Message::STATUS_ACTIVE])->count();
+        $result['news'] = News::find()->where(['status' => News::STATUS_ACTIVE])->count();
+        return $result;
     }
 
     /**

@@ -88,6 +88,7 @@ class Advertisement extends ExtendedActiveRecord
             [['tag_id', 'title', 'text', 'trade_type'], 'required'],
             [['tag_id', 'trade_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
+//            ['trade_type', 'filter', 'filter' => 'intval'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
@@ -112,38 +113,45 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
+    /**
+ * @return array
+ */
     public function oneFields()
     {
-
-        $result = [
-            'id' => $this->id,
-            'title' => $this->title,
-            'text' => $this->text,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'attachments' => $this->attachments
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'title',
+                'text',
+                'trade_type',
+                'viewed',
+                'status',
+                'user' => 'User',
+                'created_at',
+                'updated_at',
+                'attachments'
+            ]),
         ];
-        return $result;
     }
 
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Advertisement::className() => [
-                    'id',
-                    'title',
-                    'text',
-                    'created_at',
-                    'updated_at',
-                    'created_by',
-                    'attachments'
-                ],
-            ]
-        );
+        return self::getFields($result, [
+            'id',
+            'title',
+            'text',
+            'trade_type',
+            'viewed',
+            'status',
+            'user' => 'User',
+            'created_at',
+            'updated_at',
+            'attachments'
+        ]);
     }
 
     public function getPhotoPath()
@@ -157,7 +165,11 @@ class Advertisement extends ExtendedActiveRecord
 
     public function getAttachments()
     {
-        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::NOT_DELETED]);
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'attachment.table' => 'advertisement',
+                'table' => self::tableName()
+            ]);
     }
 
     /**

@@ -97,7 +97,7 @@ class AttachmentController extends Controller
      */
     public function actionDelete()
     {
-        return $this->findModel(Yii::$app->request->post('id'))->delete(true);
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
 
     }
     /**
@@ -112,11 +112,9 @@ class AttachmentController extends Controller
         if (($model = Attachment::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+                throw new NotFoundHttpException('The record was archived.');
         }
+            throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

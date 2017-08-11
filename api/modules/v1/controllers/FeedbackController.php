@@ -116,11 +116,9 @@ class FeedbackController extends Controller
         if (($model = Feedback::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
+            }
                 throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
             throw new NotFoundHttpException('The requested page does not exist.');
-        }
     }
 }

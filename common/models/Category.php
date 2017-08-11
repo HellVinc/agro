@@ -121,7 +121,7 @@ class Category extends ExtendedActiveRecord
             [
                 Category::className() => [
                     'id',
-                    'Name',
+                    'name' => 'Name',
                     'category_type',
                     'tags' => function($model){
                         /** @var $model Category */

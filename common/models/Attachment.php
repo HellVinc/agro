@@ -120,7 +120,7 @@ class Attachment extends ExtendedActiveRecord
     public static function uploadOne($name, $id, $table)
     {
         $file = new self();
-        $result = (new UploadFile())->upload($name, $id, $table);
+        $result = (new UploadFile())->upload($name, $id, $table, 'files');
         if (!$result) {
             return $file->addError('error', 'File not saved');
         }
@@ -173,7 +173,8 @@ class Attachment extends ExtendedActiveRecord
 
     public function getFilePath()
     {
-        return Yii::$app->request->hostInfo . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
+//        return Yii::$app->request->hostInfo . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
+        return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
     }
 
     public function getFileDir()

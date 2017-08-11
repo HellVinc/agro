@@ -2,6 +2,7 @@
 
 namespace common\components\traits;
 
+use common\models\User;
 use Yii;
 
 trait soft
@@ -77,6 +78,18 @@ trait soft
         }
     }
 
+    public function getUser()
+    {
+        $user = User::findOne($this->created_by);
+        if($user){
+            return [
+                'name' => $user->first_name,
+                'surname' => $user->last_name,
+                'photo' => $user->photoPath
+            ];
+        }
+        return null;
+    }
 //    public function disable()
 //    {
 //        $className = $this::lastNameClass(static::className());

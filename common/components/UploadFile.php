@@ -47,7 +47,7 @@ class UploadFile extends Model
                 FileHelper::createDirectory($dir);
             }
             if ($this->file->saveAs($dir . "/" . $this->name . '.' . $this->file->extension)) {
-                return $this->name . '.' . $this->file->extension;
+                return $this;
             }
             $this->addError('file', 'File not saved');
         }

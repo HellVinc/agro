@@ -114,7 +114,7 @@ class News extends ExtendedActiveRecord
             'id' => $this->id,
             'title' => $this->title,
             'text' => $this->text,
-            'url' => 'http://myagro/files/skFHvafJvs0.jpg',
+            'url' => 'http://192.168.0.118/files/skFHvafJvs0.jpg',
             'type' => $this->type,
             'status' => $this->status,
             'created_by' => $this->created_by,
@@ -138,12 +138,12 @@ class News extends ExtendedActiveRecord
                     'type',
                     'img' => function($model){
             /** News @var $model */
-                        return 'http://192.168.0.133/files/skFHvafJvs0.jpg';
+                        return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
                     },
                     'created_at' => function($model) {
                         return date('Y-m-d', $model->created_at);
                     },
-                    'url1' => function($model){
+                    'resource_url' => function($model){
                         /** News @var $model */
                         $url = parse_url($model->url);
                         return $url['scheme'] . '://' . $url['host'];
