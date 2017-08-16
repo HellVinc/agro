@@ -15,9 +15,8 @@ use yii\db\ActiveRecord;
  *
  * @property integer $id
  * @property string $message
- * @property boolean $viewed
+ * @property integer $viewed
  * @property integer $status
- * @property integer $user_id
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $created_by
@@ -60,11 +59,10 @@ class Feedback extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'message'], 'required'],
+            [['message'], 'required'],
             [['message'], 'string'],
-            [['viewed'], 'boolean'],
-            [['user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+			['status', 'default', 'value' => self::STATUS_ACTIVE],
         ];
     }
 
@@ -78,46 +76,43 @@ class Feedback extends ExtendedActiveRecord
             'message' => 'Message',
             'viewed' => 'Viewed',
             'status' => 'Status',
-            'user_id' => 'User Id',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
     }
-    /**
-     * @param $result
-     * @return array
-     */
-    public static function allFields($result)
-    {
-        return self::getFields($result, [
-            'id',
-            'message',
-            'viewed',
-            'status',
-            'user_id',
-        ]);
-    }
 
-    /**
-     * @return array
-     */
-    public function oneFields()
-    {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'message',
-                'viewed',
-                'status',
-                'user_id',
-                'created_at',
-                'updated_at',
-                'created_by',
-                'updated_by',
-            ]),
-        ];
-    }
-
+//    /**
+//     * @param $result
+//     * @return array
+//     */
+//    public static function allFields($result)
+//    {
+//         return self::responseAll($result, [
+//            'id',
+//            'message',
+//            'viewed',
+//            'status',
+//            'user_id',
+//        ]);
+//    }
+//
+//    /**
+//     * @return array
+//     */
+//    public function oneFields()
+//    {
+//        return $this->responseOne([
+//            'id',
+//            'message',
+//            'viewed',
+//            'status',
+//            'user_id',
+//            'created_at',
+//            'updated_at',
+//            'created_by',
+//            'updated_by',
+//        ]);
+//    }
 }

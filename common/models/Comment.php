@@ -2,6 +2,9 @@
 
 namespace common\models;
 
+//use function foo\func;
+//use Yii;
+
 use common\components\helpers\ExtendedActiveRecord;
 use common\components\traits\errors;
 use common\components\traits\findRecords;
@@ -48,6 +51,7 @@ class Comment extends ExtendedActiveRecord
             ]
         ];
     }
+
     /**
      * @inheritdoc
      */
@@ -63,7 +67,7 @@ class Comment extends ExtendedActiveRecord
     {
         return [
             [['advertisement_id', 'viewed', 'status'], 'integer'],
-            [['text', 'created_at', 'created_by'], 'required'],
+            [['text'], 'required'],
             [['text'], 'string'],
             [['advertisement_id'], 'exist', 'skipOnError' => true, 'targetClass' => Advertisement::className(), 'targetAttribute' => ['advertisement_id' => 'id']],
         ];
@@ -88,16 +92,15 @@ class Comment extends ExtendedActiveRecord
     }
 
     /**
-     * @param $result
      * @return array
      */
-    public static function allFields($result)
+    public function extraFields()
     {
-        return self::getFields($result, [
-            'id',
-            'text',
-            'viewed'
-        ]);
+        return [
+            'date' => $this->created_at,
+            'user' => $this->getUser(),
+            'avatar' => User::findOne(['id' => $this->created_by])->photoPath,
+        ];
     }
 
     /**
@@ -105,18 +108,45 @@ class Comment extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'name',
-                'viewed',
-                'status',
-                'created_by',
-                'updated_by',
-                'created_at',
-                'updated_at',
-            ]),
-        ];
+        return $this->responseOne([
+            'id',
+            'advertisement_id',
+            'text',
+            'viewed',
+            'status',
+            'date',
+            'user',
+            'avatar',
+            // 'created_by',
+            // 'updated_by',
+            // 'created_at',
+            // 'updated_at',
+        ]);
+    }
+
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
+    {
+        return self::responseAll($result, [
+            'id',
+            'text',
+            'viewed',
+            'date',
+            'user',
+            'avatar'
+        ]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUser()
+    {
+        $var = User::findOne($this->created_by);
+        return $var->first_name . ' ' . $var->last_name;
     }
 
     /**

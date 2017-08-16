@@ -3,15 +3,14 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 use common\components\UploadFile;
 use Yii;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "attachment".
@@ -80,20 +79,18 @@ class Attachment extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'object_id',
-                'table',
-                'extension',
-                'url',
-                'status',
-                'created_by',
-                'updated_by',
-                'created_at',
-                'updated_at',
-            ]),
-        ];
+        return $this->responseOne([
+            'id',
+            'object_id',
+            'table',
+            'extension',
+            'url',
+            'status',
+            'created_by',
+            'updated_by',
+            'created_at',
+            'updated_at',
+        ]);
     }
 
     /**
@@ -102,7 +99,7 @@ class Attachment extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::getFields($result, [
+        return self::responseAll($result, [
             'id',
             'object_id',
             'table',
@@ -123,7 +120,7 @@ class Attachment extends ExtendedActiveRecord
     public static function uploadOne($name, $id, $table)
     {
         $file = new self();
-        $result = (new UploadFile())->upload($name, $id, $table);
+        $result = (new UploadFile())->upload($name, $id, $table, 'files');
         if (!$result) {
             return $file->addError('error', 'File not saved');
         }

@@ -7,10 +7,12 @@ use common\components\traits\errors;
 use common\components\traits\findRecords;
 use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
+use common\components\UploadFile;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\web\IdentityInterface;
 
 /**
@@ -33,21 +35,27 @@ use yii\web\IdentityInterface;
  * @property integer $updated_by
  * @property string $password write-only password
  *
+ * @property  $image_file
+ * @property  $extension
+ *
  * @property  $photoPath
  * @property Rating[] $ratings
  */
 class User extends ExtendedActiveRecord implements IdentityInterface
 {
+
     use soft;
     use findRecords;
     use errors;
     use modelWithFiles;
 
     public $password;
-    public $photo;
 
-    const STATUS_DELETED = 0;
-    const STATUS_ACTIVE = 10;
+    public $image_file;
+    public $extension;
+
+    // const STATUS_DELETED = 0;
+    // const STATUS_ACTIVE = 10;
 
     const ROLE_ADMIN = 1;
     const ROLE_CLIENT = 2;
@@ -57,8 +65,175 @@ class User extends ExtendedActiveRecord implements IdentityInterface
      */
     public static function tableName()
     {
-        return '{{%user}}';
+        return 'user';
     }
+
+//    public function fields()
+//    {
+//        return [
+//            'first_name',
+//            'last_name',
+//            'Phone',
+//            'auth_key',
+//        ];
+//    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
+                ]
+            ],
+//            'blameable' => [
+//                'class' => BlameableBehavior::className(),
+//                'createdByAttribute' => 'created_by',
+//                'updatedByAttribute' => 'updated_by'
+//            ]
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            ['phone', 'trim'],
+            [['phone'], 'required', 'except' => ['change_pass']],
+            ['phone', 'unique', 'message' => 'This phone has already been taken.'],
+            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format, use 8 digit'],
+            [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
+            [['photo'], 'string', 'max' => 255],
+//            [['image_file'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
+            ['password', 'required', 'on' => 'signUp'],
+            ['password', 'string', 'min' => 6],
+            ['role', 'default', 'value' => self::ROLE_CLIENT],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+        ];
+    }
+
+
+    /**
+     * Signs user up.
+     *
+     * @return User|null the saved model or null if saving fails
+     */
+
+    public function signup()
+    {
+        $this->setPassword($this->password);
+        $this->generateAuthKey();
+        $this->save();
+        return $this;
+    }
+
+    public function saveUpdate()
+    {
+        if (Yii::$app->request->post('password')) {
+            $this->setPassword($this->password);
+            $this->save();
+            return $this;
+        }
+        return $this->errors;
+    }
+
+    public function getPhone()
+    {
+        return '+380' . $this->phone;
+    }
+
+    public function getPhotoPath()
+    {
+        if ($this->photo) {
+            return Yii::$app->request->getHostInfo() . '/photo/user/' . $this->id . '/' . $this->photo;
+        }
+        return Yii::$app->request->getHostInfo() . '/photo/user/empty.jpg';
+
+    }
+
+    public function getPhotoDir()
+    {
+        return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
+    }
+
+    public function savePhoto()
+    {
+        $result = (new UploadFile())->upload($this->image_file, $this->id, self::tableName(), 'photo');
+        if (!$result) {
+            return $this->addError('error', 'Image not saved');
+        }
+        if ($this->photo) {
+            $old_photo = $this->photo;
+        }
+        if ($this->save() && isset($old_photo)) {
+            $this->photo = $old_photo;
+            if (file_exists($this->photoDir)) {
+                unlink($this->photoDir);
+            }
+
+            $this->photo = $result->name . '.' . $result->file->extension;
+        } else {
+            $this->photo = $result->name . '.' . $result->file->extension;
+        }
+        if ($this->save()) {
+            return $this;
+        }
+        return $this->errors;
+
+    }
+
+    public function getAttachments()
+    {
+        return $this->hasOne(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
+    }
+
+    public function extraFields()
+    {
+        return [
+            'phone' => 'Phone',
+            'second_name' => 'middle_name',
+            'photo' => 'photoPath',
+        ];
+    }
+
+    public function oneFields()
+    {
+        return $this->responseOne([
+            'id',
+            'role',
+            'phone',
+            'photo',
+            'auth_key',
+            'first_name',
+            'second_name',// mmm, nu ok
+            'last_name',
+            'created_at',
+            'updated_at',
+        ]);
+    }
+
+    public static function allFields($result)
+    {
+        return self::responseAll($result, [
+            'id',
+            'first_name',
+            'middle_name',// mmm, nu ok
+            'last_name',
+            'role',
+            'photoPath',
+            'phone',
+            'rating'
+        ]);
+    }
+
 
     /**
      * @inheritdoc
@@ -71,13 +246,12 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     /**
      * @param mixed $token
      * @param null $type
-     * @throws NotSupportedException
-     *
-     * @return null
+     * @return static
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        return static::findOne(['auth_key' => $token]);
+        // throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
     }
 
     /**
@@ -126,81 +300,66 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return $timestamp + $expire >= time();
     }
 
-    public function fields()
+    public function getRating()
     {
-        return [
-            'first_name',
-            'last_name',
-            'phone' => 'Phone',
-        ];
-    }
-
-    public function getField($module)
-    {
-        switch ($module) {
-            case 'v1':
-                return [
-                    'auth_key',
-                ];
-                break;
-
-            case 'v2':
-                return [
-                    'count_reports' => function ($model) {
-                        return '1';
-                    },
-                ];
-                break;
+        $result = 0;
+        $ratings = $this->ratings;
+        foreach ($ratings as $one) {
+            $result += $one['rating'];
         }
+        $count = $this->getRatings()->count();
+        if ($count == 0) {
+            return $result;
+        }
+        return round($result / $this->getRatings()->count(), 2);
+    }
+
+    public static function menu()
+    {
+        $result['buy'] = (new Query())->select('id')
+            ->from('advertisement')
+            ->where(['trade_type' => Advertisement::TYPE_BUY])->count();
+        $result['sell'] = (new Query())->select('id')
+            ->from('advertisement')
+            ->where(['trade_type' => Advertisement::TYPE_SELL])->count();
+        $result['chat'] = Message::find()->where(['status' => Message::STATUS_ACTIVE])->count();
+        $result['news'] = News::find()->where(['status' => News::STATUS_ACTIVE])->count();
+        return $result;
     }
 
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function getId()
     {
-        return [
-            'timestamp' => [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
-                ]
-            ],
-        ];
+        return $this->getPrimaryKey();
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function getAuthKey()
     {
-        return [
-            ['phone', 'trim'],
-            [['phone'], 'required', 'except' => ['change_pass']],
-            ['phone', 'unique', 'message' => 'This phone has already been taken.'],
-            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format, use 8 digit'],
-            [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-            ['password', 'required', 'on' => 'signUp'],
-            ['password', 'string', 'min' => 6],
-            ['role', 'default', 'value' => self::ROLE_CLIENT],
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-        ];
+        return $this->auth_key;
     }
 
     /**
-     * Signs user up.
+     * @inheritdoc
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+
+    /**
+     * Validates password
      *
-     * @return User|null the saved model or null if saving fails
+     * @param string $password password to validate
+     * @return bool if password provided is valid for current user
      */
-
-    public function signup()
+    public function validatePassword($password)
     {
-        $this->setPassword($this->password);
-        $this->generateAuthKey();
-        $this->save();
-        return $this;
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 
     /**
@@ -221,122 +380,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         $this->auth_key = Yii::$app->security->generateRandomString();
     }
 
-    public function getPhone()
-    {
-        return '+380' . $this->phone;
-    }
-
-    public function getPhotoPath()
-    {
-        if ($this->photo) {
-            return Yii::$app->request->getHostInfo() . '/photo/users/' . $this->id . '/' . $this->photo;
-        }
-        return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
-
-    }
-
-    public function getPhotoDir()
-    {
-        return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
-    }
-
-    /**
-     * @param $result
-     * @return array
-     */
-    public static function allFields($result)
-    {
-        return self::getFields($result, [
-            'id',
-            'first_name',
-            'middle_name',
-            'last_name',
-            'role',
-            'photoPath',
-            'phone',
-            'status',
-            'rating',
-        ]);
-    }
-
-    /**
-     * @return array
-     */
-    public function oneFields()
-    {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'role',
-                'phone',
-                'photo',
-                'status',
-                'first_name',
-                'middle_name',
-                'last_name',
-                'created_at',
-                'updated_at',
-            ]),
-        ];
-    }
-
-    public function getRating()
-    {
-        $result = 0;
-        $ratings = $this->ratings;
-        foreach ($ratings as $one) {
-            $result += $one['rating'];
-        }
-        $count = $this->getRatings()->count();
-        if ($count == 0) {
-            return 0;
-        }
-        return $result / $this->getRatings()->count();
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRatings()
-    {
-        return $this->hasMany(Rating::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getId()
-    {
-        return $this->getPrimaryKey();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function validateAuthKey($authKey)
-    {
-        return $this->getAuthKey() === $authKey;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getAuthKey()
-    {
-        return $this->auth_key;
-    }
-
-    /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
-     */
-    public function validatePassword($password)
-    {
-        return Yii::$app->security->validatePassword($password, $this->password_hash);
-    }
-
     /**
      * Generates new password reset token
      */
@@ -351,5 +394,13 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRatings()
+    {
+        return $this->hasMany(Rating::className(), ['user_id' => 'id']);
     }
 }

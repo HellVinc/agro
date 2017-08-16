@@ -5,25 +5,24 @@ namespace common\models\search;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Offer;
+use common\models\Room;
 
 /**
- * OfferSearch represents the model behind the search form about `common\models\Offer`.
+ * RoomSearch represents the model behind the search form about `common\models\Room`.
  */
-class OfferSearch extends Offer
+class RoomSearch extends Room
 {
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
-
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],// 'done', 'checked',
+            [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title', 'description'], 'safe'],
         ];
     }
@@ -40,11 +39,13 @@ class OfferSearch extends Offer
     /**
      * Creates data provider instance with search query applied
      *
+     * @param array $params
+     *
      * @return ActiveDataProvider
      */
     public function search()
     {
-        $query = Offer::find();
+        $query = Room::find();
 
         // add conditions that should always apply here
 
@@ -56,8 +57,7 @@ class OfferSearch extends Offer
             'sort' => [
                 'defaultOrder' => $this->sort
             ],
-        ]);;
-
+        ]);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -69,9 +69,6 @@ class OfferSearch extends Offer
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,
-            //'done' => $this->done,
-            //'checked' => $this->checked,
-            'viewed' => $this->viewed,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,

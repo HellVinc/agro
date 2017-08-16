@@ -6,27 +6,38 @@ use common\components\helpers\ExtendedActiveRecord;
 use common\components\traits\errors;
 use common\components\traits\findRecords;
 use common\components\traits\soft;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "favorites".
+ * This is the model class for table "message".
  *
  * @property integer $id
- * @property integer $object_id
- * @property string $table
+ * @property integer $room_id
+ * @property string $text
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
+ *
+ * @property Room $room
  */
-class Favorites extends ExtendedActiveRecord
+class Message extends ExtendedActiveRecord
 {
     use soft;
     use findRecords;
     use errors;
+
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return 'message';
+    }
 
     public function behaviors()
     {
@@ -45,13 +56,6 @@ class Favorites extends ExtendedActiveRecord
             ]
         ];
     }
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'favorites';
-    }
 
     /**
      * @inheritdoc
@@ -59,8 +63,10 @@ class Favorites extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['object_id', 'table'], 'required'],
-            [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'room_id', 'text'], 'required'],
+            [['id', 'room_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['text'], 'string'],
+            [['room_id'], 'exist', 'skipOnError' => true, 'targetClass' => Room::className(), 'targetAttribute' => ['room_id' => 'id']],
         ];
     }
 
@@ -71,8 +77,8 @@ class Favorites extends ExtendedActiveRecord
     {
         return [
             'id' => 'ID',
-            'object_id' => 'Object ID',
-            'table' => 'Table',
+            'room_id' => 'Room ID',
+            'text' => 'Text',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -82,31 +88,10 @@ class Favorites extends ExtendedActiveRecord
     }
 
     /**
-     * @return array
+     * @return \yii\db\ActiveQuery
      */
-    public function oneFields()
+    public function getRoom()
     {
-        return $this->responseOne([
-            'id',
-            'object_id',
-            'table',
-            'status',
-            'created_by',
-            'updated_by',
-            'created_at',
-            'updated_at',
-        ]);
-    }
-
-    /**
-     * @param $result
-     * @return array
-     */
-    public static function allFields($result)
-    {
-        return self::responseAll($result, [
-            'id',
-            'name'
-        ]);
+        return $this->hasOne(Room::className(), ['id' => 'room_id']);
     }
 }

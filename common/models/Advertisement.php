@@ -3,15 +3,14 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
 use common\components\traits\modelWithFiles;
+use common\components\traits\soft;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use common\components\traits\errors;
-use common\components\traits\soft;
-use common\components\traits\findRecords;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "advertisement".
@@ -117,27 +116,33 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
-    /**
- * @return array
- */
-    public function oneFields()
+    public function extraFields()
     {
         return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'title',
-                'text',
-                'trade_type',
-                'viewed',
-                'status',
-				'created_by' => function ($model) {
-				    return User::getFields($model->createdUser, ['id', 'phone']);
-				},
-                'created_at',
-                'updated_at',
-                'attachments'
-            ]),
+            'created_by' => function ($model) {
+                return User::getFields($model->createdUser, ['id', 'phone']);
+            },
+            'user' => 'User',
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return $this->responseOne([
+            'id',
+            'title',
+            'text',
+            'trade_type',
+            'viewed',
+            'status',
+            'created_by',
+            'created_at',
+            'updated_at',
+            'attachments'
+        ]);
     }
 
     /**
@@ -146,14 +151,14 @@ class Advertisement extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::getFields($result, [
+        return self::responseAll($result, [
             'id',
             'title',
             'text',
             'trade_type',
             'viewed',
             'status',
-            'user' => 'User',
+            'user',
             'created_at',
             'updated_at',
             'attachments'
@@ -165,8 +170,8 @@ class Advertisement extends ExtendedActiveRecord
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
         }
-            return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
 
+        return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
     }
 
     public function getAttachments()
