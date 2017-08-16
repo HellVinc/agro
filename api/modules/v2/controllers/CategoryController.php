@@ -6,6 +6,8 @@ use common\models\Category;
 use common\models\search\CategorySearch;
 use Yii;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -131,5 +133,4 @@ class CategoryController extends Controller
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
-
 }

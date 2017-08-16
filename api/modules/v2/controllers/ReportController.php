@@ -2,19 +2,24 @@
 
 namespace api\modules\v2\controllers;
 
-use common\models\search\UserSearch;
-use common\models\User;
 use Yii;
+use common\models\Report;
+use common\models\search\ReportSearch;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
-use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
-use yii\rest\Controller;
+use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
-
-class UserController extends Controller
+/**
+ * ReportController implements the CRUD actions for Report model.
+ */
+class ReportController extends Controller
 {
+    /**
+     * @inheritdoc
+     */
     public function behaviors()
     {
         return ArrayHelper::merge(parent::behaviors(), [
@@ -35,6 +40,7 @@ class UserController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'all' => ['get'],
+                    'create' => ['post'],
                     'update' => ['post'],
                     'delete' => ['delete'],
                 ],
@@ -43,60 +49,55 @@ class UserController extends Controller
     }
 
     /**
-     * @return array
+     * Lists all Report models.
+     * @return mixed
      */
     public function actionAll()
     {
-        $model = new UserSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
+        $searchModel = new ReportSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return User::allFields($dataProvider);
+        return Report::allFields($dataProvider);
     }
 
-//    public function actionOne()
-//    {
-//        $user = $this->findModel(Yii::$app->request->get('id'));
-//        $result = $user->oneFields();
-//        return $result;
-//    }
-
     /**
-     * Updates an existing User model.
+     * Creates a new Report model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-   public function actionUpdate()
+    public function actionCreate()
+    {
+        $model = new Report();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $model->oneFields();
+        } else {
+            return ['errors' => $model->errors];
+        }
+    }
+
+    /**
+     * Updates an existing Report model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
+    public function actionUpdate()
     {
         $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
 
         $model = $this->findModel($id, true);
-        $post = Yii::$app->request->post();
 
-        if ($post) {
-            if (array_key_exists('status', $post)) {
-                $model->setStatus($post['status']);
-            }
-
-            // if ($post['password'] && $model->validate(['password'])) {
-            //     $model->setPassword($post['password']);
-            // }
-
-            // if ($post['phone'] && preg_match('/^((?:(?:\+?3)?8)?0)\d{9}$/', $post['phone'])) {
-            //     // remove +380
-            //     $post['phone'] = (int)preg_replace('/^((?:(?:\+?3)?8)?0)\d{9}$/', '', $post['phone']);
-            // }
-        }
-
-        if (array_key_exists('status', $post) && $model->save($post)) {//  && $model->saveModel() && $model->checkFiles()
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
+        } else {
+            return ['errors' => $model->errors()];
         }
-        return ['errors' => $model->errors];
-
     }
 
     /**
-     * Deletes an existing Category model.
+     * Deletes an existing Report model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param $id
+     * @param integer $id
      * @return mixed
      */
     public function actionDelete($id)
@@ -105,16 +106,16 @@ class UserController extends Controller
     }
 
     /**
-     * Finds the User model based on its primary key value.
+     * Finds the Report model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
      * @param bool $ignoreStatus
-     * @return User the loaded model
+     * @return Report the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id, $ignoreStatus = false)
     {
-        if (($model = User::findOne($id)) !== null) {
+        if (($model = Report::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
             }

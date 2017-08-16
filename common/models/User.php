@@ -237,14 +237,16 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             case 'v2':
                 return $this->responseOne([
                     'id',
-                    'role',
+                    //'role',
                     'phone',
                     'photo',
                     'first_name',
-                    'middle_name',
+                    //'middle_name',
                     'last_name',
-                    'created_at',
-                    'updated_at',
+                    'count_reports',
+                    'status',
+                    //'created_at',
+                    //'updated_at',
                 ]);
         }
     }
@@ -269,10 +271,11 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                     'first_name',
                     'last_name',
                     'count_reports',
-                    'role',
-                    'photoPath',
+                    //'role',
+                    'photo',
                     'phone',
-                    'rating'
+                    'status',
+                    //'rating'
                 ]);
         }
     }

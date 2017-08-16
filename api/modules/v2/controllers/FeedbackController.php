@@ -9,6 +9,8 @@ use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 
 /**
  * FeedbackController implements the CRUD actions for Feedback model.
