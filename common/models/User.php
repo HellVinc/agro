@@ -197,7 +197,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return $this->hasOne(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
     }
 
-
     public function getReports()
     {
         return $this->hasMany(Report::className(), ['object_id' => 'id'])
@@ -205,6 +204,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                 'report.table' => self::tableName()
             ]);
     }
+
 
     public function extraFields()
     {

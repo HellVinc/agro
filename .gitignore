@@ -33,6 +33,7 @@ phpunit.phar
 
 # vagrant runtime
 /.vagrant
-/photo/users/*
-!/photo/users/empty.jpg
-/files/advertisement/*
+/photo/user/*
+!/photo/user/empty.jpg
+/files/*
+!/files/.htaccess
