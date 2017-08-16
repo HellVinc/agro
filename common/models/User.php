@@ -35,11 +35,13 @@ use yii\web\IdentityInterface;
  * @property integer $updated_by
  * @property string $password write-only password
  *
- * @property  $image_file
- * @property  $extension
+ * @property $image_file
+ * @property $extension
  *
- * @property  $photoPath
+ * @property $photoPath
  * @property Rating[] $ratings
+ *
+ * @property Report reports
  */
 class User extends ExtendedActiveRecord implements IdentityInterface
 {
@@ -108,7 +110,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'trim'],
             [['phone'], 'required', 'except' => ['change_pass']],
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
-            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format, use 8 digit'],
+            ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format, use 9 digit'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
             [['photo'], 'string', 'max' => 255],
 //            [['image_file'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
@@ -195,43 +197,84 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return $this->hasOne(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
     }
 
+
+    public function getReports()
+    {
+        return $this->hasMany(Report::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'report.table' => self::tableName()
+            ]);
+    }
+
     public function extraFields()
     {
         return [
             'phone' => 'Phone',
             'second_name' => 'middle_name',
             'photo' => 'photoPath',
+            'count_reports' => function ($model) {
+                return (int)$model->getReports()->count();
+            },
         ];
     }
 
     public function oneFields()
     {
-        return $this->responseOne([
-            'id',
-            'role',
-            'phone',
-            'photo',
-            'auth_key',
-            'first_name',
-            'second_name',// mmm, nu ok
-            'last_name',
-            'created_at',
-            'updated_at',
-        ]);
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return $this->responseOne([
+                    'id',
+                    'role',
+                    'phone',
+                    'photo',
+                    'auth_key',
+                    'first_name',
+                    'second_name',// middle_name
+                    'last_name',
+                    'created_at',
+                    'updated_at',
+                ]);
+            case 'v2':
+                return $this->responseOne([
+                    'id',
+                    'role',
+                    'phone',
+                    'photo',
+                    'first_name',
+                    'middle_name',
+                    'last_name',
+                    'created_at',
+                    'updated_at',
+                ]);
+        }
     }
 
     public static function allFields($result)
     {
-        return self::responseAll($result, [
-            'id',
-            'first_name',
-            'middle_name',// mmm, nu ok
-            'last_name',
-            'role',
-            'photoPath',
-            'phone',
-            'rating'
-        ]);
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'first_name',
+                    'middle_name',
+                    'last_name',
+                    'role',
+                    'photoPath',
+                    'phone',
+                    'rating'
+                ]);
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'first_name',
+                    'last_name',
+                    'count_reports',
+                    'role',
+                    'photoPath',
+                    'phone',
+                    'rating'
+                ]);
+        }
     }
 
 
@@ -300,6 +343,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return $timestamp + $expire >= time();
     }
 
+    /**
+     * @return float|int|mixed
+     */
     public function getRating()
     {
         $result = 0;
@@ -314,16 +360,23 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return round($result / $this->getRatings()->count(), 2);
     }
 
+    /**
+     * @return mixed
+     */
     public static function menu()
     {
         $result['buy'] = (new Query())->select('id')
             ->from('advertisement')
             ->where(['trade_type' => Advertisement::TYPE_BUY])->count();
+
         $result['sell'] = (new Query())->select('id')
             ->from('advertisement')
             ->where(['trade_type' => Advertisement::TYPE_SELL])->count();
+
         $result['chat'] = Message::find()->where(['status' => Message::STATUS_ACTIVE])->count();
+
         $result['news'] = News::find()->where(['status' => News::STATUS_ACTIVE])->count();
+
         return $result;
     }
 
@@ -402,5 +455,16 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function getRatings()
     {
         return $this->hasMany(Rating::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function beforeDelete()
+    {
+        foreach ($this->reports as $report) {
+            $report->delete();
+        }
+        return parent::beforeDelete();
     }
 }

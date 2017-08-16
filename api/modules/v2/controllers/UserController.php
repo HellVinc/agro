@@ -49,12 +49,8 @@ class UserController extends Controller
     {
         $model = new UserSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
-        return [
-            'models' => User::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page,
-            'count_page' => $dataProvider->pagination->pageCount,
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+
+        return User::allFields($dataProvider);
     }
 
 //    public function actionOne()
@@ -117,11 +113,9 @@ class UserController extends Controller
         if (($model = User::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

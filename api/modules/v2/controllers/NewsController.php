@@ -56,12 +56,7 @@ class NewsController extends Controller
         $model = new NewsSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
-        return [
-            'models' => News::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page,
-            'count_page' => $dataProvider->pagination->pageCount,
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+        return News::allFields($dataProvider);
     }
 
 
@@ -123,10 +118,9 @@ class NewsController extends Controller
         if (($model = News::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
-            }        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            }
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

@@ -54,12 +54,7 @@ class FeedbackController extends Controller
         $model = new FeedbackSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
-        return [
-            'models' => Feedback::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page,
-            'count_page' => $dataProvider->pagination->pageCount,
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+        return Feedback::allFields($dataProvider);
     }
 
     /**
@@ -104,11 +99,9 @@ class FeedbackController extends Controller
         if (($model = Feedback::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

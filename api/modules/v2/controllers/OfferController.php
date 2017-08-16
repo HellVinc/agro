@@ -55,12 +55,7 @@ class OfferController extends Controller
         $model = new OfferSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
-        return [
-            'models' => Offer::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page,
-            'count_page' => $dataProvider->pagination->pageCount,
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+        return Offer::allFields($dataProvider);
     }
 
 //    /**
@@ -122,11 +117,9 @@ class OfferController extends Controller
         if (($model = Offer::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

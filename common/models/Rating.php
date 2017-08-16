@@ -2,8 +2,11 @@
 
 namespace common\models;
 
-use common\components\helpers\ExtendedActiveRecord;
 use Yii;
+use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\errors;
+use common\components\traits\findRecords;
+use common\components\traits\soft;
 
 /**
  * This is the model class for table "rating".
@@ -20,6 +23,10 @@ use Yii;
  */
 class Rating extends ExtendedActiveRecord
 {
+    use soft;
+    use findRecords;
+    use errors;
+
     /**
      * @inheritdoc
      */

@@ -126,12 +126,10 @@ class CategoryController extends Controller
         if (($model = Category::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 
 }

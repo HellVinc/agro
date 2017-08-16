@@ -91,7 +91,7 @@ class UserController extends Controller
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function actionAll()
     {
@@ -115,6 +115,8 @@ class UserController extends Controller
     {
         $model = new User();
         $model->scenario = 'signUp';
+        $model->role = User::find()->one() ? User::ROLE_CLIENT : User::ROLE_ADMIN;
+
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             return $model->signup();
         }
@@ -127,12 +129,14 @@ class UserController extends Controller
         if ($model->load(Yii::$app->request->post(), "")) {
             if ($model->login()) {
                 $result = Yii::$app->user->identity->oneFields();
-                $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
-                return [
-                    'model' => $result,
-                    'counts' => User::menu()
-                ];
+                $result['counts'] = User::menu();
+                return $result;
 
+                // $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
+                // return [
+                //     'model' => $result,
+                //     'counts' => User::menu()
+                // ];
             }
             return ['error' => 'Invalid login or password'];
 
