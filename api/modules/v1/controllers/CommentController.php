@@ -5,6 +5,8 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Comment;
 use common\models\search\CommentSearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -20,14 +22,49 @@ class CommentController extends Controller
      */
 //    public function behaviors()
 //    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+//        $behaviors = parent::behaviors();
+//        $behaviors['authenticator'] = [
+//            'class' => QueryParamAuth::className(),
+//            'tokenParam' => 'auth_key',
+//            'only' => [
+//                'update',
+//                'create',
+//                'delete',
+//            ],
+//        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
+//
+//        $behaviors['verbFilter'] = [
+//            'class' => VerbFilter::className(),
+//            'actions' => [
+//                'all' => ['get'],
+//                'one' => ['get'],
+//                'create' => ['post'],
+//                'update' => ['post'],
+//                'delete' => ['delete'],
+//            ],
+//        ];
+//
+//        return $behaviors;
 //    }
 
     /**
@@ -37,8 +74,12 @@ class CommentController extends Controller
     public function actionAll()
     {
         $model = new CommentSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? Comment::allFields($result) : $model->getErrors();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => Comment::allFields($dataProvider->getModels()),
+            'current_page' => $dataProvider->pagination->page,
+            'count_model' => $dataProvider->totalCount
+        ];
     }
 
     /**
@@ -62,10 +103,10 @@ class CommentController extends Controller
         $model = new Comment();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
-        } else {
-            return ['errors' => $model->errors];
+            return $model->oneFields();
         }
+        return ['errors' => $model->errors];
+
     }
 
     /**
@@ -80,11 +121,11 @@ class CommentController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
-                'category' => $model,
+                strtolower($model->getClassName()) => $model
             ];
-        } else {
-            return ['errors' => $model->errors()];
         }
+            return ['errors' => $model->errors()];
+
     }
 
     /**
@@ -93,9 +134,9 @@ class CommentController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        return $this->findModel($id)->delete(true);
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
 
     }
 
@@ -111,11 +152,9 @@ class CommentController extends Controller
         if (($model = Comment::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+                throw new NotFoundHttpException('The record was archived.');
         }
+            throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

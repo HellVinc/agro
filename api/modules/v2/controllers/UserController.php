@@ -68,7 +68,7 @@ class UserController extends Controller
      * Updates an existing User model.
      * @return mixed
      */
-    public function actionUpdate()
+   /* public function actionUpdate()
     {
         $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
 
@@ -91,7 +91,7 @@ class UserController extends Controller
         }
         return ['errors' => $model->errors];
 
-    }
+    }*/
 
     /**
      * Deletes an existing Category model.

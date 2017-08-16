@@ -16,7 +16,7 @@ trait modelWithFiles
             $res = $file->saveModel($this);
             if ($res && $res->getErrors()) {
                 $this->addError('error', $res->getErrors());
-            };
+            }
         }
         return $this;
     }

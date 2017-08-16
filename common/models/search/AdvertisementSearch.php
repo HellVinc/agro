@@ -18,15 +18,13 @@ class AdvertisementSearch extends Advertisement
         'id' => SORT_ASC,
     ];
 
-    public $trade = 0;
-
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'trade', 'viewed', 'tag_id', 'category_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
@@ -61,7 +59,6 @@ class AdvertisementSearch extends Advertisement
             ],
         ]);
 
-
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
@@ -72,24 +69,20 @@ class AdvertisementSearch extends Advertisement
         // grid filtering conditions
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
-            'viewed' => $this->viewed,
-            //'status' => $this->status,
             'tag_id' => $this->tag_id,
+            'trade_type' => $this->trade_type,
             'advertisement.status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
+            'advertisement.created_at' => $this->created_at,
+            'advertisement.updated_at' => $this->updated_at,
+            'advertisement.created_by' => $this->created_by,
+            'advertisement.updated_by' => $this->updated_by,
         ]);
-
-        // if 'trade' == 1 {show buy and sell} else {use orig type param}
-        $query->andFilterWhere(['type' => $this->trade == 1 ? [1, 2] : $this->type]);
 
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'text', $this->text])
             ->andFilterWhere(['like', 'latitude', $this->latitude])
             ->andFilterWhere(['like', 'longitude', $this->longitude])
-            ->andFilterWhere(['like', 'tag.category_id',$this->category_id]);
+            ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
 
         return $dataProvider;
     }

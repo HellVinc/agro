@@ -55,12 +55,7 @@ class AdvertisementController extends Controller
         $model = new AdvertisementSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
-        return [
-            'models' => Advertisement::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page,
-            'count_page' => $dataProvider->pagination->pageCount,
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+        return Advertisement::allFields($dataProvider);
     }
 
     /**
@@ -70,7 +65,6 @@ class AdvertisementController extends Controller
      */
     public function actionUpdate()
     {
-
         $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
 
         $model = $this->findModel($id, true);

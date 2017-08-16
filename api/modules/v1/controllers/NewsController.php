@@ -5,6 +5,8 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\News;
 use common\models\search\NewsSearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -19,14 +21,49 @@ class NewsController extends Controller
      */
 //    public function behaviors()
 //    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+//        $behaviors = parent::behaviors();
+//        $behaviors['authenticator'] = [
+//            'class' => QueryParamAuth::className(),
+//            'tokenParam' => 'auth_key',
+//            'only' => [
+//                'update',
+//                'create',
+//                'delete',
+//            ],
+//        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
+//
+//        $behaviors['verbFilter'] = [
+//            'class' => VerbFilter::className(),
+//            'actions' => [
+//                'all' => ['get'],
+//                'one' => ['get'],
+//                'create' => ['post'],
+//                'update' => ['post'],
+//                'delete' => ['delete'],
+//            ],
+//        ];
+//
+//        return $behaviors;
 //    }
 
     /**
@@ -36,8 +73,11 @@ class NewsController extends Controller
     public function actionAll()
     {
         $model = new NewsSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? News::allFields($result) : $model->getErrors();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => News::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
     }
 
     /**
@@ -46,8 +86,7 @@ class NewsController extends Controller
      */
     public function actionOne()
     {
-        $model = $this->findModel(Yii::$app->request->get('id'));
-        return $model->oneFields();
+        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
     }
 
     /**
@@ -59,11 +98,10 @@ class NewsController extends Controller
     {
         $model = new News();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles()) {
             return $model->id;
-        } else {
-            return ['errors' => $model->errors];
         }
+        return ['errors' => $model->errors];
     }
 
     /**
@@ -78,11 +116,10 @@ class NewsController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
-                'category' => $model,
+                strtolower($model->getClassName()) => $model,
             ];
-        } else {
-            return ['errors' => $model->errors()];
         }
+        return ['errors' => $model->errors()];
     }
 
     /**
@@ -108,10 +145,9 @@ class NewsController extends Controller
         if (($model = News::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
-            }        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            }
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

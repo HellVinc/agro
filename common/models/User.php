@@ -131,9 +131,27 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return [
             'first_name',
             'last_name',
-            'Phone',
-            'auth_key',
+            'phone' => 'Phone',
         ];
+    }
+
+    public function getField($module)
+    {
+        switch ($module) {
+            case 'v1':
+                return [
+                    'auth_key',
+                ];
+                break;
+
+            case 'v2':
+                return [
+                    'count_reports' => function ($model) {
+                        return '1';
+                    },
+                ];
+                break;
+        }
     }
 
     /**
@@ -235,7 +253,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'last_name',
             'role',
             'photoPath',
-            'phone' => 'Phone',
+            'phone',
             'status',
             'rating',
         ]);
@@ -250,7 +268,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             strtolower($this->getClassName()) => self::getFields($this, [
                 'id',
                 'role',
-                'phone' => 'Phone',
+                'phone',
                 'photo',
                 'status',
                 'first_name',

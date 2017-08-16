@@ -23,7 +23,7 @@ use yii\helpers\ArrayHelper;
  * @property string $text
  * @property string $latitude
  * @property string $longitude
- * @property integer $type
+ * @property integer $trade_type
  * @property integer $viewed
  * @property integer $status
  * @property integer $created_at
@@ -48,13 +48,11 @@ class Advertisement extends ExtendedActiveRecord
     public $category_id;
     public $photo;
 
-    //const TYPE_BUY = 1;
-    //const TYPE_SELL = 2;
-    //const TYPE_CHAT = 3;
-    //const TYPE_FINANCE = 4;
-
     const TYPE_UNVIEWED = 0;
     const TYPE_VIEWED = 1;
+
+    const TYPE_BUY = 1;
+    const TYPE_SELL = 2;
 
     public function behaviors()
     {
@@ -88,8 +86,8 @@ class Advertisement extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['tag_id', 'title', 'text'], 'required'],
-            [['tag_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['tag_id', 'title', 'text', 'trade_type'], 'required'],
+            [['tag_id', 'trade_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
@@ -110,6 +108,7 @@ class Advertisement extends ExtendedActiveRecord
             'title' => 'Title',
             'text' => 'Text',
             'viewed' => 'Viewed',
+            'trade_type' => 'Trade Type',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -118,63 +117,65 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
-    public function fields()
+    /**
+ * @return array
+ */
+    public function oneFields()
     {
         return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'title',
+                'text',
+                'trade_type',
+                'viewed',
+                'status',
+				'created_by' => function ($model) {
+				    return User::getFields($model->createdUser, ['id', 'phone']);
+				},
+                'created_at',
+                'updated_at',
+                'attachments'
+            ]),
+        ];
+    }
+
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
+    {
+        return self::getFields($result, [
             'id',
             'title',
             'text',
+            'trade_type',
             'viewed',
             'status',
-            'created_by' => 'user',
-            'updated_by',
+            'user' => 'User',
             'created_at',
             'updated_at',
             'attachments'
-        ];
+        ]);
     }
-
-    public function extraFields()
-    {
-        return [
-            'photoPath'
-        ];
-    }
-
-    public function getUser()
-    {
-        return User::getFields($this->createdUser, ['id', 'phone' => 'Phone']);
-    }
-
-    public function getCreatedUser()
-    {
-        return $this->hasOne(User::className(), ['id' => 'created_by']);//->andOnCondition(['user.status' => self::STATUS_ACTIVE]);
-    }
-
 
     public function getPhotoPath()
     {
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
         }
+            return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
 
-        return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
-    }
-
-
-    public function getBuyCount()
-    {
-        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_BUY])->count();
-    }
-
-    public function getSellCount()
-    {
-        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_SELL])->count();
     }
 
     public function getAttachments()
     {
-        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'attachment.table' => 'advertisement',
+                'table' => self::tableName()
+            ]);
     }
 
     /**

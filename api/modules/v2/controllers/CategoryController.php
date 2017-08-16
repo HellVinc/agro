@@ -55,12 +55,7 @@ class CategoryController extends Controller
         $model = new CategorySearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
 
-        return [
-            'models' => Category::allFields($dataProvider->getModels()),
-            'current_page' => $dataProvider->pagination->page,
-            'count_page' => $dataProvider->pagination->pageCount,
-            'count_model' => $dataProvider->getTotalCount()
-        ];
+        return Category::allFields($dataProvider);
     }
 
 //    /**

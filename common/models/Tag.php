@@ -120,6 +120,15 @@ class Tag extends ExtendedActiveRecord
         ];
     }
 
+    public function fields()
+    {
+        return [
+            'id',
+            'name' => 'Name',
+            'category_id'
+        ];
+    }
+
     /**
      * @return string
      */

@@ -2,14 +2,17 @@
 
 namespace api\modules\v1\controllers;
 
+use common\components\traits\errors;
 use common\models\Advertisement;
 use common\models\Category;
 use common\models\LoginForm;
+use common\models\Message;
 use common\models\News;
 use common\models\User;
 use frontend\models\SignupForm;
 use Yii;
 use common\models\search\UserSearch;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 use yii\filters\VerbFilter;
@@ -20,86 +23,75 @@ use yii\web\NotFoundHttpException;
 
 class UserController extends Controller
 {
-//    public function behaviors()
-//    {
-//        $behaviors = parent::behaviors();
-//        $behaviors['authenticator'] = [
-//            'class' => QueryParamAuth::className(),
-//            'tokenParam' => 'auth_key',
-//            'only' => [
-//                'all-for-management',
-//                'all-for-city',
-//                'all',
-//                'all-for-class',
-//                'one',
-//                'update',
-//                'delete',
-//            ],
-//        ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'all-for-management',
-//                'all-for-city',
-//                'all',
-//                'all-for-class',
-//                'one',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'all-for-management',
-//                        'all-for-city',
-//                        'all',
-//                        'all-for-class',
-//                        'one',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => [
-//                        'tutor',
-//                        'teacher',
-//                        'curator',
-//                        'manager',
-//                        'admin'
-//                    ],
-//
-//                ],
-//
-//                [
-//                    'actions' => [
-//                        'create',
-//
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['admin'],
-//
-//                ],
-//            ],
-//        ];
-//
-//        $behaviors['verbFilter'] = [
-//            'class' => VerbFilter::className(),
-//            'actions' => [
-//                'all' => ['get'],
-//                'all-for-class' => ['get'],
-//                'all--for-city' => ['get'],
-//                'all-for-management' => ['get'],
-//                'one' => ['get'],
-//                'create' => ['post'],
-//                'update' => ['post'],
-//                'delete' => ['delete'],
-//            ],
-//        ];
-//
-//        return $behaviors;
-//    }
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'delete',
+            ],
+        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'update',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => [
+                        '@'
+                    ],
+                ],
+                [
+                    'actions' => [
+                        'create',
+
+                    ],
+                    'allow' => true,
+                    'roles' => ['admin'],
+
+                ],
+            ],
+        ];
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['delete'],
+                'check' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
+
+    public function actionCheck()
+    {
+        $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
+        if ($model) {
+            return [
+                'model' => $model->oneFields(),
+                'counts' => User::menu()
+            ];
+        }
+        return ['error' => 'Error. Bad auth_key.'];
+    }
 
     /**
-     * @return array
+     * @return string
      */
     public function actionAll()
     {
@@ -113,19 +105,7 @@ class UserController extends Controller
 
     public function actionOne()
     {
-        $user = $this->findModel(Yii::$app->request->get('id'));
-        $result = $user->oneFields();
-        return $result;
-    }
-
-    public function actionMenu()
-    {
-        $result['buy'] = Advertisement::find()->where(['type' => Advertisement::TYPE_BUY])->count();
-        $result['sell'] = Advertisement::find()->where(['type' => Advertisement::TYPE_SELL])->count();
-        $result['chat'] = Advertisement::find()->where(['type' => Advertisement::TYPE_CHAT])->count();
-        $result['finance'] = Advertisement::find()->where(['type' => Advertisement::TYPE_FINANCE])->count();
-        $result['news'] = News::find()->where(['status' => News::STATUS_ACTIVE])->count();
-        return $result;
+        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
     }
 
     /**
@@ -134,13 +114,7 @@ class UserController extends Controller
     public function actionSignup()
     {
         $model = new User();
-        $userExists = (bool)User::find()->one();
-        $model->setScenario('signUp');
-
-        if (!$userExists) {
-            $model->role = User::ROLE_ADMIN;
-        }
-
+        $model->scenario = 'signUp';
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             return $model->signup();
         }
@@ -154,42 +128,60 @@ class UserController extends Controller
             if ($model->login()) {
                 $result = Yii::$app->user->identity->oneFields();
                 $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
-                return $result;
+                return [
+                    'model' => $result,
+                    'counts' => User::menu()
+                ];
 
-            } else {
-                return ['error' => Yii::t('msg/error', 'Invalid login or password')];
             }
+            return ['error' => 'Invalid login or password'];
+
         }
-        return ['error' => Yii::t('msg/error', 'Error. Bad request.')];
+        return ['error' => 'Error. Bad request.'];
     }
 
     /**
      * Updates an existing User model.
-     * @param integer $id
      * @return mixed
      */
     public function actionUpdate()
     {
-        $model = User::findOne(['auth_key' => Yii::$app->request->post('auth_key')]);
+        $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
 
-        if ($model->load(Yii::$app->request->post()) && $model->saveModel() && $model->checkFiles()) {
-            return $model->oneFields();
+        if ($model->load(['User' => Yii::$app->request->post()])   && $model->save()) {
+//            if(Yii::$app->request->post('password')){
+//                return  $model->saveUpdate();
+//            }
+//          $model->save();
+            $model->image_file = 'photo';
+
+             $model->savePhoto();
+            return $model;
         }
         return ['errors' => $model->errors];
 
     }
+
+    /**
+     * Deletes an existing Advertisement model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionDelete($id)
+    {
+        return $this->findModel($id)->delete();
+    }
+
 
     protected function findModel($id)
     {
         if (($model = User::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }
