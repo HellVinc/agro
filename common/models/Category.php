@@ -113,12 +113,24 @@ class Category extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::responseAll($result, [
-            'id',
-            'name',
-            'category_type',
-            'tags',
-        ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'name',
+                    'category_type',
+                    'tags',
+                ]);
+
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'name',
+                    'category_type',
+                    'tags',
+                    'status',
+                ]);
+        }
     }
 
     /**
@@ -151,7 +163,7 @@ class Category extends ExtendedActiveRecord
      */
     public function getTags()
     {
-        return $this->hasMany(Tag::className(), ['category_id' => 'id']);
+        return $this->hasMany(Tag::className(), ['category_id' => 'id'])->andWhere(['status' => self::STATUS_ACTIVE]);
     }
 
 }
