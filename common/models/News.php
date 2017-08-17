@@ -169,16 +169,32 @@ class News extends ExtendedActiveRecord
 
     public static function allFields($result)
     {
-        return self::responseAll($result, [
-            'id',
-            'title',
-            'text',
-            'url',
-            'type',
-            'img',
-            'created_at',
-            'resource_url',
-        ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'title',
+                    'text',
+                    'url',
+                    'type',
+                    'img',
+                    'created_at',
+                    'resource_url',
+                ]);
+
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'img',
+                    'title',
+                    'text',
+                    'url',
+                    'type',
+                    'created_at',
+                    'resource_url',
+                    'status',
+                ]);
+        }
     }
 
 }

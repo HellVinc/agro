@@ -128,6 +128,7 @@ class Offer extends ExtendedActiveRecord
                     'description',
                     'created_at',
                     'created_by',
+                    'status',
                 ]);
         }
     }
@@ -145,6 +146,7 @@ class Offer extends ExtendedActiveRecord
                     'description',
                     'created_at',
                     'created_by',
+                    'status',
                 ]);
         }
     }
