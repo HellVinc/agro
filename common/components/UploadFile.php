@@ -3,6 +3,7 @@
 namespace common\components;
 
 
+use common\models\Attachment;
 use Yii;
 use yii\base\Model;
 use yii\web\UploadedFile;
@@ -21,14 +22,13 @@ class UploadFile extends Model
      * @var UploadedFile
      */
     public $file;
-    public $name;
-    public $error;
+    public $files;
 
     public function rules()
     {
         return [
-            [['name'], 'string'],
             [['file'], 'file', 'skipOnEmpty' => false],
+            [['files'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg', 'maxFiles' => 3],
         ];
     }
 
@@ -52,6 +52,27 @@ class UploadFile extends Model
             $this->addError('file', 'File not saved');
         }
         return $this;
+    }
+
+    public function uploads($id, $table)
+    {
+        if ($this->validate()) {
+            $dir = dirname(Yii::getAlias('@app')) . '/files/' . $table . '/' . $id;
+            foreach ($this->files as $file) {
+                if (!is_dir($dir)) {
+                    FileHelper::createDirectory($dir);
+                }
+                $file->saveAs($dir . '/' . $file->baseName . '.' . $file->extension);
+                $model = new Attachment();
+                $model->object_id = $id;
+                $model->table = $table;
+                $model->extension = $file->extension;
+                $model->url = $file->baseName . '.' . $file->extension;
+                $model->save();
+            }
+            return true;
+        }
+        return false;
     }
 
     public function uploadBase($name, $id,$ext)

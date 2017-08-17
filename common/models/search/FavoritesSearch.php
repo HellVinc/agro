@@ -23,7 +23,7 @@ class FavoritesSearch extends Favorites
     public function rules()
     {
         return [
-            [['id', 'parent_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['table'], 'safe'],
         ];
     }
@@ -68,7 +68,7 @@ class FavoritesSearch extends Favorites
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'parent_id' => $this->parent_id,
+            'object_id' => $this->object_id,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

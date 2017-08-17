@@ -3,22 +3,18 @@
 namespace api\modules\v1\controllers;
 
 use Yii;
-use common\models\Feedback;
-use common\models\search\FeedbackSearch;
-use yii\filters\AccessControl;
+use common\models\Rating;
+use common\models\search\RatingSearch;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * FeedbackController implements the CRUD actions for Feedback model.
+ * RatingController implements the CRUD actions for Rating model.
  */
-class FeedbackController extends Controller
+class RatingController extends Controller
 {
-    /**
-     * @inheritdoc
-     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -56,15 +52,38 @@ class FeedbackController extends Controller
         return $behaviors;
     }
 
+    /**
+     * Lists all Rating models.
+     * @return mixed
+     */
+    public function actionAll()
+    {
+        $model = new RatingSearch();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => Rating::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
+    }
 
     /**
-     * Creates a new Feedback model.
+     * Displays a single Rating model.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id)->oneFields();
+    }
+
+    /**
+     * Creates a new Rating model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Feedback();
+        $model = new Rating();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
@@ -72,47 +91,43 @@ class FeedbackController extends Controller
         return ['errors' => $model->errors];
     }
 
+    /**
+     * Updates an existing Rating model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
 
-//    /**
-//     * Updates an existing Feedback model.
-//     * If update is successful, the browser will be redirected to the 'view' page.
-//     * @param integer $id
-//     * @return mixed
-//     */
-//    public function actionUpdate($id)
-//    {
-//        $model = $this->findModel($id);
-//
-//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-//            return [
-//                'category' => $model,
-//            ];
-//        } else {
-//            return ['errors' => $model->errors()];
-//        }
-//    }
-//
-//    /**
-//     * Deletes an existing Feedback model.
-//     * If deletion is successful, the browser will be redirected to the 'index' page.
-//     * @param integer $id
-//     * @return mixed
-//     */
-//    public function actionDelete($id)
-//    {
-//        return $this->findModel($id)->delete(true);
-//    }
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $model->id;
+        }
+        return ['errors' => $model->errors];
+    }
 
     /**
-     * Finds the Feedback model based on its primary key value.
+     * Deletes an existing Rating model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionDelete()
+    {
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
+    }
+
+    /**
+     * Finds the Rating model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Feedback the loaded model
+     * @return Rating the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Feedback::findOne($id)) !== null) {
+        if (($model = Rating::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
             }

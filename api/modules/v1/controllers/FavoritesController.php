@@ -32,26 +32,26 @@ class FavoritesController extends Controller
                 'delete',
             ],
         ];
-        $behaviors['access'] = [
-            'class' => AccessControl::className(),
-            'only' => [
-                'create',
-                'update',
-                'delete',
-            ],
-            'rules' => [
-                [
-                    'actions' => [
-                        'create',
-                        'update',
-                        'delete',
-                    ],
-                    'allow' => true,
-                    'roles' => ['@'],
-
-                ],
-            ],
-        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
+//                ],
+//            ],
+//        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
@@ -81,14 +81,14 @@ class FavoritesController extends Controller
         ];
     }
 
-    /**
-     * Displays a single Favorites model.
-     * @return mixed
-     */
-    public function actionView()
-    {
-        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
-    }
+//    /**
+//     * Displays a single Favorites model.
+//     * @return mixed
+//     */
+//    public function actionView()
+//    {
+//        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
+//    }
 
     /**
      * Creates a new Favorites model.
@@ -100,28 +100,31 @@ class FavoritesController extends Controller
         $model = new Favorites();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
+            return [
+                'id' =>  $model->object_id,
+                'message' => 'Додано до обраних'
+            ];
         }
         return ['errors' => $model->errors];
 
     }
 
-    /**
-     * Updates an existing Favorites model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                strtolower($model->getClassName()) => $model
-            ];
-        }
-        return ['errors' => $model->errors()];
-    }
+//    /**
+//     * Updates an existing Favorites model.
+//     * If update is successful, the browser will be redirected to the 'view' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return [
+//                strtolower($model->getClassName()) => $model
+//            ];
+//        }
+//        return ['errors' => $model->errors()];
+//    }
 
 
     /**

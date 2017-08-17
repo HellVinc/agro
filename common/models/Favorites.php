@@ -61,7 +61,8 @@ class Favorites extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['object_id', 'table'], 'required'],
+            [['object_id'], 'required'],
+            ['table', 'default', 'value' => 'advertisement'],
             [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];
     }
@@ -100,15 +101,25 @@ class Favorites extends ExtendedActiveRecord
         return $result;
     }
 
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Category::className() => [
-                    'id',
-                    'name'
-                ],
-            ]
-        );
+        return self::getFields($result, [
+            'id',
+            'status',
+            'object' => 'Object',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+        ]);
+    }
+
+    public function getObject()
+    {
+        return Advertisement::allFields(Advertisement::findOne($this->object_id));
     }
 }

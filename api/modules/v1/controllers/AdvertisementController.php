@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use common\components\UploadModel;
 use common\components\traits\errors;
 use common\models\Attachment;
 use common\models\Category;
@@ -14,6 +15,7 @@ use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * AdvertisementController implements the CRUD actions for Advertisement model.
@@ -23,18 +25,18 @@ class AdvertisementController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        $behaviors = parent::behaviors();
-//        $behaviors['authenticator'] = [
-//            'class' => QueryParamAuth::className(),
-//            'tokenParam' => 'auth_key',
-//            'only' => [
-//                'update',
-//                'create',
-//                'delete',
-//            ],
-//        ];
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
 //        $behaviors['access'] = [
 //            'class' => AccessControl::className(),
 //            'only' => [
@@ -55,20 +57,33 @@ class AdvertisementController extends Controller
 //                ],
 //            ],
 //        ];
-//
-//        $behaviors['verbFilter'] = [
-//            'class' => VerbFilter::className(),
-//            'actions' => [
-//                'all' => ['get'],
-//                'one' => ['get'],
-//                'create' => ['post'],
-//                'update' => ['post'],
-//                'delete' => ['delete'],
-//            ],
-//        ];
-//
-//        return $behaviors;
-//    }
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['delete'],
+            ],
+        ];
+
+        return $behaviors;
+    }
+
+    public function actionTest()
+    {
+        $model = new UploadModel();
+        if (Yii::$app->request->isPost) {
+            $model->imageFiles = UploadedFile::getInstancesByName('files');
+           if($model->upload()){
+               return true;
+           }
+        }
+        return $model->errors;
+    }
+
 
     /**
      * Lists all Advertisement models.

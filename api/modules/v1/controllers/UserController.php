@@ -5,9 +5,12 @@ namespace api\modules\v1\controllers;
 use common\components\traits\errors;
 use common\models\Advertisement;
 use common\models\Category;
+use common\models\Feedback;
 use common\models\LoginForm;
 use common\models\Message;
 use common\models\News;
+use common\models\Rating;
+use common\models\search\FeedbackSearch;
 use common\models\User;
 use frontend\models\SignupForm;
 use Yii;
@@ -32,36 +35,37 @@ class UserController extends Controller
             'only' => [
                 'update',
                 'delete',
+                'add-feedback'
             ],
         ];
-        $behaviors['access'] = [
-            'class' => AccessControl::className(),
-            'only' => [
-                'update',
-                'delete',
-            ],
-            'rules' => [
-                [
-                    'actions' => [
-                        'update',
-                        'delete',
-                    ],
-                    'allow' => true,
-                    'roles' => [
-                        '@'
-                    ],
-                ],
-                [
-                    'actions' => [
-                        'create',
-
-                    ],
-                    'allow' => true,
-                    'roles' => ['admin'],
-
-                ],
-            ],
-        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => [
+//                        '@'
+//                    ],
+//                ],
+//                [
+//                    'actions' => [
+//                        'create',
+//
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['admin'],
+//
+//                ],
+//            ],
+//        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
@@ -69,6 +73,7 @@ class UserController extends Controller
                 'all' => ['get'],
                 'one' => ['get'],
                 'create' => ['post'],
+                'add-feedback' => ['post'],
                 'update' => ['post'],
                 'delete' => ['delete'],
                 'check' => ['post'],
@@ -76,6 +81,16 @@ class UserController extends Controller
         ];
 
         return $behaviors;
+    }
+
+    public function actionAddFeedback()
+    {
+        $model = new Rating();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $model->oneFields();
+        }
+        return ['errors' => $model->errors];
     }
 
     public function actionCheck()
@@ -88,6 +103,19 @@ class UserController extends Controller
             ];
         }
         return ['error' => 'Error. Bad auth_key.'];
+    }
+
+    public function actionUserFeedback()
+    {
+        $user = $this->findModel(Yii::$app->request->get('id'));
+        return [
+            'user' => $user->oneFields(),
+            'rating' => [
+                'user_rating' => $user->getRating(),
+                'mark_count' => Rating::find()->where(['user_id' => $user->id])->count()
+            ],
+            'feedback' => Rating::allFields(Rating::findAll(['user_id' => $user->id]))
+        ];
     }
 
     /**
@@ -148,16 +176,17 @@ class UserController extends Controller
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
 
-        if ($model->load(['User' => Yii::$app->request->post()])   && $model->save()) {
+        if ($model->load(['User' => Yii::$app->request->post()]) && $model->save()) {
 //            if(Yii::$app->request->post('password')){
 //                return  $model->saveUpdate();
 //            }
 //          $model->save();
             $model->image_file = 'photo';
 
-             $model->savePhoto();
+            $model->savePhoto();
             return $model;
         }
+
         return ['errors' => $model->errors];
 
     }

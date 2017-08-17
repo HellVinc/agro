@@ -35,6 +35,9 @@ class News extends ExtendedActiveRecord
     use errors;
     use modelWithFiles;
 
+    const TYPE_NEWS = 1;
+    const TYPE_SERVICES = 2;
+
     public $photo;
 
     public function behaviors()

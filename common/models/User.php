@@ -58,8 +58,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public $image_file;
     public $extension;
 
-    const STATUS_DELETED = 0;
-    const STATUS_ACTIVE = 10;
 
     const ROLE_ADMIN = 1;
     const ROLE_CLIENT = 2;
@@ -157,9 +155,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function getPhotoPath()
     {
         if ($this->photo) {
-            return Yii::$app->request->getHostInfo() . '/photo/user/' . $this->id . '/' . $this->photo;
+            return 'http://4dc98406.ngrok.io' . '/photo/user/' . $this->id . '/' . $this->photo;
         }
-        return Yii::$app->request->getHostInfo() . '/photo/user/empty.jpg';
+        return 'http://4dc98406.ngrok.io' . '/photo/user/empty.jpg';
 
     }
 
@@ -319,14 +317,17 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public static function menu()
     {
-        $result['buy'] = (new Query())->select('id')
+        $result['buy'] = (new Query())
             ->from('advertisement')
             ->where(['trade_type' => Advertisement::TYPE_BUY])->count();
-        $result['sell'] = (new Query())->select('id')
+        $result['sell'] = (new Query())
             ->from('advertisement')
             ->where(['trade_type' => Advertisement::TYPE_SELL])->count();
         $result['chat'] = Message::find()->where(['status' => Message::STATUS_ACTIVE])->count();
-        $result['news'] = News::find()->where(['status' => News::STATUS_ACTIVE])->count();
+        $result['news'] = News::find()
+            ->where(['status' => News::STATUS_ACTIVE, 'type' => News::TYPE_NEWS])->count();
+        $result['services'] = News::find()
+            ->where(['status' => News::STATUS_ACTIVE, 'type' => News::TYPE_SERVICES])->count();
         return $result;
     }
 

@@ -19,18 +19,18 @@ class NewsController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        $behaviors = parent::behaviors();
-//        $behaviors['authenticator'] = [
-//            'class' => QueryParamAuth::className(),
-//            'tokenParam' => 'auth_key',
-//            'only' => [
-//                'update',
-//                'create',
-//                'delete',
-//            ],
-//        ];
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
 //        $behaviors['access'] = [
 //            'class' => AccessControl::className(),
 //            'only' => [
@@ -52,19 +52,19 @@ class NewsController extends Controller
 //            ],
 //        ];
 //
-//        $behaviors['verbFilter'] = [
-//            'class' => VerbFilter::className(),
-//            'actions' => [
-//                'all' => ['get'],
-//                'one' => ['get'],
-//                'create' => ['post'],
-//                'update' => ['post'],
-//                'delete' => ['delete'],
-//            ],
-//        ];
-//
-//        return $behaviors;
-//    }
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['delete'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * Lists all News models.

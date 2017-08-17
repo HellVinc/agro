@@ -23,7 +23,7 @@ class FeedbackSearch extends Feedback
     public function rules()
     {
         return [
-            [['id', 'rating', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['message'], 'safe'],
         ];
     }
@@ -66,7 +66,7 @@ class FeedbackSearch extends Feedback
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'rating' => $this->rating,
+            'user_id' => $this->user_id,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

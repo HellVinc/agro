@@ -104,7 +104,7 @@ class Comment extends ExtendedActiveRecord
             'text' => $this->text,
             'viewed' => $this->viewed,
             'date' => $this->created_at,
-            'user' => $this->getUser(),
+            'user' => $this->userInfo,
             'avatar' => User::findOne(['id' => $this->created_by])->photoPath,
 //            'status' => $this->status,
 //            'created_by' => $this->created_by,
@@ -126,8 +126,11 @@ class Comment extends ExtendedActiveRecord
                     'date' => function ($model) {
                         return $model->created_at;
                     },
-                    'User',
-                    'avatar' => function ($model){
+                    'created_at' => function ($model) {
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'user' => 'UserInfo',
+                    'avatar' => function ($model) {
                         /** @var Comment $model */
                         return User::findOne($model->created_by)->photoPath;
 
@@ -143,7 +146,9 @@ class Comment extends ExtendedActiveRecord
     public function getUser()
     {
         $var = User::findOne($this->created_by);
-        return $var->first_name . ' ' . $var->last_name;
+        return [
+            'user_id' => $var->id,
+            'name' => $var->first_name . ' ' . $var->last_name];
     }
 
     /**

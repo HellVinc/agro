@@ -20,18 +20,18 @@ class CommentController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        $behaviors = parent::behaviors();
-//        $behaviors['authenticator'] = [
-//            'class' => QueryParamAuth::className(),
-//            'tokenParam' => 'auth_key',
-//            'only' => [
-//                'update',
-//                'create',
-//                'delete',
-//            ],
-//        ];
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
 //        $behaviors['access'] = [
 //            'class' => AccessControl::className(),
 //            'only' => [
@@ -52,20 +52,20 @@ class CommentController extends Controller
 //                ],
 //            ],
 //        ];
-//
-//        $behaviors['verbFilter'] = [
-//            'class' => VerbFilter::className(),
-//            'actions' => [
-//                'all' => ['get'],
-//                'one' => ['get'],
-//                'create' => ['post'],
-//                'update' => ['post'],
-//                'delete' => ['delete'],
-//            ],
-//        ];
-//
-//        return $behaviors;
-//    }
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * Lists all Comment models.
@@ -120,9 +120,7 @@ class CommentController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                strtolower($model->getClassName()) => $model
-            ];
+            return Comment::allFields($model);
         }
             return ['errors' => $model->errors()];
 

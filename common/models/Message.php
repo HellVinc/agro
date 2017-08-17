@@ -88,6 +88,45 @@ class Message extends ExtendedActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'room_id',
+                'text',
+                'status',
+                'user' => 'UserInfo',
+                'created_at' => function ($model) {
+                    return date('Y-m-d', $model->created_at);
+                },
+                'updated_at',
+            ]),
+        ];
+    }
+
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
+    {
+        return self::getFields($result, [
+            'id',
+            'room_id',
+            'text',
+            'status',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at',
+        ]);
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getRoom()

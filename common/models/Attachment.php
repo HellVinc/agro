@@ -4,6 +4,7 @@ namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
 use common\components\UploadFile;
+use common\components\UploadModel;
 use Yii;
 use common\components\traits\errors;
 use common\components\traits\soft;
@@ -12,6 +13,7 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "attachment".
@@ -30,8 +32,6 @@ use yii\helpers\ArrayHelper;
  */
 class Attachment extends ExtendedActiveRecord
 {
-    const NOT_DELETED = 10;
-    const DELETED = 0;
 
     use soft;
     use findRecords;
@@ -104,7 +104,9 @@ class Attachment extends ExtendedActiveRecord
                     'extension',
                     'created_at',
                     'updated_at',
-                    'created_by'
+                    'created_at' => function($model) {
+                        return date('Y-m-d', $model->created_at);
+                    },
                 ],
             ]
         );
@@ -116,23 +118,36 @@ class Attachment extends ExtendedActiveRecord
         return parent::fields();
     }
 
-
-    public static function uploadOne($name, $id, $table)
+    public static function uploadOne($id, $table)
     {
-        $file = new self();
-        $result = (new UploadFile())->upload($name, $id, $table, 'files');
-        if (!$result) {
-            return $file->addError('error', 'File not saved');
+        $model = new UploadModel();
+        $model->files = UploadedFile::getInstancesByName('file');
+        $oldFiles = Attachment::find()->where(['object_id' => $id, 'table' => $table])->count();
+        if((count(UploadedFile::getInstancesByName('file')) + $oldFiles) > 3 ){
+            return  $model->getErrors('You can load a total of 3 files');
         }
-        $file->object_id = $id;
-        $file->table = $table;
-        $file->created_at = time();
-        $file->created_by = Yii::$app->user->id;
-        $file->extension = $result->file->extension;
-        $file->url = $result->name . '.' . $result->file->extension;
-        $file->save();
-        return $file;
+        if($model->uploads($id, $table)){
+            return $model;
+        }
     }
+
+
+//    public static function uploadOne($name, $id, $table)
+//    {
+//        $file = new self();
+//        $result = (new UploadFile())->uploads($name, $id, $table);
+//        if (!$result) {
+//            return $file->addError('error', 'File not saved');
+//        }
+//        $file->object_id = $id;
+//        $file->table = $table;
+//        $file->created_at = time();
+//        $file->created_by = Yii::$app->user->id;
+//        $file->extension = $result->file->extension;
+//        $file->url = $result->name . '.' . $result->file->extension;
+//        $file->save();
+//        return $file;
+//    }
 
     public function remove()
     {
@@ -147,12 +162,10 @@ class Attachment extends ExtendedActiveRecord
     public function saveModel($model)
     {
         if (is_array($_FILES)) {
-            foreach ($_FILES as $name => $one) {
-                $file = self::uploadOne($name, $model->id, $model->tableName());
+                $file = self::uploadOne($model->id, $model->tableName());
                 if ($file && $file->getErrors()) {
                     return $file;
                 }
-            }
             return $this;
         }
             return self::uploadOne('file', $this->id, $this->tableName());
@@ -173,8 +186,8 @@ class Attachment extends ExtendedActiveRecord
 
     public function getFilePath()
     {
-//        return Yii::$app->request->hostInfo . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
-        return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
+        return 'http://4dc98406.ngrok.io' . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
+//        return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
     }
 
     public function getFileDir()

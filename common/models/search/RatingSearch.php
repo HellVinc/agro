@@ -5,25 +5,26 @@ namespace common\models\search;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\News;
+use common\models\Rating;
 
 /**
- * NewsSearch represents the model behind the search form about `common\models\News`.
+ * RatingSearch represents the model behind the search form about `common\models\Rating`.
  */
-class NewsSearch extends News
+class RatingSearch extends Rating
 {
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'text', 'url'], 'safe'],
+            [['id', 'rating', 'user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['text'], 'safe']
         ];
     }
 
@@ -39,13 +40,11 @@ class NewsSearch extends News
     /**
      * Creates data provider instance with search query applied
      *
-     * @param array $params
-     *
      * @return ActiveDataProvider
      */
     public function search()
     {
-        $query = News::find();
+        $query = Rating::find();
 
         // add conditions that should always apply here
 
@@ -59,7 +58,6 @@ class NewsSearch extends News
             ],
         ]);
 
-
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
@@ -69,17 +67,14 @@ class NewsSearch extends News
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'type' => $this->type,
+            'rating' => $this->rating,
+            'text' => $this->text,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
-
-        $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'text', $this->text])
-            ->andFilterWhere(['like', 'url', $this->url]);
 
         return $dataProvider;
     }

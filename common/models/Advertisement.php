@@ -47,9 +47,6 @@ class Advertisement extends ExtendedActiveRecord
     public $category_id;
     public $photo;
 
-    const NOT_DELETED = 10;
-    const DELETED = 0;
-
     const TYPE_BUY = 1;
     const TYPE_SELL = 2;
 
@@ -113,9 +110,10 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
+
     /**
- * @return array
- */
+     * @return array
+     */
     public function oneFields()
     {
         return [
@@ -126,8 +124,10 @@ class Advertisement extends ExtendedActiveRecord
                 'trade_type',
                 'viewed',
                 'status',
-                'user' => 'User',
-                'created_at',
+                'user' => 'UserInfo',
+                'created_at' => function ($model) {
+                    return date('Y-m-d', $model->created_at);
+                },
                 'updated_at',
                 'attachments'
             ]),
@@ -142,13 +142,18 @@ class Advertisement extends ExtendedActiveRecord
     {
         return self::getFields($result, [
             'id',
+            'tag' => function ($model) {
+                return $model->tag->name;
+            },
             'title',
             'text',
             'trade_type',
             'viewed',
             'status',
-            'user' => 'User',
-            'created_at',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                return date('Y-m-d', $model->created_at);
+            },
             'updated_at',
             'attachments'
         ]);
@@ -159,8 +164,7 @@ class Advertisement extends ExtendedActiveRecord
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
         }
-            return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
-
+        return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
     }
 
     public function getAttachments()
