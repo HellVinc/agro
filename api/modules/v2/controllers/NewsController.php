@@ -89,7 +89,7 @@ class NewsController extends Controller
 
         $model = $this->findModel($id, true);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles()) {
             return $model->oneFields();
         } else {
             return ['errors' => $model->errors()];

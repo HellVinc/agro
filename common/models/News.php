@@ -34,6 +34,9 @@ class News extends ExtendedActiveRecord
     use errors;
     use modelWithFiles;
 
+    const TYPE_NEWS = 1;
+    const TYPE_AD = 2;
+
     public $photo;
 
     public function behaviors()
@@ -73,10 +76,11 @@ class News extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['text', 'url', 'title'], 'required'],
+            [['type', 'text', 'url', 'title'], 'required'],
             [['text', 'url'], 'string'],
             [['type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title'], 'string', 'max' => 255],
+            ['type', 'in', 'range' => [self::TYPE_NEWS, self::TYPE_AD]],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
@@ -100,10 +104,23 @@ class News extends ExtendedActiveRecord
         ];
     }
 
+    public function getAttachments()
+    {
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * @return array|null|ActiveRecord
+     */
+    public function getAttachment()
+    {
+        return $this->getAttachments()->orderBy('id desc')->one(); // get last attachment
+    }
+
     public function getPhotoPath()
     {
-        if ($this->photo) {
-            return Yii::$app->request->getHostInfo() . '/files/news/' . $this->id . '/' . $this->photo;
+        if ($this->attachment) {
+            return Yii::$app->request->getHostInfo() . '/files/news/' . $this->id . '/' . $this->attachment->url;
         }
 		
         return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
@@ -112,13 +129,15 @@ class News extends ExtendedActiveRecord
     public function extraFields()
     {
         return [
-            'img' => $this->getPhotoPath(),
+            'img' => function($model) {
+                return $model->getPhotoPath();
+            },
             'created_at' => function($model) {
                 return date('Y-m-d', $model->created_at);
             },
-            'url' => function($model) {
-                return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
-            },
+            // 'url' => function($model) {
+            //     return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
+            // },
             'resource_url' => function($model) {
                 /** News @var $model */
                 $url = parse_url($model->url);

@@ -86,13 +86,14 @@ class Advertisement extends ExtendedActiveRecord
     {
         return [
             [['tag_id', 'title', 'text', 'trade_type'], 'required'],
-            [['tag_id', 'trade_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['tag_id', 'trade_type', 'status', 'closed', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
             [['status'], 'default', 'value' => self::STATUS_ACTIVE],
             [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
             [['viewed'], 'in', 'range' => [self::TYPE_VIEWED, self::TYPE_UNVIEWED]],
+            [['closed'], 'in', 'range' => [0, 1]],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }
@@ -116,13 +117,36 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
+    public function getReports()
+    {
+        return $this->hasMany(Report::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'report.table' => self::tableName()
+            ]);
+    }
+
     public function extraFields()
     {
         return [
             'created_by' => function ($model) {
-                return User::getFields($model->createdUser, ['id', 'phone']);
+                if ($model->User) {
+                    return User::getFields($model->User, ['id', 'phone']);
+                }
+                return null;
             },
-            'user' => 'User',
+            'user' => function ($model) {
+                if ($model->User) {
+                    return self::getFields($model->User, [
+                        'name' => 'first_name',
+                        'surname' => 'last_name',
+                        'photo' => 'photoPath'
+                    ]);
+                }
+                return null;
+            },
+            'count_reports' => function ($model) {
+                return (int)$model->getReports()->count();
+            },
         ];
     }
 
@@ -151,18 +175,37 @@ class Advertisement extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::responseAll($result, [
-            'id',
-            'title',
-            'text',
-            'trade_type',
-            'viewed',
-            'status',
-            'user',
-            'created_at',
-            'updated_at',
-            'attachments'
-        ]);
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'title',
+                    'text',
+                    'trade_type',
+                    'viewed',
+                    'status',
+                    'user',
+                    'created_at',
+                    'updated_at',
+                    'attachments'
+                ]);
+
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'title',
+                    'text',
+                    'trade_type',
+                    'viewed',
+                    'status',
+                    'closed',
+                    'count_reports',
+                    'created_by',
+                    'created_at',
+                    'updated_at',
+                    'attachments'
+                ]);
+        }
     }
 
     public function getPhotoPath()

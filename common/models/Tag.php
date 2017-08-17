@@ -39,37 +39,39 @@ class Tag extends ExtendedActiveRecord
         return 'tag';
     }
 
-    /**
-     * @param $result
-     * @return array
-     */
-    public static function allFields($result)
-    {
-        return self::getFields($result, [
-            'id',
-            'Name',
-            'category_id'
-        ]);
-    }
+    // /**
+    //  * @param $result
+    //  * @return array
+    //  */
+    // public static function allFields($result)
+    // {
+    //     return self::responseAll($result, [
+    //         'id',
+    //         'name',
+    //         'category_id'
+    //     ]);
+    // }
+//
+    // /**
+    //  * @return array
+    //  */
+    // public function oneFields()
+    // {
+    //     return $this->responseOne([
+    //         'id',
+    //         'name',
+    //         'category_id'
+    //     ]);
+    // }
 
-    /**
-     * @return array
-     */
-    public function oneFields()
+    public function fields()
     {
         return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'Name',
-                'category_id'
-            ]),
+            'id',
+            'name' => 'Name',
+            'category_id'
         ];
     }
-
-//    public function fields()
-//    {
-//        return ['name'];
-//    }
 
     public function behaviors()
     {
@@ -117,15 +119,6 @@ class Tag extends ExtendedActiveRecord
             'updated_at' => 'Updated At',
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
-        ];
-    }
-
-    public function fields()
-    {
-        return [
-            'id',
-            'name' => 'Name',
-            'category_id'
         ];
     }
 
