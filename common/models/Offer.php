@@ -103,6 +103,52 @@ class Offer extends ExtendedActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'created_by' => function ($model) {
+                if ($model->User) {
+                    return User::getFields($model->User, ['id', 'phone']);
+                }
+                return null;
+            },
+        ];
+    }
+
+    public function oneFields()
+    {
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return $this->responseOne([]);
+
+            case 'v2':
+                return $this->responseOne([
+                    'id',
+                    'title',
+                    'description',
+                    'created_at',
+                    'created_by',
+                ]);
+        }
+    }
+
+    public static function allFields($result)
+    {
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, []);
+
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'title',
+                    'description',
+                    'created_at',
+                    'created_by',
+                ]);
+        }
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

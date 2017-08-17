@@ -77,8 +77,9 @@ class News extends ExtendedActiveRecord
     {
         return [
             [['type', 'text', 'url', 'title'], 'required'],
-            [['text', 'url'], 'string'],
+            [['text'], 'string'],
             [['type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['url'], 'url', 'defaultScheme' => 'http'],
             [['title'], 'string', 'max' => 255],
             ['type', 'in', 'range' => [self::TYPE_NEWS, self::TYPE_AD]],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
