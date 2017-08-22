@@ -46,6 +46,7 @@ class Advertisement extends ExtendedActiveRecord
 
     public $category_id;
     public $photo;
+//    public $favorites = 0;
 
     const TYPE_BUY = 1;
     const TYPE_SELL = 2;
@@ -116,22 +117,21 @@ class Advertisement extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'title',
-                'text',
-                'trade_type',
-                'viewed',
-                'status',
-                'user' => 'UserInfo',
-                'created_at' => function ($model) {
-                    return date('Y-m-d', $model->created_at);
-                },
-                'updated_at',
-                'attachments'
-            ]),
-        ];
+        return self::getFields($this, [
+            'id',
+            'title',
+            'text',
+            'trade_type',
+            'viewed',
+            'status',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at',
+            'attachments',
+
+        ]);
     }
 
     /**
@@ -143,6 +143,7 @@ class Advertisement extends ExtendedActiveRecord
         return self::getFields($result, [
             'id',
             'tag' => function ($model) {
+                /** @var $model Advertisement */
                 return $model->tag->name;
             },
             'title',
@@ -155,9 +156,26 @@ class Advertisement extends ExtendedActiveRecord
                 return date('Y-m-d', $model->created_at);
             },
             'updated_at',
-            'attachments'
+            'attachments',
+            'favorites'
         ]);
     }
+
+//    public static function allAdvs($model)
+//    {
+//        $result[] = 0;
+//        $favModel = Favorites::findAll(['table' => 'advertisement', 'created_by' => Yii::$app->user->id]);
+//        foreach ($model as $advOne) {
+//            foreach ($favModel as $favOne) {
+//                if ($advOne['id'] === $favOne['object_id']) {
+//                    $advOne['favorites'] = 1;
+//                }
+//            }
+//            $result[] = $advOne;
+//        }
+//        return $result;
+//    }
+
 
     public function getPhotoPath()
     {
@@ -190,5 +208,15 @@ class Advertisement extends ExtendedActiveRecord
     public function getComments()
     {
         return $this->hasMany(Comment::className(), ['advertisement_id' => 'id']);
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getFavorites()
+    {
+        return (int) (bool) $this->hasMany(Favorites::className(), ['object_id' => 'id'])
+            ->andOnCondition(['table' => $this->formName()])
+            ->andOnCondition(['created_by' => Yii::$app->user->id])->count();
     }
 }

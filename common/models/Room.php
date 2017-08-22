@@ -5,6 +5,7 @@ namespace common\models;
 use common\components\helpers\ExtendedActiveRecord;
 use common\components\traits\errors;
 use common\components\traits\findRecords;
+use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
 use Yii;
 use yii\behaviors\BlameableBehavior;
@@ -15,8 +16,9 @@ use yii\db\ActiveRecord;
  * This is the model class for table "room".
  *
  * @property integer $id
+ * @property integer $category_id
  * @property string $title
- * @property string $description
+ * @property string $text
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -27,9 +29,11 @@ use yii\db\ActiveRecord;
  */
 class Room extends ExtendedActiveRecord
 {
+    use modelWithFiles;
     use soft;
     use findRecords;
     use errors;
+
     /**
      * @inheritdoc
      */
@@ -62,9 +66,9 @@ class Room extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description'], 'required'],
-            [['description'], 'string'],
-            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['title', 'text'], 'required'],
+            [['text'], 'string'],
+            [['status', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['title'], 'string', 'max' => 255],
         ];
     }
@@ -77,7 +81,7 @@ class Room extends ExtendedActiveRecord
         return [
             'id' => 'ID',
             'title' => 'Title',
-            'description' => 'Description',
+            'text' => 'Description',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -91,19 +95,19 @@ class Room extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
-                'id',
-                'title',
-                'description',
-                'status',
-                'user' => 'UserInfo',
-                'created_at' => function ($model) {
-                    return date('Y-m-d', $model->created_at);
-                },
-                'updated_at',
-                ]),
-        ];
+        return self::getFields($this, [
+            'id',
+            'category_id',
+            'title',
+            'text',
+            'status',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                /** @var $model Room */
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at',
+        ]);
     }
 
     /**
@@ -114,14 +118,17 @@ class Room extends ExtendedActiveRecord
     {
         return self::getFields($result, [
             'id',
+            'category_id',
             'title',
-            'description',
+            'text',
             'status',
             'user' => 'UserInfo',
             'created_at' => function ($model) {
+                /** @var $model Room */
                 return date('Y-m-d', $model->created_at);
             },
             'updated_at',
+            'favorites'
         ]);
     }
 
@@ -131,5 +138,15 @@ class Room extends ExtendedActiveRecord
     public function getMessages()
     {
         return $this->hasMany(Message::className(), ['room_id' => 'id']);
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getFavorites()
+    {
+        return (int) (bool) $this->hasMany(Favorites::className(), ['object_id' => 'id'])
+            ->andOnCondition(['table' => $this->formName()])
+            ->andOnCondition(['created_by' => Yii::$app->user->id])->count();
     }
 }

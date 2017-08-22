@@ -5,6 +5,8 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Favorites;
 use common\models\search\FavoritesSearch;
+use yii\behaviors\BlameableBehavior;
+use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
@@ -29,7 +31,7 @@ class FavoritesController extends Controller
             'only' => [
                 'update',
                 'create',
-                'delete',
+//                'delete',
             ],
         ];
 //        $behaviors['access'] = [
@@ -53,6 +55,7 @@ class FavoritesController extends Controller
 //            ],
 //        ];
 
+
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
             'actions' => [
@@ -60,7 +63,7 @@ class FavoritesController extends Controller
                 'one' => ['get'],
                 'create' => ['post'],
                 'update' => ['post'],
-                'delete' => ['delete'],
+                'delete' => ['post'],
             ],
         ];
 
@@ -99,13 +102,14 @@ class FavoritesController extends Controller
     {
         $model = new Favorites();
 
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
                 'id' =>  $model->object_id,
                 'message' => 'Додано до обраних'
             ];
         }
-        return ['errors' => $model->errors];
+        return ['message' => 'Вже було додано до обраних'];
 
     }
 
@@ -130,12 +134,12 @@ class FavoritesController extends Controller
     /**
      * Deletes an existing Favorites model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        return $this->findModel($id)->delete();
+        $this->findModel(Yii::$app->request->post('id'))->delete();
+        return $this->actionAll();
     }
 
     /**

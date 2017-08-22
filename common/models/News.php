@@ -82,6 +82,7 @@ class News extends ExtendedActiveRecord
             [['title'], 'string', 'max' => 255],
         ];
     }
+
     /**
      * @inheritdoc
      */
@@ -117,7 +118,7 @@ class News extends ExtendedActiveRecord
             'id' => $this->id,
             'title' => $this->title,
             'text' => $this->text,
-            'url' => 'http://192.168.0.118/files/skFHvafJvs0.jpg',
+            'url' => 'http://3fd17122.ngrok.io/files/skFHvafJvs0.jpg',
             'type' => $this->type,
             'status' => $this->status,
             'created_by' => $this->created_by,
@@ -139,15 +140,16 @@ class News extends ExtendedActiveRecord
                     'text',
                     'url',
                     'type',
-                    'img' => function($model){
-            /** News @var $model */
-                        return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
+                    'img' => function ($model) {
+                        /** @var $model News */
+                        return 'http://3fd17122.ngrok.io/files/skFHvafJvs0.jpg';
                     },
-                    'created_at' => function($model) {
+                    'created_at' => function ($model) {
+                        /** @var $model News */
                         return date('Y-m-d', $model->created_at);
                     },
-                    'resource_url' => function($model){
-                        /** News @var $model */
+                    'resource_url' => function ($model) {
+                        /** @var $model News */
                         $url = parse_url($model->url);
                         return $url['scheme'] . '://' . $url['host'];
                     }

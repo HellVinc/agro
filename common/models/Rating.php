@@ -92,8 +92,7 @@ class Rating extends ExtendedActiveRecord
 
     public function oneFields()
     {
-        return [
-            'feedback' => self::getFields($this, [
+        return self::getFields($this, [
                 'id',
                 'rating',
                 'text',
@@ -101,10 +100,10 @@ class Rating extends ExtendedActiveRecord
                 'status',
                 'user' => 'UserInfo',
                 'created_at' => function ($model) {
+                    /** @var $model Rating */
                     return date('Y-m-d', $model->created_at);
                 },
-            ]),
-        ];
+            ]);
     }
 
     /**
@@ -121,6 +120,7 @@ class Rating extends ExtendedActiveRecord
             'status',
             'user' => 'UserInfo',
             'created_at' => function ($model) {
+                /** @var $model Rating */
                 return date('Y-m-d', $model->created_at);
             },
         ]);

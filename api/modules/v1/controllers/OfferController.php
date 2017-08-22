@@ -55,13 +55,27 @@ class OfferController extends Controller
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
             'actions' => [
-                'create' => ['post'],
+                'all' => ['get'],
                 'update' => ['post'],
                 'delete' => ['delete'],
             ],
         ];
 
         return $behaviors;
+    }
+
+    /**
+     * Lists all Favorites models.
+     * @return mixed
+     */
+    public function actionAll()
+    {
+        $model = new OfferSearch();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => Offer::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
     }
 
 
@@ -75,28 +89,28 @@ class OfferController extends Controller
         $model = new Offer();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
+            return $model->oneFields();
         }
             return ['errors' => $model->errors];
     }
 
-    /**
-     * Updates an existing Offer model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                strtolower($model->getClassName()) => $model
-            ];
-        }
-            return ['errors' => $model->errors()];
-        }
+//    /**
+//     * Updates an existing Offer model.
+//     * If update is successful, the browser will be redirected to the 'view' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return [
+//                strtolower($model->getClassName()) => $model
+//            ];
+//        }
+//            return ['errors' => $model->errors()];
+//        }
 
 
     /**

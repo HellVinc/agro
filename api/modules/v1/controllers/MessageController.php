@@ -5,6 +5,7 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Message;
 use common\models\search\MessageSearch;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -14,20 +15,57 @@ use yii\filters\VerbFilter;
  */
 class MessageController extends Controller
 {
+
     /**
-     * @inheritdoc
+     * @return array
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
-//    }
+
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * Lists all Message models.
@@ -39,18 +77,20 @@ class MessageController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         return [
             'models' => Message::allFields($dataProvider->getModels()),
-            'count_model' => $dataProvider->getTotalCount()
+            'count_model' => $dataProvider->getTotalCount(),
+            'page_count' => $dataProvider->pagination->pageCount,
+            'page' => $dataProvider->pagination->page + 1
         ];
     }
 
-    /**
-     * Displays a single Message model.
-     * @return mixed
-     */
-    public function actionOne()
-    {
-        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
-    }
+//    /**
+//     * Displays a single Message model.
+//     * @return mixed
+//     */
+//    public function actionOne()
+//    {
+//        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
+//    }
 
     /**
      * Creates a new Message model.
@@ -62,7 +102,7 @@ class MessageController extends Controller
         $model = new Message();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
+            return $model->oneFields();
         }
         return ['errors' => $model->errors];
     }
@@ -78,9 +118,7 @@ class MessageController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                strtolower($model->getClassName()) => $model,
-            ];
+            return $model->oneFields();
         }
         return ['errors' => $model->errors()];
     }
@@ -88,12 +126,11 @@ class MessageController extends Controller
     /**
      * Deletes an existing Message model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        return $this->findModel($id)->delete();
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
     }
 
     /**

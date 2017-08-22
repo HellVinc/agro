@@ -12,7 +12,7 @@ use common\models\Favorites;
  */
 class FavoritesSearch extends Favorites
 {
-    public $size = 10;
+    public $size = 100;
     public $sort = [
         'id' => SORT_ASC,
     ];

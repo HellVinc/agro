@@ -15,7 +15,7 @@ class AdvertisementSearch extends Advertisement
 {
     public $size = 10;
     public $sort = [
-        'id' => SORT_ASC,
+        'id' => SORT_DESC,
     ];
 
     /**
@@ -40,8 +40,6 @@ class AdvertisementSearch extends Advertisement
 
     /**
      * Creates data provider instance with search query applied
-     *
-     * @param array $params
      *
      * @return ActiveDataProvider
      */

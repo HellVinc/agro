@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use common\components\traits\errors;
+use common\components\UploadModel;
 use common\models\Advertisement;
 use common\models\Category;
 use common\models\Feedback;
@@ -22,6 +23,7 @@ use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 
 
 class UserController extends Controller
@@ -176,14 +178,11 @@ class UserController extends Controller
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
 
-        if ($model->load(['User' => Yii::$app->request->post()]) && $model->save()) {
-//            if(Yii::$app->request->post('password')){
-//                return  $model->saveUpdate();
-//            }
-//          $model->save();
-            $model->image_file = 'photo';
-
-            $model->savePhoto();
+        if ($model->load(['User' => Yii::$app->request->post()])) {
+            $file = new UploadModel(['scenario' => UploadModel::ONE_FILE]);
+            $file->imageFile = UploadedFile::getInstanceByName('photo');
+            $model->photo = $file->upload($model->id);
+            $model->save();
             return $model;
         }
 

@@ -22,8 +22,8 @@ class RoomSearch extends Room
     public function rules()
     {
         return [
-            [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'description'], 'safe'],
+            [['id', 'status', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['title', 'text'], 'safe'],
         ];
     }
 
@@ -38,8 +38,6 @@ class RoomSearch extends Room
 
     /**
      * Creates data provider instance with search query applied
-     *
-     * @param array $params
      *
      * @return ActiveDataProvider
      */
@@ -68,6 +66,7 @@ class RoomSearch extends Room
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
+            'category_id' => $this->category_id,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -76,7 +75,7 @@ class RoomSearch extends Room
         ]);
 
         $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'description', $this->description]);
+            ->andFilterWhere(['like', 'text', $this->text]);
 
         return $dataProvider;
     }

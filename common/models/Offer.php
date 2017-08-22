@@ -14,8 +14,7 @@ use common\components\traits\findRecords;
  * This is the model class for table "offer".
  *
  * @property integer $id
- * @property string $title
- * @property string $description
+ * @property string $text
  * @property string $viewed
  * @property string $checked
  * @property string $done
@@ -73,9 +72,9 @@ class Offer extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description'], 'required'],
+            [['text'], 'required'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'description'], 'string', 'max' => 255],
+            [['text'], 'string', 'max' => 255],
         ];
     }
 
@@ -86,8 +85,7 @@ class Offer extends ExtendedActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'description' => 'Description',
+            'text' => 'Description',
             'viewed' => 'Viewed',
             'checked' => 'Checked',
             'done' => 'Done',
@@ -97,6 +95,43 @@ class Offer extends ExtendedActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return self::getFields($this, [
+                'id',
+                'text',
+                'status',
+                'user' => 'UserInfo',
+                'created_at' => function ($model) {
+                    /** @var $model Offer */
+                    return date('Y-m-d', $model->created_at);
+                },
+                'updated_at',
+            ]);
+    }
+
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
+    {
+        return self::getFields($result, [
+            'id',
+            'text',
+            'status',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                /** @var $model Offer */
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at',
+        ]);
     }
 
     /**

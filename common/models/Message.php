@@ -100,6 +100,7 @@ class Message extends ExtendedActiveRecord
                 'status',
                 'user' => 'UserInfo',
                 'created_at' => function ($model) {
+                    /** @var $model Message */
                     return date('Y-m-d', $model->created_at);
                 },
                 'updated_at',
@@ -120,6 +121,7 @@ class Message extends ExtendedActiveRecord
             'status',
             'user' => 'UserInfo',
             'created_at' => function ($model) {
+                /** @var $model Message */
                 return date('Y-m-d', $model->created_at);
             },
             'updated_at',

@@ -6,6 +6,7 @@ use common\components\UploadModel;
 use common\components\traits\errors;
 use common\models\Attachment;
 use common\models\Category;
+use common\models\Favorites;
 use common\models\search\CategorySearch;
 use Yii;
 use common\models\Advertisement;
@@ -32,6 +33,7 @@ class AdvertisementController extends Controller
             'class' => QueryParamAuth::className(),
             'tokenParam' => 'auth_key',
             'only' => [
+                'all',
                 'update',
                 'create',
                 'delete',
@@ -65,7 +67,7 @@ class AdvertisementController extends Controller
                 'one' => ['get'],
                 'create' => ['post'],
                 'update' => ['post'],
-                'delete' => ['delete'],
+                'delete' => ['post'],
             ],
         ];
 
@@ -74,14 +76,7 @@ class AdvertisementController extends Controller
 
     public function actionTest()
     {
-        $model = new UploadModel();
-        if (Yii::$app->request->isPost) {
-            $model->imageFiles = UploadedFile::getInstancesByName('files');
-           if($model->upload()){
-               return true;
-           }
-        }
-        return $model->errors;
+//       return $this->formName();
     }
 
 
@@ -93,11 +88,12 @@ class AdvertisementController extends Controller
     {
         $model = new AdvertisementSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $models = Advertisement::allFields($dataProvider->getModels());
         return [
-            'models' => Advertisement::allFields($dataProvider->getModels()),
+            'model' => Advertisement::allFields($models),
             'count_model' => $dataProvider->getTotalCount(),
             'page_count' => $dataProvider->pagination->pageCount,
-            'current_page' => $dataProvider->pagination->page
+            'page' => $dataProvider->pagination->page + 1
         ];
     }
 
@@ -122,7 +118,7 @@ class AdvertisementController extends Controller
         $model = new Advertisement();
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
-            return $model->id;
+            return $model->oneFields();
         }
         return ['errors' => $model->errors];
     }
@@ -153,12 +149,11 @@ class AdvertisementController extends Controller
     /**
      * Deletes an existing Advertisement model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        return $this->findModel($id)->delete();
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
     }
 
     /**
@@ -174,8 +169,8 @@ class AdvertisementController extends Controller
             if ($model->status !== 0) {
                 return $model;
             }
-                throw new NotFoundHttpException('The record was archived.');
+            throw new NotFoundHttpException('The record was archived.');
         }
-            throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

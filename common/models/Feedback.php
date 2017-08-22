@@ -98,6 +98,7 @@ class Feedback extends ExtendedActiveRecord
                 'status',
                 'user' => 'UserInfo',
                 'created_at' => function ($model) {
+                /** @var $model Feedback */
                     return date('Y-m-d', $model->created_at);
                 },
                 'updated_at',
@@ -119,6 +120,7 @@ class Feedback extends ExtendedActiveRecord
             'status',
             'user' => 'UserInfo',
             'created_at' => function ($model) {
+                /** @var $model Feedback */
                 return date('Y-m-d', $model->created_at);
             },
             'updated_at',

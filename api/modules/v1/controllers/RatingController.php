@@ -86,7 +86,7 @@ class RatingController extends Controller
         $model = new Rating();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
+            return $model->oneFields();
         }
         return ['errors' => $model->errors];
     }
@@ -110,7 +110,6 @@ class RatingController extends Controller
     /**
      * Deletes an existing Rating model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
      * @return mixed
      */
     public function actionDelete()

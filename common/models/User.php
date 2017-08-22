@@ -113,7 +113,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
             [['photo'], 'string', 'max' => 255],
-//            [['image_file'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
             ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],
             ['role', 'default', 'value' => self::ROLE_CLIENT],
@@ -149,15 +148,15 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function getPhone()
     {
-        return '+380' . $this->phone;
+        return '0' . $this->phone;
     }
 
     public function getPhotoPath()
     {
         if ($this->photo) {
-            return 'http://4dc98406.ngrok.io' . '/photo/user/' . $this->id . '/' . $this->photo;
+            return 'http://3fd17122.ngrok.io' . '/photo/user/' . $this->id . '/' . $this->photo;
         }
-        return 'http://4dc98406.ngrok.io' . '/photo/user/empty.jpg';
+        return 'http://3fd17122.ngrok.io' . '/photo/user/empty.jpg';
 
     }
 
@@ -204,7 +203,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         $result = [
             'id' => $this->id,
             'role' => $this->role,
-            'phone' => $this->phone,
+            'phone' => $this->getPhone(),
             'photo' => $this->photoPath,
             'auth_key' => $this->auth_key,
             'first_name' => $this->first_name,
@@ -212,6 +211,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'last_name' => $this->last_name,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'rating' => $this->getRating()
         ];
         return $result;
     }
@@ -319,13 +319,15 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         $result['buy'] = (new Query())
             ->from('advertisement')
-            ->where(['trade_type' => Advertisement::TYPE_BUY])->count();
+            ->where(['trade_type' => Advertisement::TYPE_SELL])->count();
         $result['sell'] = (new Query())
             ->from('advertisement')
-            ->where(['trade_type' => Advertisement::TYPE_SELL])->count();
-        $result['chat'] = Message::find()->where(['status' => Message::STATUS_ACTIVE])->count();
+            ->where(['trade_type' => Advertisement::TYPE_BUY])->count();
+        $result['chat'] = Room::find()->where(['status' => Room::STATUS_ACTIVE])->count();
         $result['news'] = News::find()
             ->where(['status' => News::STATUS_ACTIVE, 'type' => News::TYPE_NEWS])->count();
+        $result['finance'] = Room::find()
+            ->where(['status' => Room::STATUS_ACTIVE, 'category_id' => 3])->count();
         $result['services'] = News::find()
             ->where(['status' => News::STATUS_ACTIVE, 'type' => News::TYPE_SERVICES])->count();
         return $result;

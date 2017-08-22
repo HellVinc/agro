@@ -105,6 +105,7 @@ class Attachment extends ExtendedActiveRecord
                     'created_at',
                     'updated_at',
                     'created_at' => function($model) {
+            /** @var $model Attachment */
                         return date('Y-m-d', $model->created_at);
                     },
                 ],
@@ -118,7 +119,7 @@ class Attachment extends ExtendedActiveRecord
         return parent::fields();
     }
 
-    public static function uploadOne($id, $table)
+    public static function uploadFiles($id, $table)
     {
         $model = new UploadModel();
         $model->files = UploadedFile::getInstancesByName('file');
@@ -168,7 +169,7 @@ class Attachment extends ExtendedActiveRecord
                 }
             return $this;
         }
-            return self::uploadOne('file', $this->id, $this->tableName());
+            return self::uploadOne($model->id, $model->tableName());
     }
 
     public static function removeWithParent($all)
@@ -186,7 +187,7 @@ class Attachment extends ExtendedActiveRecord
 
     public function getFilePath()
     {
-        return 'http://4dc98406.ngrok.io' . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
+        return 'http://3fd17122.ngrok.io' . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
 //        return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
     }
 
