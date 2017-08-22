@@ -7,6 +7,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Advertisement;
+use common\models\User;
 
 /**
  * AdvertisementSearch represents the model behind the search form about `common\models\Advertisement`.
@@ -17,6 +18,7 @@ class AdvertisementSearch extends Advertisement
     public $sort = [
         'id' => SORT_ASC,
     ];
+    public $phone;
 
     /**
      * @inheritdoc
@@ -24,7 +26,7 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['id', 'phone', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
@@ -63,6 +65,16 @@ class AdvertisementSearch extends Advertisement
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
             return $dataProvider;
+        }
+
+
+        if ($this->phone) {
+            $user = User::findOne(['phone' => $this->phone]);
+            if (!$user) {
+                $query->where('0=1');
+                return $dataProvider;
+            }
+            $this->created_by = $user->id;
         }
 
         $query->joinWith(Tag::tableName());
