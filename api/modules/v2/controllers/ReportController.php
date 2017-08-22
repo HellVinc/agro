@@ -55,7 +55,7 @@ class ReportController extends Controller
     public function actionAll()
     {
         $searchModel = new ReportSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $searchModel->searchAll(Yii::$app->request->queryParams);
 
         return Report::allFields($dataProvider);
     }
@@ -85,7 +85,7 @@ class ReportController extends Controller
     {
         $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
 
-        $model = $this->findModel($id, true);
+        $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
