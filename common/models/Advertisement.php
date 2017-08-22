@@ -7,6 +7,7 @@ use common\components\traits\errors;
 use common\components\traits\findRecords;
 use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
+use function foo\func;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -147,6 +148,25 @@ class Advertisement extends ExtendedActiveRecord
             'count_reports' => function ($model) {
                 return (int)$model->getReports()->count();
             },
+            'attachments' => function ($model) {
+                return [
+                    'attachments' => $model->attachments,
+                    'count' => count($model->attachments),
+                ];
+            },
+            'trade_type' => function ($model) {
+                switch ($model->trade_type) {
+                    case self::TYPE_BUY:
+                        return 'Купівля';
+
+                    case self::TYPE_SELL:
+                        return 'Продаж';
+                }
+                return '';
+            },
+            'category' => function ($model) {
+                return $model->category->name;
+            }
         ];
     }
 
@@ -199,6 +219,7 @@ class Advertisement extends ExtendedActiveRecord
                     'viewed',
                     'status',
                     'closed',
+                    'category',
                     'count_reports',
                     'created_by',
                     'created_at',
@@ -232,6 +253,14 @@ class Advertisement extends ExtendedActiveRecord
     public function getTag()
     {
         return $this->hasOne(Tag::className(), ['id' => 'tag_id']);
+    }
+
+    /**
+     * @return Category
+     */
+    public function getCategory()
+    {
+        return $this->tag->category;
     }
 
     /**

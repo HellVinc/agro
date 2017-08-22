@@ -8,7 +8,7 @@ use common\models\search\ReportSearch;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 use yii\helpers\ArrayHelper;
-use yii\web\Controller;
+use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 

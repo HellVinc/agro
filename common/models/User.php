@@ -241,7 +241,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                     'phone',
                     'photo',
                     'first_name',
-                    //'middle_name',
+                    'second_name',
                     'last_name',
                     'count_reports',
                     'status',

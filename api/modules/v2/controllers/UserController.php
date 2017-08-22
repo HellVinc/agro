@@ -11,6 +11,7 @@ use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
+use common\models\LoginForm;
 
 
 class UserController extends Controller
@@ -59,6 +60,37 @@ class UserController extends Controller
 //        $result = $user->oneFields();
 //        return $result;
 //    }
+
+    /**
+     * Login admin
+     *
+     * @return array
+     */
+    public function actionLogin()
+    {
+        $model = new LoginForm();
+
+        if (!$model->load(Yii::$app->request->post(), "")) {
+            return ['error' => 'Error. Bad request.'];
+        }
+
+        if (!$model->login()) {
+            return ['error' => 'Invalid login or password'];
+        }
+
+        if (Yii::$app->user->identity->role != User::ROLE_ADMIN) {
+            Yii::$app->user->logout();
+            return ['error' => 'You are not an admin'];
+        }
+
+        return Yii::$app->user->identity->responseOne([
+            'id',
+            'photo',
+            'auth_key',
+            'first_name',
+            'second_name',
+        ]);
+    }
 
     /**
      * Updates an existing User model.
