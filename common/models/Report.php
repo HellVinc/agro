@@ -66,7 +66,38 @@ class Report extends ExtendedActiveRecord
             [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'string'],
             [['table'], 'string', 'max' => 255],
+            [['table'], 'filter', 'filter' => 'strtolower'],
+            [['object_id'], 'existId'],// validate table and record
         ];
+    }
+
+    /**
+     * Find record by `object_id` in `table`
+     */
+    public function existId() {
+        switch ($this->table) {
+            case User::tableName():
+                $exist = User::findOne($this->object_id);
+                break;
+
+            case Advertisement::tableName():
+                $exist = Advertisement::findOne($this->object_id);
+                break;
+
+            default:
+                $this->addError(
+                    'table',
+                    'Supported tables: ' . implode(', ', [
+                        User::tableName(),
+                        Advertisement::tableName(),
+                    ])
+                );
+                return;
+        }
+
+        if (!$exist) {
+            $this->addError('object_id', 'Item not exist');
+        }
     }
 
     /**
@@ -89,8 +120,7 @@ class Report extends ExtendedActiveRecord
 
     public function oneFields()
     {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
+        return self::getFields($this, [
                 'id',
                 'object_id',
                 'table',
@@ -100,8 +130,7 @@ class Report extends ExtendedActiveRecord
                 'updated_at',
                 'created_by',
                 'updated_by',
-            ]),
-        ];
+            ]);
     }
 
     public static function allFields($result)

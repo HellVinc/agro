@@ -5,6 +5,7 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Report;
 use common\models\search\ReportSearch;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -19,41 +20,77 @@ class ReportController extends Controller
      */
     public function behaviors()
     {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'all',
+                'update',
+                'create',
+                'delete',
             ],
         ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
+//                ],
+//            ],
+//        ];
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
     }
 
     /**
      * Lists all Report models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionAll()
     {
-        $searchModel = new ReportSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        $model = new ReportSearch();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $models = Report::allFields($dataProvider->getModels());
+        return [
+            'model' => Report::allFields($models),
+            'count_model' => $dataProvider->getTotalCount(),
+            'page_count' => $dataProvider->pagination->pageCount,
+            'page' => $dataProvider->pagination->page + 1
+        ];
     }
 
     /**
      * Displays a single Report model.
-     * @param integer $id
      * @return mixed
      */
-    public function actionView($id)
+    public function actionOne()
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $model = $this->findModel(Yii::$app->request->get('id'));
+        return $model->oneFields();
     }
 
     /**
@@ -65,13 +102,10 @@ class ReportController extends Controller
     {
         $model = new Report();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        if ($model->load(Yii::$app->request->post()) && $model->save() && !$model->getErrors()) {
+            return $model->oneFields();
         }
+        return ['message' => $model->errors];
     }
 
     /**
@@ -84,26 +118,20 @@ class ReportController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+        if ($model->load(Yii::$app->request->post()) && $model->save() && !$model->getErrors()) {
+            return $model->oneFields();
         }
+        return ['errors' => $model->errors];
     }
 
     /**
      * Deletes an existing Report model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
     }
 
     /**

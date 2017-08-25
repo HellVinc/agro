@@ -23,6 +23,8 @@ use yii\helpers\ArrayHelper;
  * @property string $text
  * @property string $latitude
  * @property string $longitude
+ * @property string $viewed
+ * @property string $closed
  * @property integer $trade_type
  * @property integer $status
  * @property integer $created_at
@@ -84,7 +86,7 @@ class Advertisement extends ExtendedActiveRecord
     {
         return [
             [['tag_id', 'title', 'text', 'trade_type'], 'required'],
-            [['tag_id', 'trade_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['tag_id', 'trade_type', 'closed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
 //            ['trade_type', 'filter', 'filter' => 'intval'],
             [['title'], 'string', 'max' => 255],
@@ -119,10 +121,16 @@ class Advertisement extends ExtendedActiveRecord
     {
         return self::getFields($this, [
             'id',
+            'tag' => function ($model) {
+                /** @var $model Advertisement */
+                return $model->tag->name;
+            },
+            'tag_id',
             'title',
             'text',
             'trade_type',
             'viewed',
+            'closed',
             'status',
             'user' => 'UserInfo',
             'created_at' => function ($model) {
@@ -146,10 +154,12 @@ class Advertisement extends ExtendedActiveRecord
                 /** @var $model Advertisement */
                 return $model->tag->name;
             },
+            'tag_id',
             'title',
             'text',
             'trade_type',
             'viewed',
+            'closed',
             'status',
             'user' => 'UserInfo',
             'created_at' => function ($model) {

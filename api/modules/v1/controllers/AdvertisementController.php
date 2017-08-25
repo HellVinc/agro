@@ -8,6 +8,7 @@ use common\models\Attachment;
 use common\models\Category;
 use common\models\Favorites;
 use common\models\search\CategorySearch;
+use common\models\User;
 use Yii;
 use common\models\Advertisement;
 use common\models\search\AdvertisementSearch;
@@ -74,9 +75,9 @@ class AdvertisementController extends Controller
         return $behaviors;
     }
 
-    public function actionTest()
+    public function actionTest($phone)
     {
-//       return $this->formName();
+        return User::passwordReset($phone);
     }
 
 
@@ -126,22 +127,15 @@ class AdvertisementController extends Controller
     /**
      * Updates an existing Advertisement model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionUpdate($id)
+    public function actionUpdate()
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel(Yii::$app->request->post('id'));
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && !$model->getErrors()) {
-            $fileCount = Attachment::find()->where(['object_id' => $model->id, 'table' => 'advertisement'])->count();
-            if ($fileCount > 3) {
-                return ['errors' => 'You can upload not more then 3 files'];
-            }
-            $model->checkFiles();
-            return [
-                strtolower($model->getClassName()) => $model
-            ];
+
+            return $model->oneFields();
         }
         return ['errors' => $model->errors];
     }

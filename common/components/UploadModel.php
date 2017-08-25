@@ -27,9 +27,12 @@ class UploadModel extends Model
         ];
     }
 
-    public function upload($id)
+    public function upload($id, $path)
     {
-        $dir = dirname(Yii::getAlias('@app')) . '/photo/' . 'user' . '/' . $id;
+        $dir = dirname(Yii::getAlias('@app')) . '/' . $path  . '/' . $id;
+        if (!is_dir($dir)) {
+            FileHelper::createDirectory($dir);
+        }
         if ($this->validate()) {
             $name = hash_file('crc32', $this->imageFile->tempName);
             $this->imageFile->saveAs($dir . '/' . $name . '.' . $this->imageFile->extension);

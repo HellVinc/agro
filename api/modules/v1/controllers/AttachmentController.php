@@ -2,12 +2,15 @@
 
 namespace api\modules\v1\controllers;
 
+use common\components\UploadModel;
 use Yii;
 use common\models\Attachment;
 use common\models\search\AttachmentSearch;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * AttachmentController implements the CRUD actions for Attachment model.
@@ -17,17 +20,53 @@ class AttachmentController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'all',
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
-//    }
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * Lists all Attachment models.
@@ -61,33 +100,37 @@ class AttachmentController extends Controller
      */
     public function actionCreate()
     {
+        $file = new UploadModel(['scenario' => UploadModel::ONE_FILE]);
+        $file->imageFile = UploadedFile::getInstanceByName('file');
         $model = new Attachment();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $model->url = $file->upload(Yii::$app->request->post('object_id'), 'files/' . Yii::$app->request->post('table'));
+        $model->extension = $file->imageFile->extension;
+        $model->object_id = Yii::$app->request->post('object_id');
+        $model->table = Yii::$app->request->post('table');
+        if ($model->save()) {
             return $model->oneFields();
         }
         return ['errors' => $model->errors];
 
     }
 
-    /**
-     * Updates an existing Attachment model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                strtolower($model->getClassName()) => $model
-            ];
-        }
-        return ['errors' => $model->errors()];
-
-    }
+//    /**
+//     * Updates an existing Attachment model.
+//     * If update is successful, the browser will be redirected to the 'view' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return [
+//                strtolower($model->getClassName()) => $model
+//            ];
+//        }
+//        return ['errors' => $model->errors()];
+//    }
 
     /**
      * Deletes an existing Comment model.
@@ -98,7 +141,6 @@ class AttachmentController extends Controller
     public function actionDelete()
     {
         return $this->findModel(Yii::$app->request->post('id'))->delete();
-
     }
     /**
      * Finds the Attachment model based on its primary key value.

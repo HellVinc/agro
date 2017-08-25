@@ -23,6 +23,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
+ * @property integer $trade_type
  */
 class Favorites extends ExtendedActiveRecord
 {
@@ -30,7 +31,7 @@ class Favorites extends ExtendedActiveRecord
     use findRecords;
     use errors;
 
-
+    public $trade_type;
 
     public function behaviors()
     {

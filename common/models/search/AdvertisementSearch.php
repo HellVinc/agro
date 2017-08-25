@@ -7,6 +7,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Advertisement;
+use common\models\User;
 
 /**
  * AdvertisementSearch represents the model behind the search form about `common\models\Advertisement`.
@@ -17,6 +18,7 @@ class AdvertisementSearch extends Advertisement
     public $sort = [
         'id' => SORT_DESC,
     ];
+    public $phone;
 
     /**
      * @inheritdoc
@@ -24,7 +26,7 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['id', 'phone', 'closed', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
@@ -59,12 +61,17 @@ class AdvertisementSearch extends Advertisement
             ],
         ]);
 
+        if ($this->phone) {
+            $this->created_by = User::findOne(['phone' => $this->phone])->id;
+        }
+
         $query->joinWith('tag');
         // grid filtering conditions
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
             'trade_type' => $this->trade_type,
+            'closed' => $this->closed,
             'advertisement.status' => $this->status,
             'advertisement.created_at' => $this->created_at,
             'advertisement.updated_at' => $this->updated_at,

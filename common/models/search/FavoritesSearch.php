@@ -65,18 +65,21 @@ class FavoritesSearch extends Favorites
             return $dataProvider;
         }
 
+        $query->joinWith('advertisement');
+
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
+            'favorites.id' => $this->id,
             'object_id' => $this->object_id,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
+            'favorites.status' => $this->status,
+            'favorites.created_at' => $this->created_at,
+            'favorites.updated_at' => $this->updated_at,
+            'favorites.created_by' => $this->created_by,
+            'favorites.updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'table', $this->table]);
+        $query->andFilterWhere(['like', 'table', $this->table])
+        ->andFilterWhere(['like', 'favorites.trade_type', $this->trade_type]);
 
         return $dataProvider;
     }

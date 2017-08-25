@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use common\components\sms\Smsru;
 use common\components\traits\errors;
 use common\components\UploadModel;
 use common\models\Advertisement;
@@ -11,6 +12,7 @@ use common\models\LoginForm;
 use common\models\Message;
 use common\models\News;
 use common\models\Rating;
+use common\models\search\AdvertisementSearch;
 use common\models\search\FeedbackSearch;
 use common\models\User;
 use frontend\models\SignupForm;
@@ -74,6 +76,7 @@ class UserController extends Controller
             'actions' => [
                 'all' => ['get'],
                 'one' => ['get'],
+                'pass-reset' => ['get'],
                 'create' => ['post'],
                 'add-feedback' => ['post'],
                 'update' => ['post'],
@@ -133,8 +136,23 @@ class UserController extends Controller
         ];
     }
 
+    /**
+     * @return array
+     */
     public function actionOne()
     {
+        if(Yii::$app->request->get('phone')){
+            $user = $this->findModel(Yii::$app->request->get('phone'));
+            $model = new AdvertisementSearch();
+            $dataProvider = $model->searchAll($user->id);
+            $models = Advertisement::allFields($dataProvider->getModels());
+            return [
+                'model' => Advertisement::allFields($models),
+                'count_model' => $dataProvider->getTotalCount(),
+                'page_count' => $dataProvider->pagination->pageCount,
+                'page' => $dataProvider->pagination->page + 1
+            ];
+        }
         return $this->findModel(Yii::$app->request->get('id'))->oneFields();
     }
 
@@ -171,6 +189,15 @@ class UserController extends Controller
     }
 
     /**
+     * @param $phone
+     * @return array
+     */
+    public function actionPassReset($phone)
+    {
+        return User::passwordReset($phone);
+    }
+
+    /**
      * Updates an existing User model.
      * @return mixed
      */
@@ -181,7 +208,7 @@ class UserController extends Controller
         if ($model->load(['User' => Yii::$app->request->post()])) {
             $file = new UploadModel(['scenario' => UploadModel::ONE_FILE]);
             $file->imageFile = UploadedFile::getInstanceByName('photo');
-            $model->photo = $file->upload($model->id);
+            $model->photo = $file->upload($model->id, 'photo/user');
             $model->save();
             return $model;
         }
