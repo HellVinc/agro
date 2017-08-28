@@ -129,15 +129,9 @@ class Advertisement extends ExtendedActiveRecord
     public function extraFields()
     {
         return [
-            'created_by' => function ($model) {
-                if ($model->User) {
-                    return User::getFields($model->User, ['id', 'phone']);
-                }
-                return null;
-            },
             'user' => function ($model) {
-                if ($model->User) {
-                    return self::getFields($model->User, [
+                if ($model->creator) {
+                    return self::getFields($model->creator, [
                         'name' => 'first_name',
                         'surname' => 'last_name',
                         'photo' => 'photoPath'
@@ -182,6 +176,7 @@ class Advertisement extends ExtendedActiveRecord
             'trade_type',
             'viewed',
             'status',
+            'user',
             'created_by',
             'created_at',
             'updated_at',
@@ -221,7 +216,12 @@ class Advertisement extends ExtendedActiveRecord
                     'closed',
                     'category',
                     'count_reports',
-                    'created_by',
+                    'created_by' => function ($model) {
+                        if ($model->creator) {
+                            return User::getFields($model->creator, ['id', 'phone']);
+                        }
+                        return null;
+                    },
                     'created_at',
                     'updated_at',
                     'attachments'
@@ -269,5 +269,16 @@ class Advertisement extends ExtendedActiveRecord
     public function getComments()
     {
         return $this->hasMany(Comment::className(), ['advertisement_id' => 'id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function afterDelete()
+    {
+        foreach ($this->reports as $report) {
+            $report->delete();
+        }
+        return parent::afterDelete();
     }
 }

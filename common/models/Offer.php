@@ -107,8 +107,8 @@ class Offer extends ExtendedActiveRecord
     {
         return [
             'created_by' => function ($model) {
-                if ($model->User) {
-                    return User::getFields($model->User, ['id', 'phone']);
+                if ($model->creator) {
+                    return User::getFields($model->creator, ['id', 'phone']);
                 }
                 return null;
             },

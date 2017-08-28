@@ -9,6 +9,7 @@ use common\components\helpers\ExtendedActiveRecord;
 use common\components\traits\errors;
 use common\components\traits\findRecords;
 use common\components\traits\soft;
+use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -67,7 +68,7 @@ class Comment extends ExtendedActiveRecord
     {
         return [
             [['advertisement_id', 'viewed', 'status'], 'integer'],
-            [['text'], 'required'],
+            [['advertisement_id', 'text'], 'required'],
             [['text'], 'string'],
             [['advertisement_id'], 'exist', 'skipOnError' => true, 'targetClass' => Advertisement::className(), 'targetAttribute' => ['advertisement_id' => 'id']],
         ];
@@ -97,9 +98,17 @@ class Comment extends ExtendedActiveRecord
     public function extraFields()
     {
         return [
-            'date' => $this->created_at,
-            'user' => $this->getUser(),
-            'avatar' => User::findOne(['id' => $this->created_by])->photoPath,
+            'date' => 'created_at',
+            'avatar' => function ($model) {
+                if ($model->getCreator()) {
+                    return $model->creator->photoPath;
+                }
+                return '';
+            },
+            'user' => function ($model) {
+                $user = $model->creator;
+                return $model->getCreator() ? $user->first_name . ' ' . $user->last_name : '';
+            }
         ];
     }
 
@@ -130,23 +139,38 @@ class Comment extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::responseAll($result, [
-            'id',
-            'text',
-            'viewed',
-            'date',
-            'user',
-            'avatar'
-        ]);
-    }
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'text',
+                    'viewed',
+                    'date',
+                    'user',
+                    'avatar',
+                ]);
 
-    /**
-     * @return string
-     */
-    public function getUser()
-    {
-        $var = User::findOne($this->created_by);
-        return $var->first_name . ' ' . $var->last_name;
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'text',
+                    'status',
+                    'advertisement_id',
+                    'created_by' => function ($model) {
+                        if ($model->creator) {
+                            return User::getFields($model->creator, [
+                                'id',
+                                'phone',
+                                'first_name',
+                                'last_name',
+                            ]);
+                        }
+                        return null;
+                    },
+                    'created_at',
+                    'updated_at',
+                ]);
+        }
     }
 
     /**

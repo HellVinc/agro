@@ -463,11 +463,11 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     /**
      * @return bool
      */
-    public function beforeDelete()
+    public function afterDelete()
     {
         foreach ($this->reports as $report) {
             $report->delete();
         }
-        return parent::beforeDelete();
+        return parent::afterDelete();
     }
 }
