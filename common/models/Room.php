@@ -96,4 +96,15 @@ class Room extends ExtendedActiveRecord
     {
         return $this->hasMany(Message::className(), ['room_id' => 'id']);
     }
+
+    /**
+     * @return bool
+     */
+    public function beforeDelete()
+    {
+        foreach ($this->messages as $message) {
+            $message->delete();
+        }
+        return parent::beforeDelete();
+    }
 }

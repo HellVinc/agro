@@ -55,7 +55,7 @@ class RoomController extends Controller
     public function actionAll()
     {
         $model = new RoomSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
         return Room::allFields($dataProvider);
     }
 

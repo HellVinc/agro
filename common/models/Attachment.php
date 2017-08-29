@@ -111,12 +111,19 @@ class Attachment extends ExtendedActiveRecord
         ]);
     }
 
-    public function fields()
+    public function extraFields()
     {
         return [
             'created_at' => function($model) {
                 return date('Y-m-d', $model->created_at);
             },
+        ];
+    }
+
+    public function fields()
+    {
+        return [
+            'url' => 'filePath',
         ];
     }
 

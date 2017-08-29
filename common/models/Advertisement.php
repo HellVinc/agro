@@ -175,6 +175,7 @@ class Advertisement extends ExtendedActiveRecord
             'title',
             'text',
             'trade_type',
+            'tag',
             'viewed',
             'status',
             'user',
@@ -216,6 +217,7 @@ class Advertisement extends ExtendedActiveRecord
                     'status',
                     'closed',
                     'category',
+                    'tag',
                     'count_reports',
                     'created_by' => function ($model) {
                         if ($model->creator) {

@@ -166,4 +166,22 @@ class Category extends ExtendedActiveRecord
         return $this->hasMany(Tag::className(), ['category_id' => 'id'])->andWhere(['status' => self::STATUS_ACTIVE]);
     }
 
+
+    public function getRooms()
+    {
+        return $this->hasMany(Room::className(), ['category_id' => 'id'])->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Delete rooms in category
+     */
+    public function beforeDelete()
+    {
+        if ($this->category_type == self::TYPE_CHAT) {
+            foreach ($this->rooms as $room) {
+                $room->delete();
+            }
+        }
+        return parent::beforeDelete();
+    }
 }

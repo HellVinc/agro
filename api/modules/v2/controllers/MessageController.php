@@ -55,7 +55,7 @@ class MessageController extends Controller
     public function actionAll()
     {
         $model = new MessageSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
         return Message::allFields($dataProvider);
     }
 
@@ -64,16 +64,16 @@ class MessageController extends Controller
 //     * If creation is successful, the browser will be redirected to the 'view' page.
 //     * @return mixed
 //     */
-//    public function actionCreate()
-//    {
-//        $model = new Message();
-//
-//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-//            return $model->oneFields();
-//        } else {
-//            return ['errors' => $model->errors];
-//        }
-//    }
+    public function actionCreate()
+    {
+        $model = new Message();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $model->oneFields();
+        } else {
+            return ['errors' => $model->errors];
+        }
+    }
 
     /**
      * Updates an existing Message model.
