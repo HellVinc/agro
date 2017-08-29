@@ -4,6 +4,7 @@ namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
 use common\components\helpers\ExtendedModel;
+use common\components\sms\smsClass;
 use common\components\sms\Smsru;
 use common\components\sms\stdClass;
 use common\components\traits\errors;
@@ -140,9 +141,10 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function saveUpdate()
     {
-        if (Yii::$app->request->post('password')) {
+        if ($this->password) {
             $this->setPassword($this->password);
-            $this->save();
+        }
+        if ($this->save()) {
             return $this;
         }
         return $this->errors;
@@ -406,8 +408,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     private static function std($phone, $password)
     {
-        $text = 'your new password:';
-        $model = new stdClass();
+        $text = 'your new password: ';
+        $model = new smsClass();
         $model->to = $phone;
         $model->text = $text . $password;
         return $model;
@@ -417,11 +419,11 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         $dbPhone = substr($phone, 3);
         $key = mt_rand(1000000, 9999999);
-        if(!$model = User::findOne(['phone' => $dbPhone])){
+        if (!$model = User::findOne(['phone' => $dbPhone])) {
             return ['message' => 'Номер не знайдено'];
         }
         $model->setPassword($key);
-        if($model->save()){
+        if ($model->save()) {
             $send = new Smsru('6FAEB3C6-438F-C41C-A412-AE810F867D10');
             return $send->send_one(User::std($phone, $key));
         }

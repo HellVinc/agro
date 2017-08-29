@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use common\models\Log;
 use Yii;
 use common\models\Favorites;
 use common\models\search\FavoritesSearch;
@@ -101,11 +102,13 @@ class FavoritesController extends Controller
     public function actionCreate()
     {
         $model = new Favorites();
-
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $log = new Log();
+            $log->object_id = $model->id;
+            $log->table = Favorites::tableName();
+            $log->save();
             return [
-                'id' =>  $model->object_id,
+                'id' => $model->object_id,
                 'message' => 'Додано до обраних'
             ];
         }
@@ -155,8 +158,8 @@ class FavoritesController extends Controller
             if ($model->status !== 0) {
                 return $model;
             }
-                throw new NotFoundHttpException('The record was archived.');
+            throw new NotFoundHttpException('The record was archived.');
         }
-            throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use common\components\UploadModel;
+use common\models\Advertisement;
 use Yii;
 use common\models\Attachment;
 use common\models\search\AttachmentSearch;
@@ -60,6 +61,7 @@ class AttachmentController extends Controller
                 'all' => ['get'],
                 'one' => ['get'],
                 'create' => ['post'],
+                'create-multiple' => ['post'],
                 'update' => ['post'],
                 'delete' => ['post'],
             ],
@@ -114,23 +116,20 @@ class AttachmentController extends Controller
 
     }
 
-//    /**
-//     * Updates an existing Attachment model.
-//     * If update is successful, the browser will be redirected to the 'view' page.
-//     * @param integer $id
-//     * @return mixed
-//     */
-//    public function actionUpdate($id)
-//    {
-//        $model = $this->findModel($id);
-//
-//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-//            return [
-//                strtolower($model->getClassName()) => $model
-//            ];
-//        }
-//        return ['errors' => $model->errors()];
-//    }
+    /**
+     * Updates an existing Attachment model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionCreateMultiple()
+    {
+        $file = new UploadModel();
+        $file->imageFile = UploadedFile::getInstancesByName('file');
+        if($file->upload(Yii::$app->request->post('object_id'), 'files/' . Yii::$app->request->post('table'))){
+            return $file;
+        }
+    }
 
     /**
      * Deletes an existing Comment model.

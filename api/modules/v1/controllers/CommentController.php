@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use common\models\Log;
 use Yii;
 use common\models\Comment;
 use common\models\search\CommentSearch;
@@ -103,6 +104,10 @@ class CommentController extends Controller
         $model = new Comment();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $log = new Log();
+            $log->object_id = $model->id;
+            $log->table = Comment::tableName();
+            $log->save();
             return $model->oneFields();
         }
         return ['errors' => $model->errors];

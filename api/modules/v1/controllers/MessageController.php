@@ -101,7 +101,7 @@ class MessageController extends Controller
     {
         $model = new Message();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
             return $model->oneFields();
         }
         return ['errors' => $model->errors];

@@ -123,7 +123,7 @@ class Attachment extends ExtendedActiveRecord
     {
         $model = new UploadModel();
         $model->files = UploadedFile::getInstancesByName('file');
-        $oldFiles = Attachment::find()->where(['object_id' => $id, 'table' => $table])->count();
+        $oldFiles = Attachment::find()->where(['object_id' => $id, 'table' => $table, 'status' => Attachment::STATUS_ACTIVE])->count();
         if((count(UploadedFile::getInstancesByName('file')) + $oldFiles) > 3 ){
             return  $model->getErrors('You can load a total of 3 files');
         }

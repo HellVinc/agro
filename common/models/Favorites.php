@@ -24,6 +24,9 @@ use yii\helpers\ArrayHelper;
  * @property integer $created_by
  * @property integer $updated_by
  * @property integer $trade_type
+ *
+ * @property Advertisement $advertisement
+ * @property Room $room
  */
 class Favorites extends ExtendedActiveRecord
 {
@@ -125,9 +128,26 @@ class Favorites extends ExtendedActiveRecord
         ]);
     }
 
+    public function getTheme()
+    {
+        switch ($this->table) {
+            case Advertisement::tableName():
+                return $this->advertisement->title;
+            case Room::tableName():
+                return $this->room->title;
+        }
+        return 'Not Found';
+    }
+
     public function getObject()
     {
-        return Advertisement::allFields(Advertisement::findOne($this->object_id));
+        switch ($this->table) {
+            case Advertisement::tableName():
+                return Advertisement::allFields(Advertisement::findOne($this->object_id));
+            case Room::tableName():
+                return Room::allFields(Room::findOne($this->object_id));
+        }
+        return 'Not found';
     }
 
     public function getAdvertisement()

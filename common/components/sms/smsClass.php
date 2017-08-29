@@ -2,7 +2,7 @@
 
 namespace common\components\sms;
 
-class stdClass
+class smsClass
 {
     /**
      * @var  string - Номер телефона получателя (либо несколько номеров, через запятую — до 100 штук за один запрос).

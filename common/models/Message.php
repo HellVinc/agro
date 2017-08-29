@@ -5,6 +5,7 @@ namespace common\models;
 use common\components\helpers\ExtendedActiveRecord;
 use common\components\traits\errors;
 use common\components\traits\findRecords;
+use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
 use Yii;
 use yii\behaviors\BlameableBehavior;
@@ -24,12 +25,14 @@ use yii\db\ActiveRecord;
  * @property integer $updated_by
  *
  * @property Room $room
+ * @property Attachment[] $attachments
  */
 class Message extends ExtendedActiveRecord
 {
     use soft;
     use findRecords;
     use errors;
+    use modelWithFiles;
 
     /**
      * @inheritdoc
@@ -63,8 +66,8 @@ class Message extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['id', 'room_id', 'text'], 'required'],
-            [['id', 'room_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['room_id', 'text'], 'required'],
+            [['room_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'string'],
             [['room_id'], 'exist', 'skipOnError' => true, 'targetClass' => Room::className(), 'targetAttribute' => ['room_id' => 'id']],
         ];
@@ -125,6 +128,7 @@ class Message extends ExtendedActiveRecord
                 return date('Y-m-d', $model->created_at);
             },
             'updated_at',
+            'attachments'
         ]);
     }
 
@@ -134,5 +138,15 @@ class Message extends ExtendedActiveRecord
     public function getRoom()
     {
         return $this->hasOne(Room::className(), ['id' => 'room_id']);
+    }
+
+    public function getAttachments()
+    {
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
+            ->andWhere(['status' => Attachment::STATUS_ACTIVE])
+            ->andOnCondition([
+                'attachment.table' => 'message',
+                'table' => self::tableName()
+            ]);
     }
 }

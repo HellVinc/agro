@@ -95,6 +95,7 @@ trait soft
             'photo' => $user->photoPath
         ];
     }
+
 //    public function disable()
 //    {
 //        $className = $this::lastNameClass(static::className());

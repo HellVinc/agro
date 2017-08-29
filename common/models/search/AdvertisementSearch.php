@@ -27,7 +27,7 @@ class AdvertisementSearch extends Advertisement
     {
         return [
             [['id', 'phone', 'closed', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
-            [['title', 'text', 'latitude', 'longitude'], 'safe'],
+            [['title', 'city', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
 
@@ -70,6 +70,7 @@ class AdvertisementSearch extends Advertisement
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
+            'city' => $this->city,
             'trade_type' => $this->trade_type,
             'closed' => $this->closed,
             'advertisement.status' => $this->status,

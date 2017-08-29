@@ -25,6 +25,7 @@ use yii\helpers\ArrayHelper;
  * @property string $longitude
  * @property string $viewed
  * @property string $closed
+ * @property string $city
  * @property integer $trade_type
  * @property integer $status
  * @property integer $created_at
@@ -38,6 +39,7 @@ use yii\helpers\ArrayHelper;
  * @property Tag $tag
  * @property Comment[] $comments
  * @property Attachment[] $attachments
+ * @property Report[] $reports
  */
 class Advertisement extends ExtendedActiveRecord
 {
@@ -89,7 +91,7 @@ class Advertisement extends ExtendedActiveRecord
             [['tag_id', 'trade_type', 'closed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
 //            ['trade_type', 'filter', 'filter' => 'intval'],
-            [['title'], 'string', 'max' => 255],
+            [['city', 'title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
         ];
@@ -104,6 +106,7 @@ class Advertisement extends ExtendedActiveRecord
             'id' => 'ID',
             'title' => 'Title',
             'text' => 'Text',
+            'city' => 'City',
             'trade_type' => 'Trade Type',
             'status' => 'Status',
             'created_at' => 'Created At',
@@ -128,6 +131,7 @@ class Advertisement extends ExtendedActiveRecord
             'tag_id',
             'title',
             'text',
+            'city',
             'trade_type',
             'viewed',
             'closed',
@@ -157,6 +161,7 @@ class Advertisement extends ExtendedActiveRecord
             'tag_id',
             'title',
             'text',
+            'city',
             'trade_type',
             'viewed',
             'closed',
@@ -198,6 +203,7 @@ class Advertisement extends ExtendedActiveRecord
     public function getAttachments()
     {
         return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
+            ->andWhere(['status' => Attachment::STATUS_ACTIVE])
             ->andOnCondition([
                 'attachment.table' => 'advertisement',
                 'table' => self::tableName()
@@ -228,5 +234,11 @@ class Advertisement extends ExtendedActiveRecord
         return (int) (bool) $this->hasMany(Favorites::className(), ['object_id' => 'id'])
             ->andOnCondition(['table' => $this->formName()])
             ->andOnCondition(['created_by' => Yii::$app->user->id])->count();
+    }
+
+    public function getReports()
+    {
+        return $this->hasMany(Report::className(), ['object_id' => 'id'])
+            ->andOnCondition(['table' => Advertisement::tableName()]);
     }
 }

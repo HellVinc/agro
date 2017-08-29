@@ -180,10 +180,8 @@ class UserController extends Controller
                     'model' => $result,
                     'counts' => User::menu()
                 ];
-
             }
             return ['error' => 'Invalid login or password'];
-
         }
         return ['error' => 'Error. Bad request.'];
     }
@@ -204,17 +202,16 @@ class UserController extends Controller
     public function actionUpdate()
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
-
-        if ($model->load(['User' => Yii::$app->request->post()])) {
-            $file = new UploadModel(['scenario' => UploadModel::ONE_FILE]);
-            $file->imageFile = UploadedFile::getInstanceByName('photo');
-            $model->photo = $file->upload($model->id, 'photo/user');
-            $model->save();
-            return $model;
+        if ($model->load( Yii::$app->request->post())) {
+            if($_FILES){
+                $file = new UploadModel(['scenario' => UploadModel::ONE_FILE]);
+                $file->imageFile = UploadedFile::getInstanceByName('file');
+                $model->photo = $file->upload($model->id, 'photo/user');
+            }
+            $model->saveUpdate();
+            return $model->oneFields();
         }
-
         return ['errors' => $model->errors];
-
     }
 
     /**
