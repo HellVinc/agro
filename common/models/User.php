@@ -201,7 +201,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         return $this->hasMany(Report::className(), ['object_id' => 'id'])
             ->andOnCondition([
-                'report.table' => self::tableName()
+                'report.table' => self::tableName(),
+                'report.status' => self::STATUS_ACTIVE,
             ]);
     }
 
@@ -463,11 +464,11 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     /**
      * @return bool
      */
-    public function afterDelete()
+    public function beforeDelete()
     {
         foreach ($this->reports as $report) {
             $report->delete();
         }
-        return parent::afterDelete();
+        return parent::beforeDelete();
     }
 }

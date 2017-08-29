@@ -2,6 +2,7 @@
 
 namespace common\models\search;
 
+use common\models\Report;
 use common\models\Tag;
 use Yii;
 use yii\base\Model;
@@ -19,6 +20,7 @@ class AdvertisementSearch extends Advertisement
         'id' => SORT_ASC,
     ];
     public $phone;
+    public $reports_available;
 
     /**
      * @inheritdoc
@@ -26,7 +28,7 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'phone', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['id', 'reports_available', 'phone', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
         ];
     }
@@ -77,13 +79,15 @@ class AdvertisementSearch extends Advertisement
             $this->created_by = $user->id;
         }
 
-        $query->joinWith(Tag::tableName());
+        $query->joinWith([Tag::tableName(), 'reports']);
+
         // grid filtering conditions
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
             'trade_type' => $this->trade_type,
             'advertisement.status' => $this->status,
+            'advertisement.viewed' => $this->viewed,
             'advertisement.created_at' => $this->created_at,
             'advertisement.updated_at' => $this->updated_at,
             'advertisement.created_by' => $this->created_by,
@@ -95,6 +99,8 @@ class AdvertisementSearch extends Advertisement
             ->andFilterWhere(['like', 'latitude', $this->latitude])
             ->andFilterWhere(['like', 'longitude', $this->longitude])
             ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
+
+        //$query->andHaving('`advertisement`.`id` = `report`.`object_id`');
 
         return $dataProvider;
     }

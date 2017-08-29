@@ -157,15 +157,12 @@ class Comment extends ExtendedActiveRecord
                     'status',
                     'advertisement_id',
                     'created_by' => function ($model) {
-                        if ($model->creator) {
-                            return User::getFields($model->creator, [
-                                'id',
-                                'phone',
-                                'first_name',
-                                'last_name',
-                            ]);
-                        }
-                        return null;
+                        return User::getFields($model->creator, [
+                            'id',
+                            'phone',
+                            'first_name',
+                            'last_name',
+                        ]);
                     },
                     'created_at',
                     'updated_at',

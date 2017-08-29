@@ -3,8 +3,8 @@
 namespace api\modules\v2\controllers;
 
 use Yii;
-use common\models\Comment;
-use common\models\search\CommentSearch;
+use common\models\Room;
+use common\models\search\RoomSearch;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
@@ -13,9 +13,9 @@ use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
- * CommentController implements the CRUD actions for Comment model.
+ * RoomController implements the CRUD actions for Room model.
  */
-class CommentController extends Controller
+class RoomController extends Controller
 {
     /**
      * @inheritdoc
@@ -40,8 +40,8 @@ class CommentController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'all' => ['get'],
-                    //'create' => ['post'],
-                    //'update' => ['post'],
+                    'create' => ['post'],
+                    'update' => ['post'],
                     'delete' => ['delete'],
                 ],
             ],
@@ -49,35 +49,52 @@ class CommentController extends Controller
     }
 
     /**
-     * Lists all Comment models.
+     * Lists all Room models.
      * @return mixed
      */
     public function actionAll()
     {
-        $model = new CommentSearch();
+        $model = new RoomSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
-        return Comment::allFields($dataProvider);
+        return Room::allFields($dataProvider);
     }
 
-//    /**
-//     * Updates an existing Comment model.
-//     * If update is successful, the browser will be redirected to the 'view' page.
-//     * @param integer $id
-//     * @return mixed
-//     */
-//    public function actionUpdate($id)
-//    {
-//        $model = $this->findModel($id);
-//
-//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-//            return $model->oneFields();
-//        }
-//
-//        return ['errors' => $model->errors()];
-//    }
 
     /**
-     * Deletes an existing Comment model.
+     * Creates a new Room model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
+    public function actionCreate()
+    {
+        $model = new Room();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $model->oneFields();
+        } else {
+            return ['errors' => $model->errors];
+        }
+    }
+
+    /**
+     * Updates an existing Room model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $model->oneFields();
+        }
+
+        return ['errors' => $model->errors()];
+    }
+
+    /**
+     * Deletes an existing Room model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
      * @return mixed
@@ -88,16 +105,16 @@ class CommentController extends Controller
     }
 
     /**
-     * Finds the Comment model based on its primary key value.
+     * Finds the Room model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
      * @param bool $ignoreStatus
-     * @return Comment the loaded model
+     * @return Room the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id, $ignoreStatus = false)
     {
-        if (($model = Comment::findOne($id)) !== null) {
+        if (($model = Room::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
             }

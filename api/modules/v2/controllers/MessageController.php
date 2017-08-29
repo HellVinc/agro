@@ -3,8 +3,8 @@
 namespace api\modules\v2\controllers;
 
 use Yii;
-use common\models\Comment;
-use common\models\search\CommentSearch;
+use common\models\Message;
+use common\models\search\MessageSearch;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
@@ -13,9 +13,9 @@ use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
- * CommentController implements the CRUD actions for Comment model.
+ * MessageController implements the CRUD actions for Message model.
  */
-class CommentController extends Controller
+class MessageController extends Controller
 {
     /**
      * @inheritdoc
@@ -40,8 +40,8 @@ class CommentController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'all' => ['get'],
-                    //'create' => ['post'],
-                    //'update' => ['post'],
+                    'create' => ['post'],
+                    'update' => ['post'],
                     'delete' => ['delete'],
                 ],
             ],
@@ -49,35 +49,51 @@ class CommentController extends Controller
     }
 
     /**
-     * Lists all Comment models.
+     * Lists all Message models.
      * @return mixed
      */
     public function actionAll()
     {
-        $model = new CommentSearch();
+        $model = new MessageSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
-        return Comment::allFields($dataProvider);
+        return Message::allFields($dataProvider);
     }
 
 //    /**
-//     * Updates an existing Comment model.
-//     * If update is successful, the browser will be redirected to the 'view' page.
-//     * @param integer $id
+//     * Creates a new Message model.
+//     * If creation is successful, the browser will be redirected to the 'view' page.
 //     * @return mixed
 //     */
-//    public function actionUpdate($id)
+//    public function actionCreate()
 //    {
-//        $model = $this->findModel($id);
+//        $model = new Message();
 //
 //        if ($model->load(Yii::$app->request->post()) && $model->save()) {
 //            return $model->oneFields();
+//        } else {
+//            return ['errors' => $model->errors];
 //        }
-//
-//        return ['errors' => $model->errors()];
 //    }
 
     /**
-     * Deletes an existing Comment model.
+     * Updates an existing Message model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $model->oneFields();
+        }
+
+        return ['errors' => $model->errors()];
+    }
+
+    /**
+     * Deletes an existing Message model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
      * @return mixed
@@ -88,16 +104,16 @@ class CommentController extends Controller
     }
 
     /**
-     * Finds the Comment model based on its primary key value.
+     * Finds the Message model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
      * @param bool $ignoreStatus
-     * @return Comment the loaded model
+     * @return Message the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id, $ignoreStatus = false)
     {
-        if (($model = Comment::findOne($id)) !== null) {
+        if (($model = Message::findOne($id)) !== null) {
             if ($ignoreStatus || $model->status !== 0) {
                 return $model;
             }

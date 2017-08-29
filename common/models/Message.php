@@ -63,10 +63,10 @@ class Message extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['id', 'room_id', 'text'], 'required'],
-            [['id', 'room_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['room_id', 'text'], 'required'],
+            [['room_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'string'],
-            [['room_id'], 'exist', 'skipOnError' => true, 'targetClass' => Room::className(), 'targetAttribute' => ['room_id' => 'id']],
+            [['room_id'], 'exist', 'skipOnError' => true, 'filter' => ['status' => self::STATUS_ACTIVE], 'targetClass' => Room::className(), 'targetAttribute' => ['room_id' => 'id']],
         ];
     }
 

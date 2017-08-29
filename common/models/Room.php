@@ -62,10 +62,11 @@ class Room extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description'], 'required'],
+            [['title', 'description', 'category_id'], 'required'],
             [['description'], 'string'],
-            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title'], 'string', 'max' => 255],
+            [['category_id'], 'exist', 'filter' => ['category_type' => Category::TYPE_CHAT, 'status' => self::STATUS_ACTIVE], 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
 
@@ -85,6 +86,8 @@ class Room extends ExtendedActiveRecord
             'updated_by' => 'Updated By',
         ];
     }
+
+
 
     /**
      * @return \yii\db\ActiveQuery
