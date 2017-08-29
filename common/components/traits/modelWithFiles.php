@@ -8,15 +8,10 @@ use Yii;
 trait modelWithFiles
 {
     # save records
-
     public function checkFiles()
     {
         if ($_FILES) {
-            $file = new Attachment();
-            $res = $file->saveModel($this);
-            if ($res && $res->getErrors()) {
-                $this->addError('error', $res->getErrors());
-            }
+            return Attachment::uploadFiles($this->id, $this->tablename());
         }
         return $this;
     }
