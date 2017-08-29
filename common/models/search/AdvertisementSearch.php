@@ -20,7 +20,7 @@ class AdvertisementSearch extends Advertisement
         'id' => SORT_ASC,
     ];
     public $phone;
-    public $reports_available;
+    public $count_reports;
 
     /**
      * @inheritdoc
@@ -28,8 +28,9 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'reports_available', 'phone', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['id', 'phone', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
+            ['count_reports', 'in', 'range' => [0,1]],
         ];
     }
 
@@ -79,7 +80,11 @@ class AdvertisementSearch extends Advertisement
             $this->created_by = $user->id;
         }
 
-        $query->joinWith([Tag::tableName(), 'reports']);
+        $query->joinWith(Tag::tableName());
+
+        $query->addSelect('advertisement.*, COUNT(report.id) AS count_reports')->from(self::tableName());
+        $query->leftJoin( 'report', 'report.object_id = advertisement.id AND report.status = 10 AND report.table = "advertisement"');
+        $query->addGroupBy('advertisement.id');
 
         // grid filtering conditions
         $query->andFilterWhere([
@@ -100,7 +105,9 @@ class AdvertisementSearch extends Advertisement
             ->andFilterWhere(['like', 'longitude', $this->longitude])
             ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
 
-        //$query->andHaving('`advertisement`.`id` = `report`.`object_id`');
+        if (is_string($this->count_reports)) {
+            $query->having('count_reports '. ($this->count_reports == 0 ? '=' : '>') . ' 0');
+        }
 
         return $dataProvider;
     }

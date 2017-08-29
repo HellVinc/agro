@@ -16,14 +16,17 @@ class UserSearch extends User
     public $sort = [
         'id' => SORT_ASC,
     ];
+    public $count_reports;
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'phone', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'phone', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['first_name', 'middle_name', 'last_name', 'auth_key', 'password_hash', 'password_reset_token'], 'safe'],
+            ['count_reports', 'in', 'range' => [0,1]],
         ];
     }
 
@@ -62,15 +65,20 @@ class UserSearch extends User
             return $dataProvider;
         }
 
+
+        $query->addSelect('user.*, COUNT(report.id) AS count_reports')->from(self::tableName());
+        $query->leftJoin('report', 'report.object_id = user.id AND report.status = 10 AND report.table = "user"');
+        $query->addGroupBy('user.id');
+
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
+            'user.id' => $this->id,
             'phone' => $this->phone,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
+            'user.status' => $this->status,
+            'user.created_at' => $this->created_at,
+            'user.updated_at' => $this->updated_at,
+            'user.created_by' => $this->created_by,
+            'user.updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'first_name', $this->first_name])
@@ -79,6 +87,11 @@ class UserSearch extends User
             ->andFilterWhere(['like', 'auth_key', $this->auth_key])
             ->andFilterWhere(['like', 'password_hash', $this->password_hash])
             ->andFilterWhere(['like', 'password_reset_token', $this->password_reset_token]);
+
+        if (is_string($this->count_reports)) {
+            $query->having('count_reports '. ($this->count_reports == 0 ? '=' : '>') . ' 0');
+        }
+
         return $dataProvider;
     }
 }
