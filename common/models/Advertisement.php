@@ -7,7 +7,7 @@ use common\components\traits\errors;
 use common\components\traits\findRecords;
 use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
-use function foo\func;
+//use function foo\func;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -37,6 +37,7 @@ use yii\db\ActiveRecord;
  * @property Tag $tag
  * @property Comment[] $comments
  * @property Attachment[] $attachments
+ * @property Report reports
  */
 class Advertisement extends ExtendedActiveRecord
 {

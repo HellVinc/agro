@@ -41,6 +41,7 @@ class AdvertisementController extends Controller
                     'all' => ['get'],
                     //'create' => ['post'],
                     'update' => ['post'],
+                    'delete-reports' => ['delete'],
                     'delete' => ['delete'],
                 ],
             ],
@@ -76,6 +77,22 @@ class AdvertisementController extends Controller
             return ['errors' => $model->errors()];
         }
     }
+
+    /**
+     * Deletes the reports associated with the current model
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionDeleteReports($id)
+    {
+        $model = $this->findModel($id);
+
+        foreach ($model->reports as $report) {
+            $report->delete();
+        }
+        return true;
+    }
+
 
     /**
      * Deletes an existing Advertisement model.

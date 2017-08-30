@@ -37,6 +37,7 @@ class UserController extends Controller
                 'actions' => [
                     'all' => ['get'],
                     'update' => ['post'],
+                    'delete-reports' => ['delete'],
                     'delete' => ['delete'],
                 ],
             ],
@@ -123,6 +124,21 @@ class UserController extends Controller
         }
         return ['errors' => $model->errors];
 
+    }
+
+    /**
+     * Deletes the reports associated with the current model
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionDeleteReports($id)
+    {
+        $model = $this->findModel($id);
+
+        foreach ($model->reports as $report) {
+            $report->delete();
+        }
+        return true;
     }
 
     /**
