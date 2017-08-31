@@ -37,6 +37,7 @@ class UserController extends Controller
             'class' => QueryParamAuth::className(),
             'tokenParam' => 'auth_key',
             'only' => [
+                'check',
                 'update',
                 'delete',
                 'add-feedback'
@@ -104,7 +105,8 @@ class UserController extends Controller
         if ($model) {
             return [
                 'model' => $model->oneFields(),
-                'counts' => User::menu()
+                'counts' => User::menu(),
+                'unread_messages' => User::unreadMessages()
             ];
         }
         return ['error' => 'Error. Bad auth_key.'];
@@ -178,7 +180,8 @@ class UserController extends Controller
                 $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
                 return [
                     'model' => $result,
-                    'counts' => User::menu()
+                    'counts' => User::menu(),
+                    'unread_messages' => User::unreadMessages()
                 ];
             }
             return ['error' => 'Invalid login or password'];
@@ -208,6 +211,7 @@ class UserController extends Controller
                 $file->imageFile = UploadedFile::getInstanceByName('file');
                 $model->photo = $file->upload($model->id, 'photo/user');
             }
+            $model->image_file = Yii::$app->request->post('file');
             $model->saveUpdate();
             return $model->oneFields();
         }

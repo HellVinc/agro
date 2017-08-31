@@ -3,7 +3,7 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use common\components\UploadFile;
+use common\components\UploadBase;
 use common\components\UploadModel;
 use Yii;
 use common\components\traits\errors;

@@ -31,9 +31,9 @@ class Log extends ExtendedActiveRecord
     use findRecords;
     use errors;
 
-    const LOG_ADV = 'Додано оголошення ';
-    const LOG_COMMENT = 'Ви прокоментували ';
-    const LOG_FAVORITES = ' додана до обраних';
+    const LOG_ADV = 'Додано оголошення';
+    const LOG_COMMENT = 'Ви прокоментували';
+    const LOG_FAVORITES = 'Додано до обраних';
 
 
     public function behaviors()
@@ -98,11 +98,26 @@ class Log extends ExtendedActiveRecord
     {
         switch ($this->table) {
             case Advertisement::tableName():
-                return Log::LOG_ADV . $this->advertisement->title . ', ' . $this->getData();
+//                return Log::LOG_ADV . $this->advertisement->title . ', ' . $this->getData();
+                return [
+                    'message' => Log::LOG_ADV,
+                    'title' => $this->advertisement->title,
+                    'date' => $this->getData()
+                ];
             case Comment::tableName():
-                return Log::LOG_COMMENT . $this->comment->advertisement->title . ', ' . $this->getData();
+//                return Log::LOG_COMMENT . $this->comment->advertisement->title . ', ' . $this->getData();
+                return [
+                    'message' => Log::LOG_COMMENT,
+                    'title' => $this->comment->advertisement->title,
+                    'date' => $this->getData()
+                ];
             case Favorites::tableName():
-                return 'Тема ' . $this->favoritesTitles() . Log::LOG_FAVORITES . ', ' . $this->getData();
+//                return 'Тема ' . $this->favoritesTitles() . Log::LOG_FAVORITES . ', ' . $this->getData();
+                return [
+                    'message' => Log::LOG_FAVORITES,
+                    'title' => $this->favoritesTitles(),
+                    'date' => $this->getData()
+                ];
         }
         return 'Помилка';
     }

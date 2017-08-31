@@ -62,4 +62,24 @@ class UploadModel extends Model
         }
         return false;
     }
+
+    public static function uploadBase($name, $id, $ext)
+    {
+        $data = str_replace('data:image/'.$ext.';base64,', '', $name);
+        $data = str_replace(' ', '+', $data);
+        $data = base64_decode($data); // Decode image using base64_decode
+        $file = mt_rand(10000, 900000) . '.'. $ext;
+
+        $dir = dirname(Yii::getAlias('@app')) . '/photo/user/' . $id;
+        if (!is_dir($dir)) {
+            FileHelper::createDirectory($dir);
+        }
+
+        $dir = dirname(Yii::getAlias('@app')) . "/photo/user/" . $id . "/" . $file;
+        if (!file_put_contents($dir, $data)) {
+            return false;
+        }
+        return  $file;
+
+    }
 }

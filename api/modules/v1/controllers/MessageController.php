@@ -75,12 +75,15 @@ class MessageController extends Controller
     {
         $model = new MessageSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $models = Message::allFields($dataProvider->getModels());
+        $model->changeViewed($models);
         return [
-            'models' => Message::allFields($dataProvider->getModels()),
+            'models' => $models,
             'count_model' => $dataProvider->getTotalCount(),
             'page_count' => $dataProvider->pagination->pageCount,
             'page' => $dataProvider->pagination->page + 1
         ];
+
     }
 
 //    /**
@@ -107,21 +110,21 @@ class MessageController extends Controller
         return ['errors' => $model->errors];
     }
 
-    /**
-     * Updates an existing Message model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->oneFields();
-        }
-        return ['errors' => $model->errors()];
-    }
+//    /**
+//     * Updates an existing Message model.
+//     * If update is successful, the browser will be redirected to the 'view' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return $model->oneFields();
+//        }
+//        return ['errors' => $model->errors()];
+//    }
 
     /**
      * Deletes an existing Message model.

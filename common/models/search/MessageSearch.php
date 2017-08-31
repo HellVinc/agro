@@ -22,7 +22,7 @@ class MessageSearch extends Message
     public function rules()
     {
         return [
-            [['id', 'room_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'room_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'safe'],
         ];
     }
@@ -67,6 +67,7 @@ class MessageSearch extends Message
         $query->andFilterWhere([
             'id' => $this->id,
             'room_id' => $this->room_id,
+            'viewed' => $this->viewed,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

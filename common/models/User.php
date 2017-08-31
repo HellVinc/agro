@@ -12,7 +12,8 @@ use common\components\traits\modelWithFiles;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
 
-use common\components\UploadFile;
+use common\components\UploadBase;
+use common\components\UploadModel;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\BlameableBehavior;
@@ -47,6 +48,7 @@ use yii\web\IdentityInterface;
  *
  * @property  $photoPath
  * @property Rating[] $ratings
+ * @property mixed photoDir
  */
 class User extends ExtendedActiveRecord implements IdentityInterface
 {
@@ -115,12 +117,13 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ['phone', 'unique', 'message' => 'This phone has already been taken.'],
             ['phone', 'number', 'numberPattern' => '/^0?\d{9}$/', 'message' => 'Invalid phone format'],
             [['first_name', 'middle_name', 'last_name'], 'string', 'max' => 55],
-            [['photo'], 'string', 'max' => 255],
             ['password', 'required', 'on' => 'signUp'],
             ['password', 'string', 'min' => 6],
             ['role', 'default', 'value' => self::ROLE_CLIENT],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['extension'], 'safe']
+
         ];
     }
 
@@ -143,6 +146,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         if ($this->password) {
             $this->setPassword($this->password);
+        }
+        if ($this->image_file) {
+            return $this->savePhoto();
         }
         if ($this->save()) {
             return $this;
@@ -171,7 +177,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function savePhoto()
     {
-        $result = (new UploadFile())->upload($this->image_file, $this->id, self::tableName(), 'photo');
+        $result = UploadModel::uploadBase($this->image_file, $this->id, $this->extension);
         if (!$result) {
             return $this->addError('error', 'Image not saved');
         }
@@ -184,9 +190,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                 unlink($this->photoDir);
             }
 
-            $this->photo = $result->name . '.' . $result->file->extension;
+            $this->photo = $result;
         } else {
-            $this->photo = $result->name . '.' . $result->file->extension;
+            $this->photo = $result;
         }
         if ($this->save()) {
             return $this;

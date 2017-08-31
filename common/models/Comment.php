@@ -35,6 +35,9 @@ class Comment extends ExtendedActiveRecord
     use findRecords;
     use errors;
 
+    const UNVIEWED = 0;
+    const VIEWED = 1;
+
     public function behaviors()
     {
         return [
@@ -138,6 +141,22 @@ class Comment extends ExtendedActiveRecord
                 ],
             ]
         );
+    }
+
+    /**
+     * @param $models
+     * @return void
+     */
+    public function changeViewed($models)
+    {
+        foreach ($models as $model){
+            $advertisement = Advertisement::findOne($model['advertisement_id']);
+            if($advertisement->created_by === Yii::$app->user->id){
+                $comment = Comment::findOne($model['id']);
+                $comment->viewed = Comment::VIEWED;
+                $comment->save();
+            }
+        }
     }
 
     /**

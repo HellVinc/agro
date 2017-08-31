@@ -2,6 +2,8 @@
 
 namespace common\components\traits;
 
+use common\models\Advertisement;
+use common\models\Message;
 use common\models\User;
 use Yii;
 
@@ -40,10 +42,10 @@ trait soft
 
     public function saveModel()
     {
-        if($this->isNewRecord){
+        if ($this->isNewRecord) {
             $this->created_by = Yii::$app->user->id;
             $this->created_at = time();
-        }else{
+        } else {
             $this->updated_by = Yii::$app->user->id;
             $this->updated_at = time();
         }
@@ -81,7 +83,7 @@ trait soft
     public function getUserInfo()
     {
         $user = User::findOne($this->created_by);
-        if($user){
+        if ($user) {
             return [
                 'id' => $user->id,
                 'name' => $user->first_name,
@@ -93,6 +95,16 @@ trait soft
             'name' => null,
             'surname' => null,
             'photo' => $user->photoPath
+        ];
+    }
+
+    public static function unreadMessages()
+    {
+        return [
+            'count_unread' => Advertisement::unreadCount() + Message::unreadCount(),
+            'chat_count' => (int) Message::unreadCount(),
+            'buy_count' => (int) Advertisement::unreadBuyCount(),
+            'sell_count' => (int) Advertisement::unreadSellCount()
         ];
     }
 

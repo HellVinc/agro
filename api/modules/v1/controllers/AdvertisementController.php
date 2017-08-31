@@ -6,6 +6,7 @@ use common\components\UploadModel;
 use common\components\traits\errors;
 use common\models\Attachment;
 use common\models\Category;
+use common\models\Comment;
 use common\models\Favorites;
 use common\models\Log;
 use common\models\search\CategorySearch;
@@ -78,13 +79,12 @@ class AdvertisementController extends Controller
 
     public function actionTest()
     {
-        $model = new Log();
-        $model->action_name = 'fdsa';
-        if($model->save()){
-            return $model->save();
-
-        }
-        return $model->errors();
+        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
+            ->where([
+                'advertisement.created_by' => Yii::$app->user->id,
+                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'comment.viewed' => Comment::UNVIEWED
+            ])->count();
     }
 
 
@@ -98,7 +98,7 @@ class AdvertisementController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         $models = Advertisement::allFields($dataProvider->getModels());
         return [
-            'model' => Advertisement::allFields($models),
+            'model' => $models,
             'count_model' => $dataProvider->getTotalCount(),
             'page_count' => $dataProvider->pagination->pageCount,
             'page' => $dataProvider->pagination->page + 1
@@ -144,7 +144,7 @@ class AdvertisementController extends Controller
     {
         $model = $this->findModel(Yii::$app->request->post('id'));
 
-        if ($model->load(Yii::$app->request->post()) && $model->save() &&  $model->checkFiles() && !$model->getErrors()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
 
             return $model->oneFields();
         }

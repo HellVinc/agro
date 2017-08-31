@@ -18,6 +18,7 @@ use yii\db\ActiveRecord;
  * @property integer $id
  * @property integer $room_id
  * @property string $text
+ * @property integer $viewed
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -33,6 +34,9 @@ class Message extends ExtendedActiveRecord
     use findRecords;
     use errors;
     use modelWithFiles;
+
+    const UNVIEWED = 0;
+    const VIEWED = 1;
 
     /**
      * @inheritdoc
@@ -67,7 +71,7 @@ class Message extends ExtendedActiveRecord
     {
         return [
             [['room_id', 'text'], 'required'],
-            [['room_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['room_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'string'],
             [['room_id'], 'exist', 'skipOnError' => true, 'targetClass' => Room::className(), 'targetAttribute' => ['room_id' => 'id']],
         ];
@@ -82,6 +86,7 @@ class Message extends ExtendedActiveRecord
             'id' => 'ID',
             'room_id' => 'Room ID',
             'text' => 'Text',
+            'viewed' => 'Viewed',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -95,11 +100,11 @@ class Message extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return [
-            strtolower($this->getClassName()) => self::getFields($this, [
+        return self::getFields($this, [
                 'id',
                 'room_id',
                 'text',
+                'viewed',
                 'status',
                 'user' => 'UserInfo',
                 'created_at' => function ($model) {
@@ -107,8 +112,8 @@ class Message extends ExtendedActiveRecord
                     return date('Y-m-d', $model->created_at);
                 },
                 'updated_at',
-            ]),
-        ];
+            'attachments'
+            ]);
     }
 
     /**
@@ -121,6 +126,7 @@ class Message extends ExtendedActiveRecord
             'id',
             'room_id',
             'text',
+            'viewed',
             'status',
             'user' => 'UserInfo',
             'created_at' => function ($model) {
@@ -130,6 +136,34 @@ class Message extends ExtendedActiveRecord
             'updated_at',
             'attachments'
         ]);
+    }
+
+    /**
+     * @param $models
+     * @return void
+     */
+    public function changeViewed($models)
+    {
+        foreach ($models as $model){
+            $room = Room::findOne($model['advertisement_id']);
+            if($room->created_by === Yii::$app->user->id){
+                $message = Message::findOne($model['id']);
+                $message->viewed = Message::VIEWED;
+                $message->save();
+            }
+        }
+    }
+
+    /**
+     * @return int|string
+     */
+    public static function unreadCount()
+    {
+        return Message::find()
+            ->where([
+                'created_by' => Yii::$app->user->id,
+                'viewed' => Message::UNVIEWED
+            ])->count();
     }
 
     /**

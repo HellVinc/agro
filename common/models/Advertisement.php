@@ -54,6 +54,8 @@ class Advertisement extends ExtendedActiveRecord
 
     const TYPE_BUY = 1;
     const TYPE_SELL = 2;
+    const UNVIEWED = 0;
+    const VIEWED = 1;
 
     public function behaviors()
     {
@@ -172,7 +174,8 @@ class Advertisement extends ExtendedActiveRecord
             },
             'updated_at',
             'attachments',
-            'favorites'
+            'favorites',
+            'msgUnread'
         ]);
     }
 
@@ -190,6 +193,46 @@ class Advertisement extends ExtendedActiveRecord
 //        }
 //        return $result;
 //    }
+
+
+
+    public function getMsgUnread()
+    {
+        return (int)Comment::find()->where(['advertisement_id' => $this->id, 'viewed' => Comment::UNVIEWED])->count();
+    }
+
+    public static function unreadCount()
+    {
+        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
+            ->where([
+                'advertisement.created_by' => Yii::$app->user->id,
+                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'comment.viewed' => Comment::UNVIEWED
+            ])->count();
+
+    }
+
+    public static function unreadBuyCount()
+    {
+        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
+            ->where([
+                'advertisement.created_by' => Yii::$app->user->id,
+                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'comment.viewed' => Comment::UNVIEWED,
+                'trade_type' => Advertisement::TYPE_BUY
+            ])->count();
+    }
+
+    public static function unreadSellCount()
+    {
+        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
+            ->where([
+                'advertisement.created_by' => Yii::$app->user->id,
+                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'comment.viewed' => Comment::UNVIEWED,
+                'trade_type' => Advertisement::TYPE_SELL
+            ])->count();
+    }
 
 
     public function getPhotoPath()
@@ -231,7 +274,7 @@ class Advertisement extends ExtendedActiveRecord
      */
     public function getFavorites()
     {
-        return (int) (bool) $this->hasMany(Favorites::className(), ['object_id' => 'id'])
+        return (int)(bool)$this->hasMany(Favorites::className(), ['object_id' => 'id'])
             ->andOnCondition(['table' => $this->formName()])
             ->andOnCondition(['created_by' => Yii::$app->user->id])->count();
     }

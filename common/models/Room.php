@@ -128,8 +128,14 @@ class Room extends ExtendedActiveRecord
                 return date('Y-m-d', $model->created_at);
             },
             'updated_at',
-            'favorites'
+            'favorites',
+            'msgUnread'
         ]);
+    }
+
+    public function getMsgUnread()
+    {
+        return (int)Message::find()->where(['room_id' => $this->id, 'viewed' => Comment::UNVIEWED])->count();
     }
 
     /**
