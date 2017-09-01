@@ -161,7 +161,12 @@ class Message extends ExtendedActiveRecord
     {
         return Room::find()
             ->leftJoin('message', 'message.room_id = room.id')
-            ->where(['room.created_by' => Yii::$app->user->id, 'message.viewed' => Message::UNVIEWED])
+            ->where([
+                'room.created_by' => Yii::$app->user->id,
+                'room.status' => Room::STATUS_ACTIVE,
+                'message.viewed' => Message::UNVIEWED,
+                'message.status' => Message::STATUS_ACTIVE
+            ])
             ->count();
 
 //        return Message::find()

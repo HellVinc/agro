@@ -194,11 +194,13 @@ class Advertisement extends ExtendedActiveRecord
 //        return $result;
 //    }
 
-
-
     public function getMsgUnread()
     {
-        return (int)Comment::find()->where(['advertisement_id' => $this->id, 'viewed' => Comment::UNVIEWED])->count();
+        return (int)Comment::find()->where([
+            'advertisement_id' => $this->id,
+            'viewed' => Comment::UNVIEWED,
+            'status' => Comment::STATUS_ACTIVE
+        ])->count();
     }
 
     public static function unreadCount()
@@ -207,9 +209,9 @@ class Advertisement extends ExtendedActiveRecord
             ->where([
                 'advertisement.created_by' => Yii::$app->user->id,
                 'advertisement.status' => Advertisement::STATUS_ACTIVE,
-                'comment.viewed' => Comment::UNVIEWED
+                'comment.viewed' => Comment::UNVIEWED,
+                'comment.status' => Comment::STATUS_ACTIVE
             ])->count();
-
     }
 
     public static function unreadBuyCount()
@@ -219,6 +221,7 @@ class Advertisement extends ExtendedActiveRecord
                 'advertisement.created_by' => Yii::$app->user->id,
                 'advertisement.status' => Advertisement::STATUS_ACTIVE,
                 'comment.viewed' => Comment::UNVIEWED,
+                'comment.status' => 10,
                 'trade_type' => Advertisement::TYPE_BUY
             ])->count();
     }
@@ -230,10 +233,10 @@ class Advertisement extends ExtendedActiveRecord
                 'advertisement.created_by' => Yii::$app->user->id,
                 'advertisement.status' => Advertisement::STATUS_ACTIVE,
                 'comment.viewed' => Comment::UNVIEWED,
+                'comment.status' => 10,
                 'trade_type' => Advertisement::TYPE_SELL
             ])->count();
     }
-
 
     public function getPhotoPath()
     {

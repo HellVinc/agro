@@ -9,6 +9,7 @@ use common\models\Category;
 use common\models\Comment;
 use common\models\Favorites;
 use common\models\Log;
+use common\models\Message;
 use common\models\search\CategorySearch;
 use common\models\User;
 use Yii;
@@ -36,6 +37,7 @@ class AdvertisementController extends Controller
             'class' => QueryParamAuth::className(),
             'tokenParam' => 'auth_key',
             'only' => [
+                'test',
                 'all',
                 'update',
                 'create',
@@ -79,12 +81,7 @@ class AdvertisementController extends Controller
 
     public function actionTest()
     {
-        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
-            ->where([
-                'advertisement.created_by' => Yii::$app->user->id,
-                'advertisement.status' => Advertisement::STATUS_ACTIVE,
-                'comment.viewed' => Comment::UNVIEWED
-            ])->count();
+        return Advertisement::unreadCount();
     }
 
 
