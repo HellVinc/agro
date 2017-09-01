@@ -105,6 +105,11 @@ class MessageController extends Controller
         $model = new Message();
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
+            $context = new \ZMQContext();
+            $socket = $context->getSocket(\ZMQ::SOCKET_PUSH, 'my pusher');
+            $socket->connect("tcp://localhost:5555");
+
+            $socket->send($model->text);
             return $model->oneFields();
         }
         return ['errors' => $model->errors];

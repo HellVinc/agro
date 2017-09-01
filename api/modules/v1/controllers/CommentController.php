@@ -76,8 +76,10 @@ class CommentController extends Controller
     {
         $model = new CommentSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $models = Comment::allFields($dataProvider->getModels());
+        $model->changeViewed($models);
         return [
-            'models' => Comment::allFields($dataProvider->getModels()),
+            'models' => $models,
             'current_page' => $dataProvider->pagination->page,
             'count_model' => $dataProvider->totalCount
         ];

@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use common\models\User;
 use Yii;
 use common\models\Room;
 use common\models\search\RoomSearch;
@@ -79,7 +80,8 @@ class RoomController extends Controller
             'model' => Room::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount(),
             'page_count' => $dataProvider->pagination->pageCount,
-            'page' => $dataProvider->pagination->page + 1
+            'page' => $dataProvider->pagination->page + 1,
+            'unread_messages' => User::unreadMessages()
         ];
     }
 

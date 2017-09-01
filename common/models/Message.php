@@ -52,7 +52,7 @@ class Message extends ExtendedActiveRecord
             'timestamp' => [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'created_at',
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
                 ]
             ],
@@ -101,19 +101,19 @@ class Message extends ExtendedActiveRecord
     public function oneFields()
     {
         return self::getFields($this, [
-                'id',
-                'room_id',
-                'text',
-                'viewed',
-                'status',
-                'user' => 'UserInfo',
-                'created_at' => function ($model) {
-                    /** @var $model Message */
-                    return date('Y-m-d', $model->created_at);
-                },
-                'updated_at',
+            'id',
+            'room_id',
+            'text',
+            'viewed',
+            'status',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                /** @var $model Message */
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at',
             'attachments'
-            ]);
+        ]);
     }
 
     /**
@@ -144,9 +144,9 @@ class Message extends ExtendedActiveRecord
      */
     public function changeViewed($models)
     {
-        foreach ($models as $model){
-            $room = Room::findOne($model['advertisement_id']);
-            if($room->created_by === Yii::$app->user->id){
+        foreach ($models as $model) {
+            $room = Room::findOne($model['room_id']);
+            if ($room->created_by === Yii::$app->user->id) {
                 $message = Message::findOne($model['id']);
                 $message->viewed = Message::VIEWED;
                 $message->save();
@@ -159,11 +159,16 @@ class Message extends ExtendedActiveRecord
      */
     public static function unreadCount()
     {
-        return Message::find()
-            ->where([
-                'created_by' => Yii::$app->user->id,
-                'viewed' => Message::UNVIEWED
-            ])->count();
+        return Room::find()
+            ->leftJoin('message', 'message.room_id = room.id')
+            ->where(['room.created_by' => Yii::$app->user->id, 'message.viewed' => Message::UNVIEWED])
+            ->count();
+
+//        return Message::find()
+//            ->where([
+//                'created_by' => Yii::$app->user->id,
+//                'viewed' => Message::UNVIEWED
+//            ])->count();
     }
 
     /**

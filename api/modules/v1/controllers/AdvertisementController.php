@@ -101,7 +101,8 @@ class AdvertisementController extends Controller
             'model' => $models,
             'count_model' => $dataProvider->getTotalCount(),
             'page_count' => $dataProvider->pagination->pageCount,
-            'page' => $dataProvider->pagination->page + 1
+            'page' => $dataProvider->pagination->page + 1,
+            'unread_messages' => User::unreadMessages()
         ];
     }
 
