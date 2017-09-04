@@ -2,6 +2,8 @@
 
 namespace common\models\search;
 
+use common\components\traits\dateSearch;
+use common\components\traits\deteHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -12,17 +14,22 @@ use common\models\Room;
  */
 class RoomSearch extends Room
 {
+    use deteHelper;
+    use dateSearch;
+
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'status', 'created_by', 'updated_by'], 'integer'],
+            [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'string'],
             [['title', 'description'], 'safe'],
         ];
     }
@@ -38,8 +45,6 @@ class RoomSearch extends Room
 
     /**
      * Creates data provider instance with search query applied
-     *
-     * @param array $params
      *
      * @return ActiveDataProvider
      */
@@ -69,14 +74,16 @@ class RoomSearch extends Room
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            // 'created_at' => $this->created_at,
+            // 'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'description', $this->description]);
+
+        $this->initDateSearch($query);
 
         return $dataProvider;
     }

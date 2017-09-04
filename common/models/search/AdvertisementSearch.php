@@ -2,9 +2,9 @@
 
 namespace common\models\search;
 
-use common\models\Report;
+use common\components\traits\dateSearch;
+use common\components\traits\deteHelper;
 use common\models\Tag;
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Advertisement;
@@ -15,6 +15,9 @@ use common\models\User;
  */
 class AdvertisementSearch extends Advertisement
 {
+    use deteHelper;
+    use dateSearch;
+
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
@@ -28,9 +31,10 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'phone', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['id', 'phone', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'count_reports', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'text', 'latitude', 'longitude'], 'safe'],
-            ['count_reports', 'in', 'range' => [0,1]],
+            [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
+            [['count_reports'], 'in', 'range' => [0,1]],
         ];
     }
 
@@ -70,8 +74,7 @@ class AdvertisementSearch extends Advertisement
             return $dataProvider;
         }
 
-
-        if ($this->phone) {
+        if (!empty($this->phone)) {
             $user = User::findOne(['phone' => $this->phone]);
             if (!$user) {
                 $query->where('0=1');
@@ -93,8 +96,8 @@ class AdvertisementSearch extends Advertisement
             'trade_type' => $this->trade_type,
             'advertisement.status' => $this->status,
             'advertisement.viewed' => $this->viewed,
-            'advertisement.created_at' => $this->created_at,
-            'advertisement.updated_at' => $this->updated_at,
+            //'advertisement.created_at' => $this->created_at,
+            //'advertisement.updated_at' => $this->updated_at,
             'advertisement.created_by' => $this->created_by,
             'advertisement.updated_by' => $this->updated_by,
         ]);
@@ -105,9 +108,13 @@ class AdvertisementSearch extends Advertisement
             ->andFilterWhere(['like', 'longitude', $this->longitude])
             ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
 
-        if (is_string($this->count_reports)) {
-            $query->having('count_reports '. ($this->count_reports == 0 ? '=' : '>') . ' 0');
+        if (!empty($this->count_reports)) {
+            $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
         }
+
+        $this->initDateSearch($query);
+
+        //die($query->createCommand()->rawSql);
 
         return $dataProvider;
     }

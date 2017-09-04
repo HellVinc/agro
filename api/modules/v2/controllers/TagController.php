@@ -53,7 +53,7 @@ class TagController extends Controller
 //    public function actionAll()
 //    {
 //        $model = new TagSearch();
-//        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
+//        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
 //
 //        return [
 //            'models' => Tag::allFields($dataProvider->getModels()),

@@ -2,6 +2,8 @@
 
 namespace common\models\search;
 
+//use common\components\traits\dateSearch;
+//use common\components\traits\deteHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -12,18 +14,24 @@ use common\models\Category;
  */
 class CategorySearch extends Category
 {
+
+//    use deteHelper;
+//    use dateSearch;
+
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'category_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['name'], 'safe'],
+            [['id', 'category_type', 'status', 'created_by', 'updated_by'], 'integer'],
+            [['date_from', 'date_to', 'name'], 'safe'],
+            //[['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'string'],
         ];
     }
 
@@ -68,13 +76,15 @@ class CategorySearch extends Category
             'id' => $this->id,
             'category_type' => $this->category_type,
             'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            //'created_at' => $this->created_at,
+            //'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name]);
+
+        //$this->initDateSearch($query);
 
         return $dataProvider;
     }

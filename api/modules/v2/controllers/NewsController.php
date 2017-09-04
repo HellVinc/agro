@@ -56,7 +56,7 @@ class NewsController extends Controller
     public function actionAll()
     {
         $model = new NewsSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
 
         return News::allFields($dataProvider);
     }

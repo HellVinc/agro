@@ -10,17 +10,17 @@ trait findRecords
 
     /**
      * @param null $request
-     * @param bool $onlyActive
+     * @param bool $all
      * @return DataProvider
      */
-    public function searchAll($request = null, $onlyActive = true)
+    public function searchAll($request = null, $all = false)
     {
         if ($request && (!$this->load([$this->formName() => $request]) || !$this->validate())) {
             return null;
         }
 
        //if ($onlyActive || $this->status === null) {
-        if ($onlyActive) {
+        if (!$all) {
             $this->status = self::STATUS_ACTIVE;
         }
 

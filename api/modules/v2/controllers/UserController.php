@@ -22,11 +22,17 @@ class UserController extends Controller
             //'authenticator' => [
             //    'class' => QueryParamAuth::className(),
             //    'tokenParam' => 'auth_key',
+            //    'except' => ['login'],
             //],
             //'access' => [
             //    'class' => AccessControl::className(),
             //    'rules' => [
             //        [
+            //            'actions' => ['login'],
+            //            'allow' => true,
+            //        ],
+            //        [
+            //            //'actions' => ['all', 'update', 'delete-reports', 'delete'],
             //            'allow' => true,
             //            'roles' => ['admin'],
             //        ],
@@ -37,6 +43,7 @@ class UserController extends Controller
                 'actions' => [
                     'all' => ['get'],
                     'update' => ['post'],
+                    'login' => ['post'],
                     'delete-reports' => ['delete'],
                     'delete' => ['delete'],
                 ],
@@ -50,7 +57,7 @@ class UserController extends Controller
     public function actionAll()
     {
         $model = new UserSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
 
         return User::allFields($dataProvider);
     }
@@ -71,12 +78,12 @@ class UserController extends Controller
     {
         $model = new LoginForm();
 
-        if (!$model->load(Yii::$app->request->post(), "")) {
+        if (!$model->load(Yii::$app->request->post(), '')) {
             return ['error' => 'Error. Bad request.'];
         }
 
         if (!$model->login()) {
-            return ['error' => 'Invalid login or password'];
+            return ['error' => 'Invalid username or password'];
         }
 
         if (Yii::$app->user->identity->role != User::ROLE_ADMIN) {
@@ -133,7 +140,7 @@ class UserController extends Controller
      */
     public function actionDeleteReports($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, true);
 
         foreach ($model->reports as $report) {
             $report->delete();

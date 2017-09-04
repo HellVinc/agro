@@ -17,6 +17,7 @@ class m170808_085944_create_room_table extends Migration
             'category_id' => $this->integer(),
             'title' => $this->string(255)->notNull(),
             'description' => $this->text()->notNull(),
+            'viewed' => $this->integer(1)->defaultValue(0),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

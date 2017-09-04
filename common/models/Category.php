@@ -103,7 +103,13 @@ class Category extends ExtendedActiveRecord
                 /** @var $model Category */
                 return Tag::getFields($model->tags, self::DEF_F);
                 // return $model->getTags()->select('name')->column();
-            }
+            },
+            'created_at' => function($model) {
+                return date('d-m-Y', $model->created_at);
+            },
+            'updated_at' => function($model) {
+                return date('d-m-Y', $model->updated_at);
+            },
         ];
     }
 

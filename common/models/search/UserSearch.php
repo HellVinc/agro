@@ -24,8 +24,8 @@ class UserSearch extends User
     public function rules()
     {
         return [
-            [['id', 'phone', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['first_name', 'middle_name', 'last_name', 'auth_key', 'password_hash', 'password_reset_token'], 'safe'],
+            [['id', 'phone', 'status', 'count_reports', 'created_by', 'updated_by'], 'integer'],
+            [['first_name', 'middle_name', 'last_name'], 'safe'],
             ['count_reports', 'in', 'range' => [0,1]],
         ];
     }
@@ -83,13 +83,10 @@ class UserSearch extends User
 
         $query->andFilterWhere(['like', 'first_name', $this->first_name])
             ->andFilterWhere(['like', 'middle_name', $this->middle_name])
-            ->andFilterWhere(['like', 'last_name', $this->last_name])
-            ->andFilterWhere(['like', 'auth_key', $this->auth_key])
-            ->andFilterWhere(['like', 'password_hash', $this->password_hash])
-            ->andFilterWhere(['like', 'password_reset_token', $this->password_reset_token]);
+            ->andFilterWhere(['like', 'last_name', $this->last_name]);
 
-        if (is_string($this->count_reports)) {
-            $query->having('count_reports '. ($this->count_reports == 0 ? '=' : '>') . ' 0');
+        if (!empty($this->count_reports)) {
+            $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
         }
 
         return $dataProvider;

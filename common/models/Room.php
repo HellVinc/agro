@@ -22,6 +22,7 @@ use yii\db\ActiveRecord;
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
+ * @property integer $viewed
  *
  * @property Message[] $messages
  */
@@ -64,9 +65,18 @@ class Room extends ExtendedActiveRecord
         return [
             [['title', 'description', 'category_id'], 'required'],
             [['description'], 'string'],
-            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id', 'viewed'], 'integer'],
             [['title'], 'string', 'max' => 255],
-            [['category_id'], 'exist', 'filter' => ['category_type' => Category::TYPE_CHAT, 'status' => self::STATUS_ACTIVE], 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
+            ['viewed', 'in', 'range' => [0,1]],
+            [['category_id'], 'exist',
+                'filter' => [
+                    'category_type' => Category::TYPE_CHAT,
+                    'status' => self::STATUS_ACTIVE,
+                ], 'targetClass' => Category::className(),
+                'targetAttribute' => [
+                    'category_id' => 'id',
+                ]
+            ],
         ];
     }
 

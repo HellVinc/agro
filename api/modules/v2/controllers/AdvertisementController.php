@@ -55,7 +55,7 @@ class AdvertisementController extends Controller
     public function actionAll()
     {
         $model = new AdvertisementSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
 
         return Advertisement::allFields($dataProvider);
     }
@@ -85,7 +85,7 @@ class AdvertisementController extends Controller
      */
     public function actionDeleteReports($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, true);
 
         foreach ($model->reports as $report) {
             $report->delete();

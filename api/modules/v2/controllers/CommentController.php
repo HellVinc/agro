@@ -55,7 +55,7 @@ class CommentController extends Controller
     public function actionAll()
     {
         $model = new CommentSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
         return Comment::allFields($dataProvider);
     }
 

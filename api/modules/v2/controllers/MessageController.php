@@ -55,7 +55,7 @@ class MessageController extends Controller
     public function actionAll()
     {
         $model = new MessageSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get(), false);
+        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
         return Message::allFields($dataProvider);
     }
 
