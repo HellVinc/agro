@@ -82,16 +82,17 @@ class SocketServer implements WampServerInterface
             $model = new Message();
             $model->load($event);
             $model->save();
+
+
+
+            foreach ($this->clients as $client) {
+                $client->event($topic, $model->oneFields());
+            }
+
+            echo "New publish content to {$topic} event: '{$event}''\n";
+            // In this application if clients send data it's because the user hacked around in console
+            // $conn->close();
         }
-
-
-        foreach ($this->clients as $client) {
-            $client->event($topic, $model->oneFields());
-        }
-
-        echo "New publish content to {$topic} event: '{$event}''\n";
-        // In this application if clients send data it's because the user hacked around in console
-        // $conn->close();
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e)
