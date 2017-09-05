@@ -23,7 +23,7 @@ class FavoritesSearch extends Favorites
     public function rules()
     {
         return [
-            [['id', 'object_id', 'status',  'trade_type', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'object_id', 'status',  'trade_type', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['table'], 'safe'],
         ];
     }
@@ -66,6 +66,7 @@ class FavoritesSearch extends Favorites
         }
 
         $query->joinWith('advertisement');
+        $query->joinWith('room');
 
         // grid filtering conditions
         $query->andFilterWhere([
@@ -79,7 +80,12 @@ class FavoritesSearch extends Favorites
         ]);
 
         $query->andFilterWhere(['like', 'table', $this->table])
-        ->andFilterWhere(['like', 'advertisement.trade_type', $this->trade_type]);
+        ->andFilterWhere(['like', 'advertisement.trade_type', $this->trade_type])
+        ->andFilterWhere(['like', 'room.category_id', $this->category_id]);
+
+        if(!$this->category_id && !$this->trade_type) {
+            $query->andFilterWhere(['not in', 'room.category_id', 3]);
+        }
 
         return $dataProvider;
     }

@@ -88,7 +88,8 @@ trait soft
                 'id' => $user->id,
                 'name' => $user->first_name,
                 'surname' => $user->last_name,
-                'photo' => $user->photoPath
+                'photo' => $user->photoPath,
+                'phone' => $user->getPhone()
             ];
         }
         return [

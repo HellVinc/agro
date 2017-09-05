@@ -257,7 +257,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     /**
      * @param mixed $token
      * @param null $type
-     * @throws NotSupportedException
+     * @return User
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {

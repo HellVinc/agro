@@ -1,4 +1,6 @@
 <?php
+use yii\web\User;
+
 $params = array_merge(
     require(__DIR__ . '/../../common/config/params.php'),
     require(__DIR__ . '/../../common/config/params-local.php'),
@@ -18,6 +20,12 @@ return [
           ],
     ],
     'components' => [
+        'user' => [
+            'class' => User::class,
+            'identityClass' => \common\models\User::class,
+            'enableAutoLogin' => false,
+            'enableSession' => false
+        ],
         'log' => [
             'targets' => [
                 [

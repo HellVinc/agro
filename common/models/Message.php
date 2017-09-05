@@ -56,11 +56,11 @@ class Message extends ExtendedActiveRecord
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
                 ]
             ],
-            'blameable' => [
-                'class' => BlameableBehavior::className(),
-                'createdByAttribute' => 'created_by',
-                'updatedByAttribute' => 'updated_by'
-            ]
+//            'blameable' => [
+//                'class' => BlameableBehavior::className(),
+//                'createdByAttribute' => 'created_by',
+//                'updatedByAttribute' => 'updated_by'
+//            ]
         ];
     }
 
@@ -134,6 +134,7 @@ class Message extends ExtendedActiveRecord
                 return date('Y-m-d', $model->created_at);
             },
             'updated_at',
+            'created_by',
             'attachments'
         ]);
     }
@@ -167,6 +168,7 @@ class Message extends ExtendedActiveRecord
                 'message.viewed' => Message::UNVIEWED,
                 'message.status' => Message::STATUS_ACTIVE
             ])
+            ->andFilterWhere(['not in', 'message.created_by', Yii::$app->user->id])
             ->count();
 
 //        return Message::find()

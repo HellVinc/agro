@@ -12,9 +12,9 @@ use common\models\Message;
  */
 class MessageSearch extends Message
 {
-    public $size = 10;
+    public $size = 100;
     public $sort = [
-        'id' => SORT_DESC,
+        'id' => SORT_ASC,
     ];
     /**
      * @inheritdoc

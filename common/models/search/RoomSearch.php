@@ -16,6 +16,7 @@ class RoomSearch extends Room
     public $sort = [
         'id' => SORT_ASC,
     ];
+
     /**
      * @inheritdoc
      */
@@ -74,6 +75,11 @@ class RoomSearch extends Room
             'updated_by' => $this->updated_by,
         ]);
 
+        if ($this->category_id == 3) {
+            $query->andFilterWhere(['category_id' => 3]);
+        } else {
+            $query->andFilterWhere(['not in', 'category_id', 3]);
+        }
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'text', $this->text]);
 

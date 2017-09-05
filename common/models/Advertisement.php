@@ -211,7 +211,9 @@ class Advertisement extends ExtendedActiveRecord
                 'advertisement.status' => Advertisement::STATUS_ACTIVE,
                 'comment.viewed' => Comment::UNVIEWED,
                 'comment.status' => Comment::STATUS_ACTIVE
-            ])->count();
+            ])
+            ->andFilterWhere(['not in', 'comment.created_by', Yii::$app->user->id])
+            ->count();
     }
 
     public static function unreadBuyCount()

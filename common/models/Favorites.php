@@ -24,6 +24,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $created_by
  * @property integer $updated_by
  * @property integer $trade_type
+ * @property integer $category_id
  *
  * @property Advertisement $advertisement
  * @property Room $room
@@ -35,6 +36,7 @@ class Favorites extends ExtendedActiveRecord
     use errors;
 
     public $trade_type;
+    public $category_id;
 
     public function behaviors()
     {

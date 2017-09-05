@@ -26,6 +26,7 @@ class MessageController extends Controller
             'class' => QueryParamAuth::className(),
             'tokenParam' => 'auth_key',
             'only' => [
+                'all',
                 'update',
                 'create',
                 'delete',
@@ -77,6 +78,7 @@ class MessageController extends Controller
         $dataProvider = $model->searchAll(Yii::$app->request->get());
         $models = Message::allFields($dataProvider->getModels());
         $model->changeViewed($models);
+
         return [
             'models' => $models,
             'count_model' => $dataProvider->getTotalCount(),
@@ -105,11 +107,11 @@ class MessageController extends Controller
         $model = new Message();
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
-            $context = new \ZMQContext();
-            $socket = $context->getSocket(\ZMQ::SOCKET_PUSH, 'my pusher');
-            $socket->connect("tcp://localhost:5555");
-
-            $socket->send($model->text);
+//            $context = new \ZMQContext();
+//            $socket = $context->getSocket(\ZMQ::SOCKET_PUSH, $model->created_by);
+//            $socket->connect("tcp://localhost:5555");
+//
+//            $socket->send(json_encode($model));
             return $model->oneFields();
         }
         return ['errors' => $model->errors];
