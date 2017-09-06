@@ -54,8 +54,8 @@ class Advertisement extends ExtendedActiveRecord
 
     const TYPE_BUY = 1;
     const TYPE_SELL = 2;
-    const UNVIEWED = 0;
-    const VIEWED = 1;
+    const TYPE_UNVIEWED = 0;
+    const TYPE_VIEWED = 1;
 
     public function behaviors()
     {
@@ -92,9 +92,12 @@ class Advertisement extends ExtendedActiveRecord
             [['tag_id', 'title', 'text', 'trade_type'], 'required'],
             [['tag_id', 'trade_type', 'closed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
-//            ['trade_type', 'filter', 'filter' => 'intval'],
             [['city', 'title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+            [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
+            [['viewed'], 'in', 'range' => [self::TYPE_VIEWED, self::TYPE_UNVIEWED]],
+            [['closed'], 'in', 'range' => [0, 1]],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }
@@ -154,29 +157,97 @@ class Advertisement extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::getFields($result, [
-            'id',
-            'tag' => function ($model) {
-                /** @var $model Advertisement */
-                return $model->tag->name;
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::getFields($result, ['id',
+                    'tag' => function ($model) {
+                        /** @var $model Advertisement */
+                        return $model->tag->name;
+                    },
+                    'tag_id',
+                    'title',
+                    'text',
+                    'city',
+                    'trade_type',
+                    'viewed',
+                    'closed',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                    'attachments',
+                    'favorites',
+                    'msgUnread'
+                ]);
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'title',
+                    'text',
+                    'trade_type',
+                    'viewed',
+                    'status',
+                    'closed',
+                    'category',
+                    'tag',
+                    'count_reports',
+                    'created_by' => function ($model) {
+                        if ($model->creator) {
+                            return User::getFields($model->creator, ['id', 'phone']);
+                        }
+                        return null;
+                    },
+                    'created_at',
+                    'updated_at',
+                    'attachments'
+                ]);
+        }
+    }
+
+    public function extraFields()
+    {
+        return [
+            'user' => function ($model) {
+                if ($model->creator) {
+                    return self::getFields($model->creator, [
+                        'name' => 'first_name',
+                        'surname' => 'last_name',
+                        'photo' => 'photoPath'
+                    ]);
+                }
+                return null;
             },
-            'tag_id',
-            'title',
-            'text',
-            'city',
-            'trade_type',
-            'viewed',
-            'closed',
-            'status',
-            'user' => 'UserInfo',
+            'count_reports' => function ($model) {
+                return (int)$model->getReports()->count();
+            },
+            'attachments' => function ($model) {
+                return [
+                    'attachments' => $model->attachments,
+                    'count' => count($model->attachments),
+                ];
+            },
+            'trade_type' => function ($model) {
+                switch ($model->trade_type) {
+                    case self::TYPE_BUY:
+                        return 'Купівля';
+
+                    case self::TYPE_SELL:
+                        return 'Продаж';
+                }
+                return '';
+            },
+            'category' => function ($model) {
+                return $model->category->name;
+            },
             'created_at' => function ($model) {
-                return date('Y-m-d', $model->created_at);
+                return date('d-m-Y', $model->created_at);
             },
-            'updated_at',
-            'attachments',
-            'favorites',
-            'msgUnread'
-        ]);
+            'updated_at' => function ($model) {
+                return date('d-m-Y', $model->updated_at);
+            },
+        ];
     }
 
 //    public static function allAdvs($model)
@@ -267,6 +338,14 @@ class Advertisement extends ExtendedActiveRecord
     }
 
     /**
+     * @return Category
+     */
+    public function getCategory()
+    {
+        return $this->tag->category;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getComments()
@@ -287,6 +366,21 @@ class Advertisement extends ExtendedActiveRecord
     public function getReports()
     {
         return $this->hasMany(Report::className(), ['object_id' => 'id'])
-            ->andOnCondition(['table' => Advertisement::tableName()]);
+            ->andOnCondition([
+                'report.table' => self::tableName(),
+                'report.status' => self::STATUS_ACTIVE,
+            ]);
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function beforeDelete()
+    {
+        foreach ($this->reports as $report) {
+            $report->delete();
+        }
+        return parent::beforeDelete();
     }
 }
