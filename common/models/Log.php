@@ -75,7 +75,7 @@ class Log extends ExtendedActiveRecord
 
     public static function allFields($result)
     {
-        return self::getFields($result, [
+        return self::responseAll($result, [
             'id',
             'Message',
 //            'advertisement',

@@ -77,9 +77,14 @@ class News extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['text', 'url'], 'string'],
+            [['type', 'text', 'url', 'title'], 'required'],
+            [['text'], 'string'],
             [['type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['url'], 'url', 'defaultScheme' => 'http'],
             [['title'], 'string', 'max' => 255],
+            ['type', 'in', 'range' => [self::TYPE_NEWS, self::TYPE_SERVICES]],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
     }
 
@@ -132,30 +137,68 @@ class News extends ExtendedActiveRecord
 
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                News::className() => [
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
                     'id',
                     'title',
                     'text',
                     'url',
                     'type',
-                    'img' => function ($model) {
-                        /** @var $model News */
-                        return 'http://3fd17122.ngrok.io/files/skFHvafJvs0.jpg';
-                    },
-                    'created_at' => function ($model) {
-                        /** @var $model News */
-                        return date('Y-m-d', $model->created_at);
-                    },
+                    'img',
+                    'created_at',
                     'resource_url' => function ($model) {
                         /** @var $model News */
                         $url = parse_url($model->url);
                         return Yii::$app->formatter->asUrl($url['scheme'] . '://' . $url['host']);
                     }
-                ],
-            ]
-        );
+                ]);
+
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'img',
+                    'title',
+                    'text',
+                    'url',
+                    'type',
+                    'created_at',
+                    'resource_url',
+                    'status',
+                ]);
+        }
     }
 
+    public function extraFields()
+    {
+        return [
+            'img' => function($model) {
+                return $model->getPhotoPath();
+            },
+            'created_at' => function($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+            // 'url' => function($model) {
+            //     return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
+            // },
+            'resource_url' => function($model) {
+                /** News @var $model */
+                $url = parse_url($model->url);
+                return $url['scheme'] . '://' . $url['host'];
+            }
+        ];
+    }
+
+    public function getAttachments()
+    {
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * @return array|null|ActiveRecord
+     */
+    public function getAttachment()
+    {
+        return $this->getAttachments()->orderBy('id desc')->one(); // get last attachment
+    }
 }

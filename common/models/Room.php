@@ -24,6 +24,7 @@ use yii\db\ActiveRecord;
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
+ * @property integer $viewed
  *
  * @property Message[] $messages
  */
@@ -66,10 +67,20 @@ class Room extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['title', 'text'], 'required'],
+            [['title', 'text', 'category_id'], 'required'],
             [['text'], 'string'],
-            [['status', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id', 'viewed'], 'integer'],
             [['title'], 'string', 'max' => 255],
+            ['viewed', 'in', 'range' => [0, 1]],
+            [['category_id'], 'exist',
+                'filter' => [
+                    'category_type' => Category::TYPE_CHAT,
+                    'status' => self::STATUS_ACTIVE,
+                ], 'targetClass' => Category::className(),
+                'targetAttribute' => [
+                    'category_id' => 'id',
+                ]
+            ],
         ];
     }
 
@@ -81,7 +92,7 @@ class Room extends ExtendedActiveRecord
         return [
             'id' => 'ID',
             'title' => 'Title',
-            'text' => 'Description',
+            'text' => 'Text',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -95,19 +106,25 @@ class Room extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return self::getFields($this, [
-            'id',
-            'category_id',
-            'title',
-            'text',
-            'status',
-            'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                /** @var $model Room */
-                return date('Y-m-d', $model->created_at);
-            },
-            'updated_at',
-        ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::getFields($this, ['id',
+                    'category_id',
+                    'title',
+                    'text',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        /** @var $model Room */
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                ]);
+            case 'v2':
+                return self::responseAll($this, [
+
+                ]);
+        }
     }
 
     /**
@@ -116,26 +133,34 @@ class Room extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::getFields($result, [
-            'id',
-            'category_id',
-            'title',
-            'text',
-            'status',
-            'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                /** @var $model Room */
-                return date('Y-m-d', $model->created_at);
-            },
-            'updated_at',
-            'favorites',
-            'msgUnread'
-        ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'category_id',
+                    'title',
+                    'text',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        /** @var $model Room */
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                    'favorites',
+                    'msgUnread'
+                ]);
+
+            case 'v2':
+                return self::responseAll($result, [
+
+                ]);
+        }
     }
 
     public function getMsgUnread()
     {
-        return (int)Message::find()->where(['room_id' => $this->id, 'viewed' => Comment::UNVIEWED])->count();
+        return (int)Message::find()->where(['room_id' => $this->id, 'viewed' => Comment::TYPE_UNVIEWED])->count();
     }
 
     /**
@@ -151,8 +176,20 @@ class Room extends ExtendedActiveRecord
      */
     public function getFavorites()
     {
-        return (int) (bool) $this->hasMany(Favorites::className(), ['object_id' => 'id'])
+        return (int)(bool)$this->hasMany(Favorites::className(), ['object_id' => 'id'])
             ->andOnCondition(['table' => $this->formName()])
             ->andOnCondition(['created_by' => Yii::$app->user->id])->count();
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function beforeDelete()
+    {
+        foreach ($this->messages as $message) {
+            $message->delete();
+        }
+        return parent::beforeDelete();
     }
 }

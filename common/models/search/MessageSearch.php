@@ -2,6 +2,8 @@
 
 namespace common\models\search;
 
+use common\components\traits\dateSearch;
+use common\components\traits\deteHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -12,6 +14,9 @@ use common\models\Message;
  */
 class MessageSearch extends Message
 {
+    use deteHelper;
+    use dateSearch;
+
     public $size = 100;
     public $sort = [
         'id' => SORT_ASC,
@@ -23,6 +28,7 @@ class MessageSearch extends Message
     {
         return [
             [['id', 'room_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
             [['text'], 'safe'],
         ];
     }
@@ -76,6 +82,8 @@ class MessageSearch extends Message
         ]);
 
         $query->andFilterWhere(['like', 'text', $this->text]);
+
+        $this->initDateSearch($query);
 
         return $dataProvider;
     }

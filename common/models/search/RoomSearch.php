@@ -2,6 +2,8 @@
 
 namespace common\models\search;
 
+use common\components\traits\dateSearch;
+use common\components\traits\deteHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -12,6 +14,9 @@ use common\models\Room;
  */
 class RoomSearch extends Room
 {
+    use deteHelper;
+    use dateSearch;
+
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
@@ -24,7 +29,8 @@ class RoomSearch extends Room
     {
         return [
             [['id', 'status', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'text'], 'safe'],
+            [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
+            [['title', 'text', 'description'], 'safe'],
         ];
     }
 
@@ -81,7 +87,11 @@ class RoomSearch extends Room
             $query->andFilterWhere(['not in', 'category_id', 3]);
         }
         $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'text', $this->text]);
+            ->andFilterWhere(['like', 'text', $this->text])
+            ->andFilterWhere(['like', 'description', $this->description]);
+
+
+        $this->initDateSearch($query);
 
         return $dataProvider;
     }

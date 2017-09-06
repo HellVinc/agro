@@ -25,9 +25,19 @@ class m970707_152406_relations extends Migration
 
     public function safeDown()
     {
-        echo "m170707_152406_relations cannot be reverted.\n";
+        $this->dropForeignKey('comment_ibfk_1', 'comment');
+        $this->dropForeignKey('advertisement_ibfk_1', 'advertisement');
+        $this->dropForeignKey('category_ibfk_1', 'tag');
+        $this->dropForeignKey('user_ibfk_1', 'rating');
+        $this->dropForeignKey('room_ibfk_1', 'message');
+        $this->dropForeignKey('category_ibfk_2', 'room');
 
-        return false;
+        $this->dropIndex('category_id', 'tag');
+        $this->dropIndex('advertisement_id', 'comment');
+        $this->dropIndex('tag_id', 'advertisement');
+        $this->dropIndex('user_id', 'rating');
+        $this->dropIndex('room_id', 'message');
+        $this->dropIndex('category_id1', 'room');
     }
 
     /*

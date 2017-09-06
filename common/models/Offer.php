@@ -73,8 +73,12 @@ class Offer extends ExtendedActiveRecord
     {
         return [
             [['text'], 'required'],
-            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['text'], 'string', 'max' => 255],
+            [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['title', 'text'], 'string', 'max' => 255],
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+            [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
+            [['viewed'], 'in', 'range' => [self::TYPE_UNVIEWED, self::TYPE_VIEWED]],
         ];
     }
 
@@ -85,7 +89,6 @@ class Offer extends ExtendedActiveRecord
     {
         return [
             'id' => 'ID',
-            'text' => 'Description',
             'viewed' => 'Viewed',
             'checked' => 'Checked',
             'done' => 'Done',
@@ -97,22 +100,47 @@ class Offer extends ExtendedActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'created_by' => function ($model) {
+                if ($model->creator) {
+                    return User::getFields($model->creator, ['id', 'phone']);
+                }
+                return null;
+            },
+            'description' => 'text'
+        ];
+    }
+
     /**
      * @return array
      */
     public function oneFields()
     {
-        return self::getFields($this, [
-                'id',
-                'text',
-                'status',
-                'user' => 'UserInfo',
-                'created_at' => function ($model) {
-                    /** @var $model Offer */
-                    return date('Y-m-d', $model->created_at);
-                },
-                'updated_at',
-            ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return $this->responseOne([
+                    'id',
+                    'text',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        /** @var $model Offer */
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                ]);
+
+            case 'v2':
+                return $this->responseOne([
+                    'id',
+                    'description',
+                    'created_at',
+                    'created_by',
+                    'status',
+                ]);
+        }
     }
 
     /**
@@ -121,17 +149,29 @@ class Offer extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::getFields($result, [
-            'id',
-            'text',
-            'status',
-            'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                /** @var $model Offer */
-                return date('Y-m-d', $model->created_at);
-            },
-            'updated_at',
-        ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'text',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        /** @var $model Offer */
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                ]);
+
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'description',
+                    'created_at',
+                    'created_by',
+                    'status',
+                ]);
+        }
     }
 
     /**

@@ -75,42 +75,49 @@ class Attachment extends ExtendedActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function oneFields()
     {
-
-        $result = [
-            'id' => $this->id,
-            'object_id' => $this->object_id,
-            'table' => $this->table,
-            'extension' => $this->extension,
-            'url' => $this->url,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
-        return $result;
+        return $this->responseOne([
+            'id',
+            'object_id',
+            'table',
+            'extension',
+            'url',
+            'status',
+            'created_by',
+            'updated_by',
+            'created_at',
+            'updated_at',
+        ]);
     }
 
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Advertisement::className() => [
-                    'id',
-                    'object_id',
-                    'table',
-                    'extension',
-                    'created_at',
-                    'updated_at',
-                    'created_at' => function($model) {
-            /** @var $model Attachment */
-                        return date('Y-m-d', $model->created_at);
-                    },
-                ],
-            ]
-        );
+        return self::responseAll($result, [
+            'id',
+            'object_id',
+            'table',
+            'extension',
+            'created_at',
+            'updated_at',
+            'created_at'
+        ]);
+    }
+
+    public function extraFields()
+    {
+        return [
+            'created_at' => function($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+        ];
     }
 
     public function fields()
@@ -187,9 +194,9 @@ class Attachment extends ExtendedActiveRecord
 
     public function getFilePath()
     {
-        return 'http://3fd17122.ngrok.io' . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
-//        return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
+        return Yii::$app->request->hostInfo . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
     }
+
 
     public function getFileDir()
     {

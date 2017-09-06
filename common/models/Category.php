@@ -72,7 +72,7 @@ class Category extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
+            [['name', 'category_type'], 'required'],
             [['category_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'string', 'max' => 255],
             ['category_type', 'in', 'range' => [self::TYPE_TRADE, self::TYPE_CHAT]],
@@ -89,7 +89,7 @@ class Category extends ExtendedActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Name',
-            'category_type' => 'Type',
+            'category_type' => 'Category type',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -114,45 +114,50 @@ class Category extends ExtendedActiveRecord
         return $result;
     }
 
+    public function extraFields()
+    {
+        return [
+            'name' => 'Name',
+            'tags' => function ($model) {
+                /** @var $model Category */
+                return Tag::getFields($model->tags, self::DEF_F);
+                // return $model->getTags()->select('name')->column();
+            },
+            'created_at' => function($model) {
+                return date('d-m-Y', $model->created_at);
+            },
+            'updated_at' => function($model) {
+                return date('d-m-Y', $model->updated_at);
+            },
+        ];
+    }
+
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-
-        return ArrayHelper::toArray($result,
-            [
-                Category::className() => [
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
                     'id',
                     'name',
                     'category_type',
-                    'tags' => function($model){
-                        /** @var $model Category */
-                        return Tag::getFields($model->tags, self::DEF_F);
-//                        return $model->getTags()->select('name')->column();
+                    'tags',
+                ]);
 
-                    }
-                ],
-            ]
-        );
-    }
-
-    public static function getFields($models)
-    {
-
-        return ArrayHelper::toArray($models,
-            [
-                Category::className() => [
+            case 'v2':
+                return self::responseAll($result, [
                     'id',
-                    'Name',
+                    'name',
                     'category_type',
-//                    'tags' => function($model){
-//            /** @var $model Category */
-//                        return Tag::allFields($model->getTags()->all());
-////                        return $model->getTags()->select('name')->column();
-//
-//                    }
-                ],
-            ]
-        );
+                    'tags',
+                    'status',
+                ]);
+        }
     }
+
 
     /**
      * @return string
@@ -168,6 +173,24 @@ class Category extends ExtendedActiveRecord
     public function getTags()
     {
         return $this->hasMany(Tag::className(), ['category_id' => 'id']);
+    }
+
+    public function getRooms()
+    {
+        return $this->hasMany(Room::className(), ['category_id' => 'id'])->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Delete rooms in category
+     */
+    public function beforeDelete()
+    {
+        if ($this->category_type == self::TYPE_CHAT) {
+            foreach ($this->rooms as $room) {
+                $room->delete();
+            }
+        }
+        return parent::beforeDelete();
     }
 
 }

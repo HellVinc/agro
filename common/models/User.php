@@ -49,6 +49,8 @@ use yii\web\IdentityInterface;
  * @property  $photoPath
  * @property Rating[] $ratings
  * @property mixed photoDir
+ *
+ * @property Report reports
  */
 class User extends ExtendedActiveRecord implements IdentityInterface
 {
@@ -158,7 +160,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function getPhone()
     {
-        return '0' . $this->phone;
+        return '+380' . $this->phone;
     }
 
     public function getPhotoPath()
@@ -206,43 +208,88 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return $this->hasOne(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
     }
 
+    public function getReports()
+    {
+        return $this->hasMany(Report::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'report.table' => self::tableName(),
+                'report.status' => self::STATUS_ACTIVE,
+            ]);
+    }
+
+    public function extraFields()
+    {
+        return [
+            'phone' => 'Phone',
+            'second_name' => 'middle_name',
+            'photo' => 'photoPath',
+            'count_reports' => function ($model) {
+                return (int)$model->getReports()->count();
+            },
+        ];
+    }
 
     public function oneFields()
     {
-
-        $result = [
-            'id' => $this->id,
-            'role' => $this->role,
-            'phone' => $this->getPhone(),
-            'photo' => $this->photoPath,
-            'auth_key' => $this->auth_key,
-            'first_name' => $this->first_name,
-            'second_name' => $this->middle_name,
-            'last_name' => $this->last_name,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'rating' => $this->getRating()
-        ];
-        return $result;
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return $this->responseOne([
+                    'id',
+                    'role',
+                    'phone',
+                    'photo',
+                    'auth_key',
+                    'first_name',
+                    'second_name',// middle_name
+                    'last_name',
+                    'created_at',
+                    'updated_at',
+                    'rating' => $this->getRating()
+                ]);
+            case 'v2':
+                return $this->responseOne([
+                    'id',
+                    //'role',
+                    'phone',
+                    'photo',
+                    'first_name',
+                    'second_name',
+                    'last_name',
+                    'count_reports',
+                    'status',
+                    //'created_at',
+                    //'updated_at',
+                ]);
+        }
     }
 
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-
-            [
-                User::className() => [
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
                     'id',
                     'first_name',
                     'middle_name',
                     'last_name',
                     'role',
                     'photoPath',
-                    'phone' => 'Phone',
+                    'phone',
                     'rating'
-                ],
-            ]
-        );
+                ]);
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'first_name',
+                    'last_name',
+                    'count_reports',
+                    //'role',
+                    'photo',
+                    'phone',
+                    'status',
+                    //'rating'
+                ]);
+        }
     }
 
 
@@ -442,5 +489,16 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function getRatings()
     {
         return $this->hasMany(Rating::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function beforeDelete()
+    {
+        foreach ($this->reports as $report) {
+            $report->delete();
+        }
+        return parent::beforeDelete();
     }
 }

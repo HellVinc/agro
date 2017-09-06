@@ -2,6 +2,8 @@
 
 namespace common\models\search;
 
+use common\components\traits\dateSearch;
+use common\components\traits\deteHelper;
 use common\models\Tag;
 use Yii;
 use yii\base\Model;
@@ -14,6 +16,9 @@ use common\models\User;
  */
 class AdvertisementSearch extends Advertisement
 {
+    use deteHelper;
+    use dateSearch;
+
     public $size = 10;
     public $sort = [
         'id' => SORT_DESC,
@@ -28,6 +33,8 @@ class AdvertisementSearch extends Advertisement
         return [
             [['id', 'phone', 'closed', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'city', 'text', 'latitude', 'longitude'], 'safe'],
+            [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
+            [['count_reports'], 'in', 'range' => [0,1]],
         ];
     }
 
@@ -61,17 +68,35 @@ class AdvertisementSearch extends Advertisement
             ],
         ]);
 
-        if ($this->phone) {
-            $this->created_by = User::findOne(['phone' => $this->phone])->id;
+        if (!$this->validate()) {
+            // uncomment the following line if you do not want to return any records when validation fails
+            // $query->where('0=1');
+            return $dataProvider;
         }
 
-        $query->joinWith('tag');
+
+        if (!empty($this->phone)) {
+            $user = User::findOne(['phone' => $this->phone]);
+            if (!$user) {
+                $query->where('0=1');
+                return $dataProvider;
+            }
+            $this->created_by = $user->id;
+        }
+
+        $query->joinWith(Tag::tableName());
+
+        $query->addSelect('advertisement.*, COUNT(report.id) AS count_reports')->from(self::tableName());
+        $query->leftJoin( 'report', 'report.object_id = advertisement.id AND report.status = 10 AND report.table = "advertisement"');
+        $query->addGroupBy('advertisement.id');
+
         // grid filtering conditions
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
             'tag_id' => $this->tag_id,
             'city' => $this->city,
             'trade_type' => $this->trade_type,
+            'advertisement.viewed' => $this->viewed,
             'closed' => $this->closed,
             'advertisement.status' => $this->status,
             'advertisement.created_at' => $this->created_at,
@@ -86,6 +111,11 @@ class AdvertisementSearch extends Advertisement
             ->andFilterWhere(['like', 'longitude', $this->longitude])
             ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
 
+        if (!empty($this->count_reports)) {
+            $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
+        }
+
+        $this->initDateSearch($query);
         return $dataProvider;
     }
 }

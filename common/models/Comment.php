@@ -3,7 +3,6 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use function foo\func;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -35,8 +34,8 @@ class Comment extends ExtendedActiveRecord
     use findRecords;
     use errors;
 
-    const UNVIEWED = 0;
-    const VIEWED = 1;
+    const TYPE_UNVIEWED = 0;
+    const TYPE_VIEWED = 1;
 
     public function behaviors()
     {
@@ -71,7 +70,7 @@ class Comment extends ExtendedActiveRecord
     {
         return [
             [['advertisement_id', 'viewed', 'status'], 'integer'],
-            [['text'], 'required'],
+            [['text', 'advertisement_id'], 'required'],
             [['text'], 'string'],
             [['advertisement_id'], 'exist', 'skipOnError' => true, 'targetClass' => Advertisement::className(), 'targetAttribute' => ['advertisement_id' => 'id']],
         ];
@@ -109,39 +108,65 @@ class Comment extends ExtendedActiveRecord
             'date' => $this->created_at,
             'user' => $this->userInfo,
             'avatar' => User::findOne(['id' => $this->created_by])->photoPath,
-//            'status' => $this->status,
-//            'created_by' => $this->created_by,
-//            'updated_by' => $this->updated_by,
-//            'created_at' => $this->created_at,
-//            'updated_at' => $this->updated_at,
         ];
         return $result;
     }
+    /**
+     * @return array
+     */
+    public function extraFields()
+    {
+        return [
+            'date' => 'created_at',
+            'avatar' => function ($model) {
+                return $model->getCreator()->photoPath;
+            },
+            'user' => function ($model) {
+                $user = $model->creator;
+                return $model->getCreator() ? $user->first_name . ' ' . $user->last_name : '';
+            }
+        ];
+    }
 
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Comment::className() => [
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
                     'id',
                     'text',
                     'viewed',
-                    'date' => function ($model) {
-                        return $model->created_at;
+                    'created_at' => function($model){
+                    return date('Y-m-d', $model->created_at);
                     },
-                    'created_at' => function ($model) {
-                        return date('Y-m-d', $model->created_at);
-                    },
-                    'user' => 'UserInfo',
-                    'avatar' => function ($model) {
-                        /** @var Comment $model */
-                        return User::findOne($model->created_by)->photoPath;
+                    'user'=> 'UserInfo',
+                    'avatar',
+                ]);
 
-                    }
-                ],
-            ]
-        );
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'text',
+                    'status',
+                    'advertisement_id',
+                    'created_by' => function ($model) {
+                        return User::getFields($model->creator, [
+                            'id',
+                            'phone',
+                            'first_name',
+                            'last_name',
+                        ]);
+                    },
+                    'created_at',
+                    'updated_at',
+                ]);
+        }
     }
+
 
     /**
      * @param $models

@@ -35,8 +35,8 @@ class Message extends ExtendedActiveRecord
     use errors;
     use modelWithFiles;
 
-    const UNVIEWED = 0;
-    const VIEWED = 1;
+    const TYPE_UNVIEWED = 0;
+    const TYPE_VIEWED = 1;
 
     /**
      * @inheritdoc
@@ -122,7 +122,7 @@ class Message extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::getFields($result, [
+        return self::responseAll($result, [
             'id',
             'room_id',
             'text',
@@ -149,7 +149,7 @@ class Message extends ExtendedActiveRecord
             $room = Room::findOne($model['room_id']);
             if ($room->created_by === Yii::$app->user->id) {
                 $message = Message::findOne($model['id']);
-                $message->viewed = Message::VIEWED;
+                $message->viewed = Message::TYPE_VIEWED;
                 $message->save();
             }
         }
@@ -165,7 +165,7 @@ class Message extends ExtendedActiveRecord
             ->where([
                 'room.created_by' => Yii::$app->user->id,
                 'room.status' => Room::STATUS_ACTIVE,
-                'message.viewed' => Message::UNVIEWED,
+                'message.viewed' => Message::TYPE_UNVIEWED,
                 'message.status' => Message::STATUS_ACTIVE
             ])
             ->andFilterWhere(['not in', 'message.created_by', Yii::$app->user->id])
