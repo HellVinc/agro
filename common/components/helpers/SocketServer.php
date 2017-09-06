@@ -2,6 +2,8 @@
 
 namespace common\components\helpers;
 
+use common\components\UploadModel;
+use common\models\Attachment;
 use Yii;
 use common\models\Message;
 use common\models\User;
@@ -77,11 +79,19 @@ class SocketServer implements WampServerInterface
 
         if ($user) {
 //            print_r($user);
+            \Yii::$app->user->setIdentity($user);
+
             $event['created_by'] = $user->id;
 
             $model = new Message();
             $model->load($event);
             $model->save();
+            $image = new Attachment();
+            $image->extension = 'jpg';
+            $image->url = UploadModel::uploadBase($event['file'], $model->id, 'files/message');
+            $image->table = 'message';
+            $image->object_id = $model->id;
+            $image->save();
 
 
 

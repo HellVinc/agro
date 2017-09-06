@@ -151,7 +151,7 @@ class News extends ExtendedActiveRecord
                     'resource_url' => function ($model) {
                         /** @var $model News */
                         $url = parse_url($model->url);
-                        return $url['scheme'] . '://' . $url['host'];
+                        return Yii::$app->formatter->asUrl($url['scheme'] . '://' . $url['host']);
                     }
                 ],
             ]

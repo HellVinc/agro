@@ -177,7 +177,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function savePhoto()
     {
-        $result = UploadModel::uploadBase($this->image_file, $this->id, $this->extension);
+        $result = UploadModel::uploadBase($this->image_file, $this->id, 'photo/user');
         if (!$result) {
             return $this->addError('error', 'Image not saved');
         }

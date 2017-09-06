@@ -56,11 +56,11 @@ class Message extends ExtendedActiveRecord
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at'
                 ]
             ],
-//            'blameable' => [
-//                'class' => BlameableBehavior::className(),
-//                'createdByAttribute' => 'created_by',
-//                'updatedByAttribute' => 'updated_by'
-//            ]
+            'blameable' => [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by'
+            ]
         ];
     }
 
