@@ -12,9 +12,9 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 /**
- * AdvertisementController implements the CRUD actions for Advertisement model.
+ * PostController implements the CRUD actions for Advertisement model.
  */
-class AdvertisementController extends Controller
+class PostController extends Controller
 {
     /**
      * @inheritdoc
@@ -22,19 +22,19 @@ class AdvertisementController extends Controller
     public function behaviors()
     {
         return ArrayHelper::merge(parent::behaviors(), [
-            //'authenticator' => [
-            //    'class' => QueryParamAuth::className(),
-            //    'tokenParam' => 'auth_key',
-            //],
-            //'access' => [
-            //    'class' => AccessControl::className(),
-            //    'rules' => [
-            //        [
-            //            'allow' => true,
-            //            'roles' => ['admin'],
-            //        ],
-            //    ],
-            //],
+            'authenticator' => [
+                'class' => QueryParamAuth::className(),
+                'tokenParam' => 'auth_key',
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['admin'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [

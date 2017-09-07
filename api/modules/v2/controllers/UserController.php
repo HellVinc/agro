@@ -19,25 +19,25 @@ class UserController extends Controller
     public function behaviors()
     {
         return ArrayHelper::merge(parent::behaviors(), [
-            //'authenticator' => [
-            //    'class' => QueryParamAuth::className(),
-            //    'tokenParam' => 'auth_key',
-            //    'except' => ['login'],
-            //],
-            //'access' => [
-            //    'class' => AccessControl::className(),
-            //    'rules' => [
-            //        [
-            //            'actions' => ['login'],
-            //            'allow' => true,
-            //        ],
-            //        [
-            //            //'actions' => ['all', 'update', 'delete-reports', 'delete'],
-            //            'allow' => true,
-            //            'roles' => ['admin'],
-            //        ],
-            //    ],
-            //],
+            'authenticator' => [
+                'class' => QueryParamAuth::className(),
+                'tokenParam' => 'auth_key',
+                'except' => ['login'],
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['login'],
+                        'allow' => true,
+                    ],
+                    [
+                        //'actions' => ['all', 'update', 'delete-reports', 'delete'],
+                        'allow' => true,
+                        'roles' => ['admin'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -116,9 +116,10 @@ class UserController extends Controller
                 $model->setStatus($post['status']);
             }
 
-            // if ($post['password'] && $model->validate(['password'])) {
-            //     $model->setPassword($post['password']);
-            // }
+//             if ($post['password'] && $model->validate(['password'])) {
+//                 $model->setPassword($post['password']);
+//
+//             }
 
             // if ($post['phone'] && preg_match('/^((?:(?:\+?3)?8)?0)\d{9}$/', $post['phone'])) {
             //     // remove +380

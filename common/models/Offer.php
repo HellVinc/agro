@@ -109,6 +109,10 @@ class Offer extends ExtendedActiveRecord
                 }
                 return null;
             },
+            'created_at' => function ($model) {
+                /** @var $model Offer */
+                return date('Y-m-d', $model->created_at);
+            },
             'description' => 'text'
         ];
     }
@@ -125,10 +129,7 @@ class Offer extends ExtendedActiveRecord
                     'text',
                     'status',
                     'user' => 'UserInfo',
-                    'created_at' => function ($model) {
-                        /** @var $model Offer */
-                        return date('Y-m-d', $model->created_at);
-                    },
+                    'created_at',
                     'updated_at',
                 ])[0];
 

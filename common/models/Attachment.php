@@ -32,7 +32,6 @@ use yii\web\UploadedFile;
  */
 class Attachment extends ExtendedActiveRecord
 {
-
     use soft;
     use findRecords;
     use errors;
