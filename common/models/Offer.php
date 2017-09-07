@@ -14,8 +14,7 @@ use common\components\traits\findRecords;
  * This is the model class for table "offer".
  *
  * @property integer $id
- * @property string $title
- * @property string $description
+ * @property string $text
  * @property string $viewed
  * @property string $checked
  * @property string $done
@@ -25,7 +24,6 @@ use common\components\traits\findRecords;
  * @property integer $created_by
  * @property integer $updated_by
  *
- * @property OfferTag[] $offerTags
  * @property Tag[] $tags
  */
 class Offer extends ExtendedActiveRecord
@@ -74,9 +72,13 @@ class Offer extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['title', 'description'], 'required'],
-            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'description'], 'string', 'max' => 255],
+            [['text'], 'required'],
+            [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['title', 'text'], 'string', 'max' => 255],
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+            [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
+            [['viewed'], 'in', 'range' => [self::TYPE_UNVIEWED, self::TYPE_VIEWED]],
         ];
     }
 
@@ -87,8 +89,6 @@ class Offer extends ExtendedActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'description' => 'Description',
             'viewed' => 'Viewed',
             'checked' => 'Checked',
             'done' => 'Done',
@@ -98,6 +98,80 @@ class Offer extends ExtendedActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
+    }
+
+    public function extraFields()
+    {
+        return [
+            'created_by' => function ($model) {
+                if ($model->creator) {
+                    return User::getFields($model->creator, ['id', 'phone']);
+                }
+                return null;
+            },
+            'description' => 'text'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::getFields($this, [
+                    'id',
+                    'text',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        /** @var $model Offer */
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                ])[0];
+
+            case 'v2':
+                return self::getFields($this, [
+                    'id',
+                    'description',
+                    'created_at',
+                    'created_by',
+                    'status',
+                ]);
+        }
+    }
+
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
+    {
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::responseAll($result, [
+                    'id',
+                    'text',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        /** @var $model Offer */
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                ]);
+
+            case 'v2':
+                return self::responseAll($result, [
+                    'id',
+                    'description',
+                    'created_at',
+                    'created_by',
+                    'status',
+                ]);
+        }
     }
 
     /**

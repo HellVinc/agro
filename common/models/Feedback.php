@@ -14,6 +14,7 @@ use common\components\traits\findRecords;
  * This is the model class for table "feedback".
  *
  * @property integer $id
+ * @property integer $user_id
  * @property string $message
  * @property integer $viewed
  * @property integer $status
@@ -61,7 +62,7 @@ class Feedback extends ExtendedActiveRecord
         return [
             [['message'], 'required'],
             [['message'], 'string'],
-            [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['viewed', 'user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];
     }
 
@@ -73,6 +74,7 @@ class Feedback extends ExtendedActiveRecord
         return [
             'id' => 'ID',
             'message' => 'Message',
+            'user_id' => 'User ID',
             'viewed' => 'Viewed',
             'status' => 'Status',
             'created_at' => 'Created At',
@@ -80,5 +82,48 @@ class Feedback extends ExtendedActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function oneFields()
+    {
+        return [
+            strtolower($this->getClassName()) => self::getFields($this, [
+                'id',
+                'user_id',
+                'message',
+                'viewed',
+                'status',
+                'user' => 'UserInfo',
+                'created_at' => function ($model) {
+                /** @var $model Feedback */
+                    return date('Y-m-d', $model->created_at);
+                },
+                'updated_at',
+            ]),
+        ];
+    }
+
+    /**
+     * @param $result
+     * @return array
+     */
+    public static function allFields($result)
+    {
+        return self::responseAll($result, [
+            'id',
+            'user_id',
+            'message',
+            'viewed',
+            'status',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                /** @var $model Feedback */
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at',
+        ]);
     }
 }

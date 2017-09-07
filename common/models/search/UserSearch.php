@@ -24,6 +24,7 @@ class UserSearch extends User
         return [
             [['id', 'phone', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['first_name', 'middle_name', 'last_name', 'auth_key', 'password_hash', 'password_reset_token'], 'safe'],
+            ['count_reports', 'in', 'range' => [0,1]],
         ];
     }
 
@@ -62,6 +63,10 @@ class UserSearch extends User
             return $dataProvider;
         }
 
+        $query->addSelect('user.*, COUNT(report.id) AS count_reports')->from(self::tableName());
+        $query->leftJoin('report', 'report.object_id = user.id AND report.status = 10 AND report.table = "user"');
+        $query->addGroupBy('user.id');
+
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
@@ -75,10 +80,10 @@ class UserSearch extends User
 
         $query->andFilterWhere(['like', 'first_name', $this->first_name])
             ->andFilterWhere(['like', 'middle_name', $this->middle_name])
-            ->andFilterWhere(['like', 'last_name', $this->last_name])
-            ->andFilterWhere(['like', 'auth_key', $this->auth_key])
-            ->andFilterWhere(['like', 'password_hash', $this->password_hash])
-            ->andFilterWhere(['like', 'password_reset_token', $this->password_reset_token]);
+            ->andFilterWhere(['like', 'last_name', $this->last_name]);
+        if (!empty($this->count_reports)) {
+            $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
+        }
         return $dataProvider;
     }
 }

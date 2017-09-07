@@ -12,7 +12,7 @@ use common\models\Favorites;
  */
 class FavoritesSearch extends Favorites
 {
-    public $size = 10;
+    public $size = 100;
     public $sort = [
         'id' => SORT_ASC,
     ];
@@ -23,7 +23,7 @@ class FavoritesSearch extends Favorites
     public function rules()
     {
         return [
-            [['id', 'parent_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'object_id', 'status',  'trade_type', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['table'], 'safe'],
         ];
     }
@@ -65,18 +65,27 @@ class FavoritesSearch extends Favorites
             return $dataProvider;
         }
 
+        $query->joinWith('advertisement');
+        $query->joinWith('room');
+
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'parent_id' => $this->parent_id,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
+            'favorites.id' => $this->id,
+            'object_id' => $this->object_id,
+            'favorites.status' => $this->status,
+            'favorites.created_at' => $this->created_at,
+            'favorites.updated_at' => $this->updated_at,
+            'favorites.created_by' => $this->created_by,
+            'favorites.updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'table', $this->table]);
+        $query->andFilterWhere(['like', 'table', $this->table])
+        ->andFilterWhere(['like', 'advertisement.trade_type', $this->trade_type])
+        ->andFilterWhere(['like', 'room.category_id', $this->category_id]);
+
+        if(!$this->category_id && !$this->trade_type) {
+            $query->andFilterWhere(['not in', 'room.category_id', 3]);
+        }
 
         return $dataProvider;
     }

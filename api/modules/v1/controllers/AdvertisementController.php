@@ -2,12 +2,25 @@
 
 namespace api\modules\v1\controllers;
 
+use common\components\UploadModel;
+use common\components\traits\errors;
+use common\models\Attachment;
+use common\models\Category;
+use common\models\Comment;
+use common\models\Favorites;
+use common\models\Log;
+use common\models\Message;
+use common\models\search\CategorySearch;
+use common\models\User;
 use Yii;
 use common\models\Advertisement;
 use common\models\search\AdvertisementSearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * AdvertisementController implements the CRUD actions for Advertisement model.
@@ -17,17 +30,60 @@ class AdvertisementController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'test',
+                'all',
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
-//    }
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
+
+    public function actionTest()
+    {
+        return Advertisement::unreadCount();
+    }
+
 
     /**
      * Lists all Advertisement models.
@@ -36,8 +92,15 @@ class AdvertisementController extends Controller
     public function actionAll()
     {
         $model = new AdvertisementSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? Advertisement::allFields($result) : $model->getErrors();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $models = Advertisement::allFields($dataProvider->getModels());
+        return [
+            'model' => $models,
+            'count_model' => $dataProvider->getTotalCount(),
+            'page_count' => $dataProvider->pagination->pageCount,
+            'page' => $dataProvider->pagination->page + 1,
+            'unread_messages' => User::unreadMessages()
+        ];
     }
 
     /**
@@ -61,42 +124,39 @@ class AdvertisementController extends Controller
         $model = new Advertisement();
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
-            return $model->id;
-        } else {
-            return ['errors' => $model->errors];
+            $log = new Log();
+            $log->object_id = $model->id;
+            $log->table = Advertisement::tableName();
+            $log->save();
+            return $model->oneFields();
         }
+        return ['errors' => $model->errors];
     }
 
     /**
      * Updates an existing Advertisement model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionUpdate($id)
+    public function actionUpdate()
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel(Yii::$app->request->post('id'));
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model,
-            ];
-        } else {
-            return ['errors' => $model->errors()];
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
+
+            return $model->oneFields();
         }
+        return ['errors' => $model->errors];
     }
 
     /**
      * Deletes an existing Advertisement model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        return $this->findModel(Yii::$app->request->post('id'))->delete();
     }
 
     /**
@@ -111,11 +171,27 @@ class AdvertisementController extends Controller
         if (($model = Advertisement::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
+
+//    public function afterAction($action, $result)
+//    {
+//        $model = new Log();
+//        $model->action_name = $action->id;
+//        $model->ctrl_name = Advertisement::tableName();
+//        return $model->save();
+////        return parent::afterAction($action, $result); // TODO: Change the autogenerated stub
+//    }
+
+
+//    public function beforeAction($action)
+//    {
+//        $model = new Log();
+//        $model->action_name = $action;
+//        $model->ctrl_name = Advertisement::className();
+//        return $model->save();
+//    }
 }

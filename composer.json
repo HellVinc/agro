@@ -18,7 +18,8 @@
         "yiisoft/yii2": "~2.0.6",
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0",
-        "cboden/ratchet": "^0.3.6"
+        "cboden/ratchet": "^0.3.6",
+        "kop/yii2-turbosms": "dev-master"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
@@ -27,7 +28,8 @@
         "codeception/codeception": "2.1.*",
         "codeception/specify": "*",
         "codeception/base": "^2.2.3",
-        "codeception/verify": "~0.3.1"
+        "codeception/verify": "~0.3.1",
+        "react/zmq": "0.2.*|0.3.*"
     },
     "config": {
         "process-timeout": 1800

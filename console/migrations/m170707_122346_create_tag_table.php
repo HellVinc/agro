@@ -22,8 +22,6 @@ class m170707_122346_create_tag_table extends Migration
             'created_by' => $this->integer(),
             'updated_by' => $this->integer(),
         ]);
-
-        $this->createIndex('unique_category_name', 'tag', ['category_id', 'name'], true);
     }
 
     /**
@@ -31,7 +29,6 @@ class m170707_122346_create_tag_table extends Migration
      */
     public function down()
     {
-        $this->dropIndex('unique_category_name', 'tag');
         $this->dropTable('tag');
     }
 }

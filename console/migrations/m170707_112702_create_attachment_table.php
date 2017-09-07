@@ -14,7 +14,7 @@ class m170707_112702_create_attachment_table extends Migration
     {
         $this->createTable('attachment', [
             'id' => $this->primaryKey(),
-            'parent_id' => $this->integer()->notNull(),
+            'object_id' => $this->integer()->notNull(),
             'table' => $this->string(255)->notNull(),
             'extension' => $this->string(255)->notNull(),
             'url' => $this->string(255)->notNull(),

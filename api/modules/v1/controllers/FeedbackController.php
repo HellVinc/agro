@@ -5,6 +5,8 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Feedback;
 use common\models\search\FeedbackSearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -17,17 +19,42 @@ class FeedbackController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'create',
+            ],
+        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
-//    }
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'create' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
 
     /**
@@ -41,9 +68,8 @@ class FeedbackController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->id;
-        } else {
-            return ['errors' => $model->errors];
         }
+        return ['errors' => $model->errors];
     }
 
 
@@ -89,11 +115,9 @@ class FeedbackController extends Controller
         if (($model = Feedback::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

@@ -17,8 +17,8 @@ return [
         ],
         'v2' => [
             'basePath' => '@app/modules/v2',
-            'class' => 'api\modules\v2\Module',
-        ],
+            'class' => 'api\modules\v2\Module'
+        ]
     ],
     'components' => [
 
@@ -42,7 +42,7 @@ return [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-                '<module>/<controller>/<action>' => '<module>/<controller>/<action>',
+                '<module>/<controller>/<action>' => '<module>/<controller>/<action>'
             ]
         ]
     ],

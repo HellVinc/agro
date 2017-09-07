@@ -23,7 +23,10 @@ use yii\helpers\ArrayHelper;
  * @property string $text
  * @property string $latitude
  * @property string $longitude
- * @property integer $type
+ * @property string $viewed
+ * @property string $closed
+ * @property string $city
+ * @property integer $trade_type
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -36,6 +39,7 @@ use yii\helpers\ArrayHelper;
  * @property Tag $tag
  * @property Comment[] $comments
  * @property Attachment[] $attachments
+ * @property Report[] $reports
  */
 class Advertisement extends ExtendedActiveRecord
 {
@@ -46,14 +50,12 @@ class Advertisement extends ExtendedActiveRecord
 
     public $category_id;
     public $photo;
-
-    const NOT_DELETED = 10;
-    const DELETED = 0;
+//    public $favorites = 0;
 
     const TYPE_BUY = 1;
     const TYPE_SELL = 2;
-    const TYPE_CHAT = 3;
-    const TYPE_FINANCE = 4;
+    const TYPE_UNVIEWED = 0;
+    const TYPE_VIEWED = 1;
 
     public function behaviors()
     {
@@ -87,11 +89,15 @@ class Advertisement extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['tag_id', 'title', 'text', 'type'], 'required'],
-            [['tag_id', 'type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['tag_id', 'title', 'text', 'trade_type'], 'required'],
+            [['tag_id', 'trade_type', 'closed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text', 'latitude', 'longitude'], 'string'],
-            [['title'], 'string', 'max' => 255],
+            [['city', 'title'], 'string', 'max' => 255],
             [['latitude', 'longitude'], 'string', 'max' => 32],
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+            [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
+            [['viewed'], 'in', 'range' => [self::TYPE_VIEWED, self::TYPE_UNVIEWED]],
+            [['closed'], 'in', 'range' => [0, 1]],
             [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
         ];
     }
@@ -105,7 +111,8 @@ class Advertisement extends ExtendedActiveRecord
             'id' => 'ID',
             'title' => 'Title',
             'text' => 'Text',
-            'type' => 'Type',
+            'city' => 'City',
+            'trade_type' => 'Trade Type',
             'status' => 'Status',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -114,40 +121,194 @@ class Advertisement extends ExtendedActiveRecord
         ];
     }
 
+
+    /**
+     * @return array
+     */
     public function oneFields()
     {
+        return self::getFields($this, [
+            'id',
+            'tag' => function ($model) {
+                /** @var $model Advertisement */
+                return $model->tag->name;
+            },
+            'tag_id',
+            'title',
+            'text',
+            'city',
+            'trade_type',
+            'viewed',
+            'closed',
+            'status',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at',
+            'attachments',
 
-        $result = [
-            'id' => $this->id,
-            'title' => $this->title,
-            'text' => $this->text,
-            'type' => $this->type,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'files' => $this->attachments
-        ];
-        return $result;
+        ]);
     }
 
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Advertisement::className() => [
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return self::getFields($result, ['id',
+                    'tag' => function ($model) {
+                        /** @var $model Advertisement */
+                        return $model->tag->name;
+                    },
+                    'tag_id',
+                    'title',
+                    'text',
+                    'city',
+                    'trade_type',
+                    'viewed',
+                    'closed',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at' => function ($model) {
+                        return date('Y-m-d', $model->created_at);
+                    },
+                    'updated_at',
+                    'attachments',
+                    'favorites',
+                    'msgUnread'
+                ]);
+            case 'v2':
+                return self::responseAll($result, [
                     'id',
                     'title',
                     'text',
-                    'type',
+                    'trade_type',
+                    'viewed',
+                    'status',
+                    'closed',
+                    'category',
+                    'tag',
+                    'count_reports',
+                    'created_by' => function ($model) {
+                        if ($model->creator) {
+                            return User::getFields($model->creator, ['id', 'phone']);
+                        }
+                        return null;
+                    },
                     'created_at',
                     'updated_at',
-                    'created_by',
                     'attachments'
-                ],
-            ]
-        );
+                ]);
+        }
+    }
+
+    public function extraFields()
+    {
+        return [
+            'user' => function ($model) {
+                if ($model->creator) {
+                    return self::getFields($model->creator, [
+                        'name' => 'first_name',
+                        'surname' => 'last_name',
+                        'photo' => 'photoPath'
+                    ]);
+                }
+                return null;
+            },
+            'count_reports' => function ($model) {
+                return (int)$model->getReports()->count();
+            },
+            'attachments' => function ($model) {
+                return [
+                    'attachments' => $model->attachments,
+                    'count' => count($model->attachments),
+                ];
+            },
+            'trade_type' => function ($model) {
+                switch ($model->trade_type) {
+                    case self::TYPE_BUY:
+                        return 'Купівля';
+
+                    case self::TYPE_SELL:
+                        return 'Продаж';
+                }
+                return '';
+            },
+            'category' => function ($model) {
+                return $model->category->name;
+            },
+            'created_at' => function ($model) {
+                return date('d-m-Y', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('d-m-Y', $model->updated_at);
+            },
+        ];
+    }
+
+//    public static function allAdvs($model)
+//    {
+//        $result[] = 0;
+//        $favModel = Favorites::findAll(['table' => 'advertisement', 'created_by' => Yii::$app->user->id]);
+//        foreach ($model as $advOne) {
+//            foreach ($favModel as $favOne) {
+//                if ($advOne['id'] === $favOne['object_id']) {
+//                    $advOne['favorites'] = 1;
+//                }
+//            }
+//            $result[] = $advOne;
+//        }
+//        return $result;
+//    }
+
+    public function getMsgUnread()
+    {
+        return (int)Comment::find()->where([
+            'advertisement_id' => $this->id,
+            'viewed' => Comment::TYPE_UNVIEWED,
+            'status' => Comment::STATUS_ACTIVE
+        ])->count();
+    }
+
+    public static function unreadCount()
+    {
+        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
+            ->where([
+                'advertisement.created_by' => Yii::$app->user->id,
+                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'comment.viewed' => Comment::TYPE_UNVIEWED,
+                'comment.status' => Comment::STATUS_ACTIVE
+            ])
+            ->andFilterWhere(['not in', 'comment.created_by', Yii::$app->user->id])
+            ->count();
+    }
+
+    public static function unreadBuyCount()
+    {
+        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
+            ->where([
+                'advertisement.created_by' => Yii::$app->user->id,
+                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'comment.viewed' => Comment::TYPE_UNVIEWED,
+                'comment.status' => 10,
+                'trade_type' => Advertisement::TYPE_BUY
+            ])->count();
+    }
+
+    public static function unreadSellCount()
+    {
+        return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
+            ->where([
+                'advertisement.created_by' => Yii::$app->user->id,
+                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'comment.viewed' => Comment::TYPE_UNVIEWED,
+                'comment.status' => 10,
+                'trade_type' => Advertisement::TYPE_SELL
+            ])->count();
     }
 
     public function getPhotoPath()
@@ -155,24 +316,17 @@ class Advertisement extends ExtendedActiveRecord
         if ($this->photo) {
             return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
         }
-            return Yii::$app->request->getHostInfo() . '/photo/books/empty_book.jpg';
-
-    }
-
-
-    public function getBuyCount()
-    {
-        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_BUY])->count();
-    }
-
-    public function getSellCount()
-    {
-        return Advertisement::find()->where(['ad_type' => Advertisement::TYPE_SELL])->count();
+        return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
     }
 
     public function getAttachments()
     {
-        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::NOT_DELETED]);
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
+            ->andWhere(['status' => Attachment::STATUS_ACTIVE])
+            ->andOnCondition([
+                'attachment.table' => 'advertisement',
+                'table' => self::tableName()
+            ]);
     }
 
     /**
@@ -184,10 +338,49 @@ class Advertisement extends ExtendedActiveRecord
     }
 
     /**
+     * @return Category
+     */
+    public function getCategory()
+    {
+        return $this->tag->category;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getComments()
     {
         return $this->hasMany(Comment::className(), ['advertisement_id' => 'id']);
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getFavorites()
+    {
+        return (int)(bool)$this->hasMany(Favorites::className(), ['object_id' => 'id'])
+            ->andOnCondition(['table' => $this->formName()])
+            ->andOnCondition(['created_by' => Yii::$app->user->id])->count();
+    }
+
+    public function getReports()
+    {
+        return $this->hasMany(Report::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'report.table' => self::tableName(),
+                'report.status' => self::STATUS_ACTIVE,
+            ]);
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function beforeDelete()
+    {
+        foreach ($this->reports as $report) {
+            $report->delete();
+        }
+        return parent::beforeDelete();
     }
 }

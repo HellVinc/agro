@@ -95,32 +95,15 @@ class Tag extends ExtendedActiveRecord
         ];
     }
 
-    public static function getFields($models, array $attributes = ['id', 'Name', 'category_id']){
-        return ArrayHelper::toArray($models, [Tag::className() => $attributes]);
-    }
-
-    public static function allFields($models)
+    public function fields()
     {
-        return ArrayHelper::toArray($models,
-
-            [
-                Tag::className() => [
-                    'id',
-                    'Name',
-                    'category_id'
-                ],
-            ]
-        );
+        return [
+            'id',
+            'name' => 'Name',
+            'category_id'
+        ];
     }
 
-//    public function fields()
-//    {
-//        return [
-//            'id',
-//            'Name',
-//            'category_id'
-//        ];
-//    }
 
     /**
      * @return string

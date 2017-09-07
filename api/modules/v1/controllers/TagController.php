@@ -5,6 +5,8 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Tag;
 use common\models\search\TagSearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -17,17 +19,52 @@ class TagController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['admin'],
+//
 //                ],
 //            ],
 //        ];
-//    }
+//
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * Lists all Tag models.
@@ -36,8 +73,11 @@ class TagController extends Controller
     public function actionAll()
     {
         $model = new TagSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? Tag::allFields($result) : $model->getErrors();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => Tag::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
     }
 
 //    /**
@@ -78,7 +118,7 @@ class TagController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return [
-                'category' => $model,
+                strtolower($model->getClassName()) => $model
             ];
         } else {
             return ['errors' => $model->errors()];

@@ -2,6 +2,8 @@
 
 namespace common\models\search;
 
+use common\components\traits\dateSearch;
+use common\components\traits\deteHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -12,10 +14,14 @@ use common\models\Offer;
  */
 class OfferSearch extends Offer
 {
+    use deteHelper;
+    use dateSearch;
+
     public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
+    public $description;
 
     /**
      * @inheritdoc
@@ -24,7 +30,8 @@ class OfferSearch extends Offer
     {
         return [
             [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'description'], 'safe'],
+            [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
+            [['text', 'description'], 'safe'], // text = description
         ];
     }
 
@@ -53,7 +60,7 @@ class OfferSearch extends Offer
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => $this->size,
+//                'pageSize' => $this->size,
             ],
             'sort' => [
                 'defaultOrder' => $this->sort
@@ -77,9 +84,10 @@ class OfferSearch extends Offer
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'title', $this->title])
+        $query->andFilterWhere(['like', 'description', $this->text])
             ->andFilterWhere(['like', 'description', $this->description]);
 
+        $this->initDateSearch($query);
         return $dataProvider;
     }
 }

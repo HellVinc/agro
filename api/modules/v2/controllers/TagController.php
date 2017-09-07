@@ -2,12 +2,14 @@
 
 namespace api\modules\v2\controllers;
 
-use Yii;
 use common\models\Tag;
-use common\models\search\TagSearch;
+use Yii;
+use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * TagController implements the CRUD actions for Tag model.
@@ -17,32 +19,47 @@ class TagController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
+    public function behaviors()
+    {
+        return ArrayHelper::merge(parent::behaviors(), [
+            //'authenticator' => [
+            //    'class' => QueryParamAuth::className(),
+            //    'tokenParam' => 'auth_key',
+            //],
+            //'access' => [
+            //    'class' => AccessControl::className(),
+            //    'rules' => [
+            //        [
+            //            'allow' => true,
+            //            'roles' => ['admin'],
+            //        ],
+            //    ],
+            //],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'create' => ['post'],
+                    'update' => ['post'],
+                    'delete' => ['delete'],
+                ],
+            ],
+        ]);
+    }
+
+//    /**
+//     * Lists all Tag models.
+//     * @return mixed
+//     */
+//    public function actionAll()
 //    {
+//        $model = new TagSearch();
+//        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
+//
 //        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
+//            'models' => Tag::allFields($dataProvider->getModels()),
+//            'count_model' => $dataProvider->getTotalCount()
 //        ];
 //    }
-
-    /**
-     * Lists all Tag models.
-     * @return mixed
-     */
-    public function actionAll()
-    {
-        $model = new TagSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get());
-
-        return [
-            'models' => Tag::allFields($dataProvider->getModels()),
-            'count_model' => $dataProvider->getTotalCount()
-        ];
-    }
 
 //    /**
 //     * Displays a single Tag model.
@@ -64,7 +81,7 @@ class TagController extends Controller
         $model = new Tag();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return Tag::allFields($model);
+            return $model->oneFields();
         }
 
         return ['errors' => $model->errors];
@@ -73,17 +90,16 @@ class TagController extends Controller
     /**
      * Updates an existing Tag model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionUpdate($id)
+    public function actionUpdate()
     {
-        $model = $this->findModel($id);
+        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
+
+        $model = $this->findModel($id, true);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model,
-            ];
+            return $model->oneFields();
         } else {
             return ['errors' => $model->errors()];
         }
@@ -104,18 +120,18 @@ class TagController extends Controller
      * Finds the Tag model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
+     * @param bool $ignoreStatus
      * @return Tag the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel($id, $ignoreStatus = false)
     {
         if (($model = Tag::findOne($id)) !== null) {
-            if ($model->status !== 0) {
+            if ($ignoreStatus || $model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
-            }        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            }
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

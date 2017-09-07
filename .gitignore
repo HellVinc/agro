@@ -33,6 +33,3 @@ phpunit.phar
 
 # vagrant runtime
 /.vagrant
-/photo/users/*
-!/photo/users/empty.jpg
-/files/advertisement/*

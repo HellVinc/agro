@@ -5,6 +5,8 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Offer;
 use common\models\search\OfferSearch;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -17,17 +19,64 @@ class OfferController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
-//    }
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'update' => ['post'],
+                'delete' => ['delete'],
+            ],
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * Lists all Favorites models.
+     * @return mixed
+     */
+    public function actionAll()
+    {
+        $model = new OfferSearch();
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => Offer::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
+    }
 
 
     /**
@@ -40,30 +89,29 @@ class OfferController extends Controller
         $model = new Offer();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
-        } else {
+            return $model->oneFields();
+        }
             return ['errors' => $model->errors];
-        }
     }
 
-    /**
-     * Updates an existing Offer model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
+//    /**
+//     * Updates an existing Offer model.
+//     * If update is successful, the browser will be redirected to the 'view' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return [
+//                strtolower($model->getClassName()) => $model
+//            ];
+//        }
+//            return ['errors' => $model->errors()];
+//        }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return [
-                'category' => $model,
-            ];
-        } else {
-            return ['errors' => $model->errors()];
-        }
-    }
 
     /**
      * Finds the Offer model based on its primary key value.

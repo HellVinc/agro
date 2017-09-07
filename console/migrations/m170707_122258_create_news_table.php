@@ -17,6 +17,7 @@ class m170707_122258_create_news_table extends Migration
             'title' => $this->string(255),
             'text' => $this->text(),
             'url' => $this->text(),
+            'type' => $this->integer()->notNull(),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),

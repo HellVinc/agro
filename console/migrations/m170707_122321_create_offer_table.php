@@ -14,8 +14,7 @@ class m170707_122321_create_offer_table extends Migration
     {
         $this->createTable('offer', [
             'id' => $this->primaryKey(),
-            'title' => $this->string(255)->notNull(),
-            'description' => $this->string(255)->notNull(),
+            'text' => $this->string(255)->notNull(),
             'viewed' => $this->smallInteger(1)->defaultValue(0),
             'checked' => $this->smallInteger(1)->defaultValue(0),
             'done' => $this->smallInteger(1)->defaultValue(0),

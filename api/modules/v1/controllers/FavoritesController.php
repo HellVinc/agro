@@ -2,10 +2,15 @@
 
 namespace api\modules\v1\controllers;
 
+use common\models\Log;
 use Yii;
 use common\models\Favorites;
 use common\models\search\FavoritesSearch;
+use yii\behaviors\BlameableBehavior;
+use yii\db\ActiveRecord;
 use yii\db\Query;
+use yii\filters\AccessControl;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -18,39 +23,76 @@ class FavoritesController extends Controller
     /**
      * @inheritdoc
      */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::className(),
+            'tokenParam' => 'auth_key',
+            'only' => [
+                'update',
+                'create',
+//                'delete',
+            ],
+        ];
+//        $behaviors['access'] = [
+//            'class' => AccessControl::className(),
+//            'only' => [
+//                'create',
+//                'update',
+//                'delete',
+//            ],
+//            'rules' => [
+//                [
+//                    'actions' => [
+//                        'create',
+//                        'update',
+//                        'delete',
+//                    ],
+//                    'allow' => true,
+//                    'roles' => ['@'],
+//
 //                ],
 //            ],
 //        ];
-//    }
+
+
+        $behaviors['verbFilter'] = [
+            'class' => VerbFilter::className(),
+            'actions' => [
+                'all' => ['get'],
+                'one' => ['get'],
+                'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * Lists all Favorites models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionAll()
     {
         $model = new FavoritesSearch();
-        $result = $model->searchAll(Yii::$app->request->get());
-        return $result ? Favorites::allFields($result) : $model->getErrors();
-
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
+        return [
+            'models' => Favorites::allFields($dataProvider->getModels()),
+            'count_model' => $dataProvider->getTotalCount()
+        ];
     }
 
-    /**
-     * Displays a single Favorites model.
-     * @return mixed
-     */
-    public function actionView()
-    {
-        $model = $this->findModel(Yii::$app->request->get('id'));
-        return $model->oneFields();
-    }
+//    /**
+//     * Displays a single Favorites model.
+//     * @return mixed
+//     */
+//    public function actionView()
+//    {
+//        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
+//    }
 
     /**
      * Creates a new Favorites model.
@@ -60,41 +102,47 @@ class FavoritesController extends Controller
     public function actionCreate()
     {
         $model = new Favorites();
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $model->id;
-        } else {
-            return ['errors' => $model->errors];
-        }
-    }
-
-    /**
-     * Updates an existing Favorites model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $log = new Log();
+            $log->object_id = $model->id;
+            $log->table = Favorites::tableName();
+            $log->save();
             return [
-                'category' => $model,
+                'id' => $model->object_id,
+                'message' => 'Додано до обраних'
             ];
-        } else {
-            return ['errors' => $model->errors()];
         }
+        return ['message' => 'Вже було додано до обраних'];
+
     }
+
+//    /**
+//     * Updates an existing Favorites model.
+//     * If update is successful, the browser will be redirected to the 'view' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return [
+//                strtolower($model->getClassName()) => $model
+//            ];
+//        }
+//        return ['errors' => $model->errors()];
+//    }
+
 
     /**
      * Deletes an existing Favorites model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
+    public function actionDelete()
     {
-        return $this->findModel($id)->delete(true);
+        $this->findModel(Yii::$app->request->post('id'))->delete();
+        return $this->actionAll();
     }
 
     /**
@@ -109,11 +157,9 @@ class FavoritesController extends Controller
         if (($model = Favorites::findOne($id)) !== null) {
             if ($model->status !== 0) {
                 return $model;
-            } else {
-                throw new NotFoundHttpException('The record was archived.');
             }
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The record was archived.');
         }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

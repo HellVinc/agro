@@ -23,12 +23,20 @@ use yii\helpers\ArrayHelper;
  * @property integer $updated_at
  * @property integer $created_by
  * @property integer $updated_by
+ * @property integer $trade_type
+ * @property integer $category_id
+ *
+ * @property Advertisement $advertisement
+ * @property Room $room
  */
 class Favorites extends ExtendedActiveRecord
 {
     use soft;
     use findRecords;
     use errors;
+
+    public $trade_type;
+    public $category_id;
 
     public function behaviors()
     {
@@ -43,7 +51,10 @@ class Favorites extends ExtendedActiveRecord
             'blameable' => [
                 'class' => BlameableBehavior::className(),
                 'createdByAttribute' => 'created_by',
-                'updatedByAttribute' => 'updated_by'
+                'updatedByAttribute' => 'updated_by',
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_VALIDATE => ['created_by']
+                ]
             ]
         ];
     }
@@ -61,7 +72,9 @@ class Favorites extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['object_id', 'table'], 'required'],
+            [['object_id'], 'required'],
+            ['table', 'string'],
+            [['table', 'object_id', 'created_by'], 'unique', 'targetAttribute' => ['table', 'object_id', 'created_by']],
             [['object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
         ];
     }
@@ -100,15 +113,52 @@ class Favorites extends ExtendedActiveRecord
         return $result;
     }
 
+    /**
+     * @param $result
+     * @return array
+     */
     public static function allFields($result)
     {
-        return ArrayHelper::toArray($result,
-            [
-                Category::className() => [
-                    'id',
-                    'name'
-                ],
-            ]
-        );
+        return self::responseAll($result, [
+            'id',
+            'status',
+            'object' => 'Object',
+            'user' => 'UserInfo',
+            'created_at' => function ($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+        ]);
+    }
+
+    public function getTheme()
+    {
+        switch ($this->table) {
+            case Advertisement::tableName():
+                return $this->advertisement->title;
+            case Room::tableName():
+                return $this->room->title;
+        }
+        return 'Not Found';
+    }
+
+    public function getObject()
+    {
+        switch ($this->table) {
+            case Advertisement::tableName():
+                return Advertisement::allFields(Advertisement::findOne($this->object_id));
+            case Room::tableName():
+                return Room::allFields(Room::findOne($this->object_id));
+        }
+        return 'Not found';
+    }
+
+    public function getAdvertisement()
+    {
+        return $this->hasOne(Advertisement::className(), ['id' => 'object_id']);
+    }
+
+    public function getRoom()
+    {
+        return $this->hasOne(Room::className(), ['id' => 'object_id']);
     }
 }

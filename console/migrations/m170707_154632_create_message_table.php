@@ -14,10 +14,9 @@ class m170707_154632_create_message_table extends Migration
     {
         $this->createTable('message', [
             'id' => $this->primaryKey(),
-            'discussion_id' => $this->integer()->notNull(),
-            'user_id' => $this->integer()->notNull(),
+            'room_id' => $this->integer()->notNull(),
             'text' => $this->text()->notNull(),
-            'checked' => $this->integer()->defaultValue(0)->notNull(),
+            'viewed' => $this->smallInteger()->defaultValue(0),
             'status' => $this->smallInteger(1)->defaultValue(10),
             'created_at' => $this->integer(),
             'updated_at' => $this->integer(),
