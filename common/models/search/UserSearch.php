@@ -16,6 +16,7 @@ class UserSearch extends User
     public $sort = [
         'id' => SORT_ASC,
     ];
+    public $count_reports;
     /**
      * @inheritdoc
      */
