@@ -21,6 +21,7 @@ class OfferSearch extends Offer
     public $sort = [
         'id' => SORT_ASC,
     ];
+    public $description;
 
     /**
      * @inheritdoc

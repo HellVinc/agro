@@ -177,7 +177,6 @@ class UserController extends Controller
         if ($model->load(Yii::$app->request->post(), "")) {
             if ($model->login()) {
                 $result = Yii::$app->user->identity->oneFields();
-                $result['user']['auth_key'] = Yii::$app->user->identity->getAuthKey();
                 return [
                     'model' => $result,
                     'counts' => User::menu(),

@@ -80,7 +80,7 @@ class Attachment extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return $this->responseOne([
+        return self::getFields($this, [
             'id',
             'object_id',
             'table',

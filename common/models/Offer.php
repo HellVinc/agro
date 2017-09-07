@@ -120,7 +120,7 @@ class Offer extends ExtendedActiveRecord
     {
         switch (\Yii::$app->controller->module->id) {
             case 'v1':
-                return $this->responseOne([
+                return self::getFields($this, [
                     'id',
                     'text',
                     'status',
@@ -130,10 +130,10 @@ class Offer extends ExtendedActiveRecord
                         return date('Y-m-d', $model->created_at);
                     },
                     'updated_at',
-                ]);
+                ])[0];
 
             case 'v2':
-                return $this->responseOne([
+                return self::getFields($this, [
                     'id',
                     'description',
                     'created_at',

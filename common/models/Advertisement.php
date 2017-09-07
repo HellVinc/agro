@@ -269,7 +269,7 @@ class Advertisement extends ExtendedActiveRecord
     {
         return (int)Comment::find()->where([
             'advertisement_id' => $this->id,
-            'viewed' => Comment::UNVIEWED,
+            'viewed' => Comment::TYPE_UNVIEWED,
             'status' => Comment::STATUS_ACTIVE
         ])->count();
     }
@@ -280,7 +280,7 @@ class Advertisement extends ExtendedActiveRecord
             ->where([
                 'advertisement.created_by' => Yii::$app->user->id,
                 'advertisement.status' => Advertisement::STATUS_ACTIVE,
-                'comment.viewed' => Comment::UNVIEWED,
+                'comment.viewed' => Comment::TYPE_UNVIEWED,
                 'comment.status' => Comment::STATUS_ACTIVE
             ])
             ->andFilterWhere(['not in', 'comment.created_by', Yii::$app->user->id])
@@ -293,7 +293,7 @@ class Advertisement extends ExtendedActiveRecord
             ->where([
                 'advertisement.created_by' => Yii::$app->user->id,
                 'advertisement.status' => Advertisement::STATUS_ACTIVE,
-                'comment.viewed' => Comment::UNVIEWED,
+                'comment.viewed' => Comment::TYPE_UNVIEWED,
                 'comment.status' => 10,
                 'trade_type' => Advertisement::TYPE_BUY
             ])->count();
@@ -305,7 +305,7 @@ class Advertisement extends ExtendedActiveRecord
             ->where([
                 'advertisement.created_by' => Yii::$app->user->id,
                 'advertisement.status' => Advertisement::STATUS_ACTIVE,
-                'comment.viewed' => Comment::UNVIEWED,
+                'comment.viewed' => Comment::TYPE_UNVIEWED,
                 'comment.status' => 10,
                 'trade_type' => Advertisement::TYPE_SELL
             ])->count();

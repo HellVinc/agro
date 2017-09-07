@@ -21,6 +21,7 @@ class RoomSearch extends Room
     public $sort = [
         'id' => SORT_ASC,
     ];
+    public $description;
 
     /**
      * @inheritdoc

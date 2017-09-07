@@ -166,9 +166,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function getPhotoPath()
     {
         if ($this->photo) {
-            return 'http://3fd17122.ngrok.io' . '/photo/user/' . $this->id . '/' . $this->photo;
+            return Yii::$app->request->hostInfo . '/photo/user/' . $this->id . '/' . $this->photo;
         }
-        return 'http://3fd17122.ngrok.io' . '/photo/user/empty.jpg';
+        return Yii::$app->request->hostInfo . '/photo/user/empty.jpg';
 
     }
 
@@ -233,21 +233,21 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         switch (Yii::$app->controller->module->id) {
             case 'v1':
-                return $this->responseOne([
-                    'id',
-                    'role',
-                    'phone',
-                    'photo',
-                    'auth_key',
-                    'first_name',
-                    'second_name',// middle_name
-                    'last_name',
-                    'created_at',
-                    'updated_at',
+                return  [
+                    'id' => $this->id,
+                    'role' => $this->role,
+                    'phone' => $this->getPhone(),
+                    'photo' =>$this->photoPath,
+                    'auth_key' => $this->auth_key,
+                    'first_name' => $this->first_name,
+                    'middle_name' => $this->middle_name,// middle_name
+                    'last_name' => $this->last_name,
+                    'created_at' =>$this->created_at,
+                    'updated_at' => $this->updated_at,
                     'rating' => $this->getRating()
-                ]);
+                ];
             case 'v2':
-                return $this->responseOne([
+                return self::getFields($this, [
                     'id',
                     //'role',
                     'phone',

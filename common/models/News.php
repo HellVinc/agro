@@ -118,21 +118,19 @@ class News extends ExtendedActiveRecord
 
     public function oneFields()
     {
-
-        $result = [
-            'id' => $this->id,
-            'title' => $this->title,
-            'text' => $this->text,
-            'url' => 'http://3fd17122.ngrok.io/files/skFHvafJvs0.jpg',
-            'type' => $this->type,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'img' => $this->getPhotoPath()
-        ];
-        return $result;
+        return self::getFields($this, [
+            'id',
+            'title',
+            'text',
+            'url',
+            'type',
+            'status',
+            'created_by',
+            'updated_by',
+            'created_at',
+            'updated_at',
+            'img',
+        ])[0];
     }
 
     public static function allFields($result)
@@ -150,7 +148,7 @@ class News extends ExtendedActiveRecord
                     'resource_url' => function ($model) {
                         /** @var $model News */
                         $url = parse_url($model->url);
-                        return Yii::$app->formatter->asUrl($url['scheme'] . '://' . $url['host']);
+                        return $url['scheme'] . '://' . $url['host'];
                     }
                 ]);
 

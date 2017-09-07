@@ -24,6 +24,7 @@ class AdvertisementSearch extends Advertisement
         'id' => SORT_DESC,
     ];
     public $phone;
+    public $count_reports;
 
     /**
      * @inheritdoc
