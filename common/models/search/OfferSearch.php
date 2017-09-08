@@ -80,8 +80,10 @@ class OfferSearch extends Offer
             'updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'description', $this->text])
-            ->andFilterWhere(['like', 'description', $this->description]);
+        $query->andFilterWhere(['or',
+            ['like', 'text', $this->text],
+            ['like', 'text', $this->description],
+        ]);
 
         $this->initDateSearch($query);
         return $dataProvider;

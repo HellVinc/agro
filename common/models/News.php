@@ -27,6 +27,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $created_by
  * @property integer $updated_by
  * @property integer $photo
+ * @property Attachment attachment
  */
 class News extends ExtendedActiveRecord
 {
@@ -109,10 +110,10 @@ class News extends ExtendedActiveRecord
 
     public function getPhotoPath()
     {
-        if ($this->photo) {
-            return Yii::$app->request->getHostInfo() . '/files/news/' . $this->id . '/' . $this->photo;
+        if ($this->attachment) {
+            return $this->attachment->getFilePath();
         }
-        return Yii::$app->request->getHostInfo() . '/photo/users/empty.jpg';
+        return Yii::$app->request->getHostInfo() . '/photo/user/empty.jpg';
 
     }
 

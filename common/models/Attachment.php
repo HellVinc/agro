@@ -116,13 +116,15 @@ class Attachment extends ExtendedActiveRecord
             'created_at' => function($model) {
                 return date('Y-m-d', $model->created_at);
             },
+            'url' => 'filePath',
         ];
     }
 
     public function fields()
     {
-        $this->url  = $this->filePath;
-        return parent::fields();
+        return [
+            'url' => 'filePath',
+        ];
     }
 
     public static function uploadFiles($id, $table)

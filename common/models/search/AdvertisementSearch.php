@@ -104,10 +104,10 @@ class AdvertisementSearch extends Advertisement
             'advertisement.updated_by' => $this->updated_by,
         ]);
 
-        $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'text', $this->text])
-            ->andFilterWhere(['like', 'latitude', $this->latitude])
-            ->andFilterWhere(['like', 'longitude', $this->longitude])
+        $query->andFilterWhere(['like', 'advertisement.title', $this->title])
+            ->andFilterWhere(['like', 'advertisement.text', $this->text])
+            ->andFilterWhere(['like', 'advertisement.latitude', $this->latitude])
+            ->andFilterWhere(['like', 'advertisement.longitude', $this->longitude])
             ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
 
         if (!empty($this->count_reports)) {

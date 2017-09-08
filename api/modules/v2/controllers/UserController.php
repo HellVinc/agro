@@ -91,13 +91,16 @@ class UserController extends Controller
             return ['error' => 'You are not an admin'];
         }
 
-        return Yii::$app->user->identity->responseOne([
-            'id',
-            'photo',
-            'auth_key',
-            'first_name',
-            'second_name',
-        ]);
+        return [
+            'model' => Yii::$app->user->identity->responseOne([
+                'id',
+                'photo',
+                'auth_key',
+                'first_name',
+                'second_name',
+            ])[0],
+            'counts' => User::v2_counts(),
+        ];
     }
 
     /**

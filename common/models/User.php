@@ -14,6 +14,7 @@ use common\components\traits\findRecords;
 
 use common\components\UploadBase;
 use common\components\UploadModel;
+use common\models\search\RoomSearch;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\BlameableBehavior;
@@ -388,6 +389,115 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         $result['services'] = News::find()
             ->where(['status' => News::STATUS_ACTIVE, 'type' => News::TYPE_SERVICES])->count();
         return $result;
+    }
+
+    public static function v2_counts()
+    {
+        $result = [];
+
+        // User
+
+        $result['user_all'] = (int) (new Query())
+            ->from(User::tableName())->count();
+
+        $result['user_normal'] = (int) (new Query())
+            ->from(User::tableName())
+            ->where(['status' => self::STATUS_ACTIVE])
+            ->count();
+
+        $result['user_reported'] = (int) (new Query())
+            ->from(User::tableName())
+            ->having(['>', 'count_reports', '0'])
+            ->addSelect('user.id, COUNT(report.id) AS count_reports')
+            ->from(User::tableName())
+            ->leftJoin('report', 'report.object_id = user.id AND report.status = 10 AND report.table = "user"')
+            ->addGroupBy('user.id')
+            ->count();
+
+        // Advertisement (post)
+
+        $result['post_all'] = (int) (new Query())
+            ->from(Advertisement::tableName())->count();
+
+        $result['post_not_viewed'] = (int) (new Query())
+            ->from(Advertisement::tableName())->where([
+                'status' => self::STATUS_ACTIVE,
+                'viewed' => Advertisement::TYPE_UNVIEWED,
+            ])->count();
+
+        $result['post_reported'] = (int) (new Query())
+            ->from(Advertisement::tableName())
+            ->having(['>', 'count_reports', '0'])
+            ->addSelect('advertisement.id, COUNT(report.id) AS count_reports')
+            ->from(Advertisement::tableName())
+            ->leftJoin( 'report', 'report.object_id = advertisement.id AND report.status = 10 AND report.table = "advertisement"')
+            ->addGroupBy('advertisement.id')
+            ->count();
+
+        $result['post_deleted'] = (int) (new Query())
+            ->from(Advertisement::tableName())
+            ->where(['status' => self::STATUS_DELETED])
+            ->count();
+
+        // chat_room
+
+        $result['room_all'] = (int) (new Query())
+            ->from(Room::tableName())->count();
+
+        $result['room_not_viewed'] = (int) (new Query())
+            ->from(Room::tableName())->where([
+                'status' => self::STATUS_ACTIVE,
+                'viewed' => Advertisement::TYPE_UNVIEWED,
+            ])->count();
+
+        $result['room_deleted'] = (int) (new Query())
+            ->from(Room::tableName())
+            ->where(['status' => self::STATUS_DELETED])
+            ->count();
+
+        // Other
+
+        $result['category_all'] = (int) (new Query())
+            ->from(Category::tableName())->count();
+
+        $result['tag_all'] = (int) (new Query())
+            ->from(Tag::tableName())->count();
+
+        $result['news_all'] = (int) (new Query())
+            ->where(['status' => News::TYPE_NEWS])
+            ->from(News::tableName())->count();
+
+        $result['ads_all'] = (int) (new Query())
+            ->where(['status' => News::TYPE_SERVICES])
+            ->from(News::tableName())->count();
+
+        $result['offers_all'] = (int) (new Query())
+            ->from(Offer::tableName())->count();
+
+        return [
+            'user' => [
+                'all' => $result['user_all'],
+                'normal' => $result['user_normal'],
+                'reported' => $result['user_reported'],
+                'deleted' => $result['user_all'] - $result['user_normal'],
+            ],
+            'post' => [
+                'all' => $result['post_all'],
+                'not_viewed' => $result['post_not_viewed'],
+                'reported' => $result['post_not_viewed'],
+                'deleted' => $result['post_deleted'],
+            ],
+            'room' => [
+                'all' => $result['room_all'],
+                'not_viewed' => $result['room_not_viewed'],
+                'deleted' => $result['room_deleted'],
+            ],
+            'category' => $result['category_all'],
+            'tag' => $result['tag_all'],
+            'news' => $result['news_all'],
+            'ads' => $result['ads_all'],
+            'offers' => $result['offers_all'],
+        ];
     }
 
     /**
