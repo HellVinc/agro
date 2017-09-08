@@ -169,7 +169,7 @@ class Room extends ExtendedActiveRecord
 
     public function getMsgUnread()
     {
-        return (int)Message::find()->where(['room_id' => $this->id, 'viewed' => Comment::TYPE_UNVIEWED])->count();
+        return (int) Message::find()->where(['room_id' => $this->id, 'message.viewed' => Message::TYPE_UNVIEWED])->count();
     }
 
     /**
