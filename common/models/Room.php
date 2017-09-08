@@ -101,6 +101,18 @@ class Room extends ExtendedActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'created_at' => function ($model) {
+                return date('Y-m-d', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('Y-m-d', $model->updated_at);
+            },
+        ];
+    }
+
     /**
      * @return array
      */
@@ -108,22 +120,17 @@ class Room extends ExtendedActiveRecord
     {
         switch (\Yii::$app->controller->module->id) {
             case 'v1':
-                return self::getFields($this, ['id',
+                return self::getFields($this, [
+                    'id',
                     'category_id',
                     'title',
                     'text',
                     'status',
                     'user' => 'UserInfo',
-                    'created_at' => function ($model) {
-                        /** @var $model Room */
-                        return date('Y-m-d', $model->created_at);
-                    },
                     'updated_at',
                 ]);
             case 'v2':
-                return self::responseAll($this, [
-
-                ]);
+                return self::getFields($this, []);
         }
     }
 
@@ -142,10 +149,7 @@ class Room extends ExtendedActiveRecord
                     'text',
                     'status',
                     'user' => 'UserInfo',
-                    'created_at' => function ($model) {
-                        /** @var $model Room */
-                        return date('Y-m-d', $model->created_at);
-                    },
+                    'created_at',
                     'updated_at',
                     'favorites',
                     'msgUnread'
@@ -153,7 +157,12 @@ class Room extends ExtendedActiveRecord
 
             case 'v2':
                 return self::responseAll($result, [
-
+                    'id',
+                    'category_id',
+                    'title',
+                    'text',
+                    'status',
+                    'created_at',
                 ]);
         }
     }
