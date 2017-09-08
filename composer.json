@@ -17,30 +17,25 @@
         "php": ">=5.4.0",
         "yiisoft/yii2": "~2.0.6",
         "yiisoft/yii2-bootstrap": "~2.0.0",
-        "yiisoft/yii2-swiftmailer": "~2.0.0",
-        "cboden/ratchet": "^0.3.6",
-        "kop/yii2-turbosms": "dev-master"
+        "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
         "yiisoft/yii2-gii": "~2.0.0",
         "yiisoft/yii2-faker": "~2.0.0",
-        "codeception/codeception": "2.1.*",
-        "codeception/specify": "*",
         "codeception/base": "^2.2.3",
         "codeception/verify": "~0.3.1",
+        "cboden/ratchet": "^0.3.6",
+        "kop/yii2-turbosms": "dev-master",
         "react/zmq": "0.2.*|0.3.*"
     },
     "config": {
         "process-timeout": 1800
     },
-        "extra": {
-            "asset-installer-paths": {
-                "npm-asset-library": "vendor/npm",
-                "bower-asset-library": "vendor/bower"
-            }
-        },
-        "scripts": {
-            "post-install-cmd": "php init --env=Development --overwrite=n"
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
         }
-    }
+    ]
+}
