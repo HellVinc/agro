@@ -95,6 +95,16 @@ class Message extends ExtendedActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'created_at' => function ($model) {
+                /** @var $model Message */
+                return date('Y-m-d', $model->created_at);
+            },
+        ];
+    }
+
     /**
      * @return array
      */
@@ -107,10 +117,7 @@ class Message extends ExtendedActiveRecord
             'viewed',
             'status',
             'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                /** @var $model Message */
-                return date('Y-m-d', $model->created_at);
-            },
+            'created_at',
             'updated_at',
             'attachments'
         ]);
@@ -122,21 +129,41 @@ class Message extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        return self::responseAll($result, [
-            'id',
-            'room_id',
-            'text',
-            'viewed',
-            'status',
-            'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                /** @var $model Message */
-                return date('Y-m-d', $model->created_at);
-            },
-            'updated_at',
-            'created_by',
-            'attachments'
-        ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                /*return self::responseAll($result, [
+                    'id',
+                    'room_id',
+                    'text',
+                    'viewed',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at',
+                    'updated_at',
+                    'created_by',
+                    'attachments'
+                ]);*/
+            case 'v2':
+                return self::getFields($result, [
+                    'id',
+                    'room_id',
+                    'text',
+                    'viewed',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at',
+                    'updated_at',
+                    'created_by' => function ($model) {
+                        return User::getFields($model->creator, [
+                            'id',
+                            'phone',
+                            'first_name',
+                            'last_name',
+                        ]);
+                    },
+                    'attachments'
+                ]);
+        }
     }
 
     /**

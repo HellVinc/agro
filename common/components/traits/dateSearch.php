@@ -5,6 +5,8 @@ use yii\db\ActiveQuery;
 
 trait dateSearch
 {
+    use dateHelper;
+
     public $date_from;
     public $date_to;
 
@@ -19,14 +21,14 @@ trait dateSearch
      */
     public function initDateSearch(ActiveQuery $query)
     {
-        $this->created_from = $this->strToTs($this->created_from);
-        $this->created_to = $this->strToTs($this->created_to);
+        $this->created_from = $this->strToTsAM($this->created_from);
+        $this->created_to   = $this->strToTsPM($this->created_to);
 
-        $this->updated_from = $this->strToTs($this->updated_from);
-        $this->updated_to = $this->strToTs($this->updated_to);
+        $this->updated_from = $this->strToTsAM($this->updated_from);
+        $this->updated_to   = $this->strToTsPM($this->updated_to);
 
-        $this->date_from = $this->strToTs($this->date_from);
-        $this->date_to = $this->strToTs($this->date_to);
+        $this->date_from = $this->strToTsAM($this->date_from);
+        $this->date_to   = $this->strToTsPM($this->date_to);
 
 
         if (!empty($this->date_from)) {

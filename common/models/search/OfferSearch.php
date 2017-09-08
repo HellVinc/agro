@@ -3,7 +3,6 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
-use common\components\traits\deteHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -14,7 +13,6 @@ use common\models\Offer;
  */
 class OfferSearch extends Offer
 {
-    use deteHelper;
     use dateSearch;
 
     public $size = 10;
@@ -46,8 +44,6 @@ class OfferSearch extends Offer
 
     /**
      * Creates data provider instance with search query applied
-     *
-     * @param array $params
      *
      * @return ActiveDataProvider
      */

@@ -3,7 +3,6 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
-use common\components\traits\deteHelper;
 use common\models\Tag;
 use Yii;
 use yii\base\Model;
@@ -16,7 +15,6 @@ use common\models\User;
  */
 class AdvertisementSearch extends Advertisement
 {
-    use deteHelper;
     use dateSearch;
 
     public $size = 10;

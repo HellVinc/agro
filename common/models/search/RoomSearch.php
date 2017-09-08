@@ -3,7 +3,6 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
-use common\components\traits\deteHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -14,7 +13,6 @@ use common\models\Room;
  */
 class RoomSearch extends Room
 {
-    use deteHelper;
     use dateSearch;
 
     public $size = 10;
