@@ -225,6 +225,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'second_name' => 'middle_name',
             'photo' => 'photoPath',
             'count_reports' => function ($model) {
+                /** @var User $model */
                 return (int)$model->getReports()->count();
             },
         ];
@@ -484,7 +485,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             'post' => [
                 'all' => $result['post_all'],
                 'not_viewed' => $result['post_not_viewed'],
-                'reported' => $result['post_not_viewed'],
+                'reported' => $result['post_reported'],
                 'deleted' => $result['post_deleted'],
             ],
             'room' => [
