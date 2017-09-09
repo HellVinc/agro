@@ -140,7 +140,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function signup()
     {
         $this->setPassword($this->password);
-        $this->generateAuthKey();
+        // $this->generateAuthKey();
         $this->save();
         return $this;
     }
@@ -401,9 +401,14 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         $result['user_all'] = (int) (new Query())
             ->from(User::tableName())->count();
 
-        $result['user_normal'] = (int) (new Query())
+        $result['user_active'] = (int) (new Query())
             ->from(User::tableName())
             ->where(['status' => self::STATUS_ACTIVE])
+            ->count();
+
+        $result['user_deleted'] = (int) (new Query())
+            ->from(User::tableName())
+            ->where(['status' => self::STATUS_DELETED])
             ->count();
 
         $result['user_reported'] = (int) (new Query())
@@ -478,9 +483,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return [
             'user' => [
                 'all' => $result['user_all'],
-                'normal' => $result['user_normal'],
+                'active' => $result['user_active'],
                 'reported' => $result['user_reported'],
-                'deleted' => $result['user_all'] - $result['user_normal'],
+                'deleted' => $result['user_deleted'], //$result['user_all'] - $result['user_active'],
             ],
             'post' => [
                 'all' => $result['post_all'],
@@ -530,6 +535,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
      *
      * @param string $password password to validate
      * @return bool if password provided is valid for current user
+     * @throws \yii\base\InvalidParamException
      */
     public function validatePassword($password)
     {
@@ -538,16 +544,20 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     /**
      * Generates password hash from password and sets it to the model
+     * And change Auth Key
      *
      * @param string $password
+     * @throws \yii\base\Exception
      */
     public function setPassword($password)
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        $this->generateAuthKey();
     }
 
     /**
      * Generates "remember me" authentication key
+     * @throws \yii\base\Exception
      */
     public function generateAuthKey()
     {
@@ -556,6 +566,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     /**
      * Generates new password reset token
+     * @throws \yii\base\Exception
      */
     public function generatePasswordResetToken()
     {

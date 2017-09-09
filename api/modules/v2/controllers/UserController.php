@@ -86,7 +86,7 @@ class UserController extends Controller
             return ['error' => 'Invalid username or password'];
         }
 
-        if (Yii::$app->user->identity->role != User::ROLE_ADMIN) {
+        if (Yii::$app->user->identity->role !== User::ROLE_ADMIN) {
             Yii::$app->user->logout();
             return ['error' => 'You are not an admin'];
         }
