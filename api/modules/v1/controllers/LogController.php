@@ -28,34 +28,6 @@ class LogController extends Controller
                 'all'
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => [
-//                        '@'
-//                    ],
-//                ],
-//                [
-//                    'actions' => [
-//                        'create',
-//
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['admin'],
-//
-//                ],
-//            ],
-//        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),

@@ -5,6 +5,7 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Message;
 use common\models\search\MessageSearch;
+use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -27,40 +28,36 @@ class MessageController extends Controller
             'tokenParam' => 'auth_key',
             'only' => [
                 'all',
-                'update',
                 'create',
                 'delete',
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
-//                ],
-//            ],
-//        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'all',
+                'create',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => ['client', 'admin'],
+                ],
+            ],
+        ];
 
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
             'actions' => [
                 'all' => ['get'],
-                'one' => ['get'],
                 'create' => ['post'],
-                'update' => ['post'],
                 'delete' => ['post'],
             ],
         ];
@@ -88,14 +85,6 @@ class MessageController extends Controller
 
     }
 
-//    /**
-//     * Displays a single Message model.
-//     * @return mixed
-//     */
-//    public function actionOne()
-//    {
-//        return $this->findModel(Yii::$app->request->get('id'))->oneFields();
-//    }
 
     /**
      * Creates a new Message model.
@@ -116,22 +105,6 @@ class MessageController extends Controller
         }
         return ['errors' => $model->errors];
     }
-
-//    /**
-//     * Updates an existing Message model.
-//     * If update is successful, the browser will be redirected to the 'view' page.
-//     * @param integer $id
-//     * @return mixed
-//     */
-//    public function actionUpdate($id)
-//    {
-//        $model = $this->findModel($id);
-//
-//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-//            return $model->oneFields();
-//        }
-//        return ['errors' => $model->errors()];
-//    }
 
     /**
      * Deletes an existing Message model.
