@@ -29,6 +29,8 @@ class SocketController extends \yii\console\Controller
 
     public function actionStartSocket($port=8080)
     {
+        set_time_limit(0);
+        ignore_user_abort(true);
         $loop   = Factory::create();
         $pusher = new SocketServer();
 
@@ -53,5 +55,27 @@ class SocketController extends \yii\console\Controller
         );
 
         $loop->run();
+    }
+    public function actionStopSocket()
+    {
+        $loop   = Factory::create();
+
+        $webSock = new Server($loop);
+        $webSock->shutdown();
+
+        $pusher = new SocketServer();
+
+        $webServer = new IoServer(
+            new HttpServer(
+                new WsServer(
+                    new WampServer(
+                        $pusher
+                    )
+                )
+            ),
+            $webSock
+        );
+
+        $loop->stop();
     }
 }

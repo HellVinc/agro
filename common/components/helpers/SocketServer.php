@@ -30,23 +30,6 @@ class SocketServer implements WampServerInterface
         echo "New subscription to {$topic}\n";
     }
 
-//    public function onNewMessage($entry)
-//    {
-//
-//        $entryData = json_decode($entry, true);
-//
-//        // If the lookup topic object isn't set there is no one to publish to
-//        if (!array_key_exists($entryData['room_id'], $this->subscribedTopics)) {
-//            return;
-//        }
-//
-//        $topic = $this->subscribedTopics[$entryData['room_id']];
-//
-//        // re-send the data to all the clients subscribed to that category
-//        $topic->broadcast($entryData);
-//
-//
-//    }
 
     public function onUnSubscribe(ConnectionInterface $conn, $topic)
     {

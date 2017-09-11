@@ -14,15 +14,26 @@ class RbacController extends Controller
         $rule = new UserRoleRule();
         $auth->add($rule);
         //Добавляем роли
+        $client_new = $auth->createRole('client_new');
+        $client_new->ruleName = $rule->name;
+        $auth->add($client_new);
+
         $client = $auth->createRole('client');
-        $client->description = 'Client';
         $client->ruleName = $rule->name;
         $auth->add($client);
+
+        $client_blocked = $auth->createRole('client_blocked');
+        $client_blocked->ruleName = $rule->name;
+        $auth->add($client_blocked);
+
         //Добавляем потомков
         $admin = $auth->createRole('admin');
-        $admin->description = 'Admin';
         $admin->ruleName = $rule->name;
         $auth->add($admin);
+
         $auth->addChild($admin, $client);
+        $auth->addChild($client, $client_new);
+
+
     }
 }

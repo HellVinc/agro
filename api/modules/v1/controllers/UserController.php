@@ -166,7 +166,10 @@ class UserController extends Controller
         $model = new User();
         $model->scenario = 'signUp';
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            return $model->signup();
+            return [
+               'model' => $model->signup(),
+                'counts' => User::menu()
+            ];
         }
         return $model->errors;
     }

@@ -106,7 +106,7 @@ class Message extends ExtendedActiveRecord
             'text',
             'viewed',
             'status',
-            'user' => 'UserInfo',
+           // 'user' => 'UserInfo',
             'created_at' => function ($model) {
                 /** @var $model Message */
                 return date('Y-m-d', $model->created_at);

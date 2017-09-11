@@ -92,7 +92,7 @@ class Rating extends ExtendedActiveRecord
 
     public function oneFields()
     {
-        return self::getFields($this, [
+        return [self::getFields($this, [
                 'id',
                 'rating',
                 'text',
@@ -103,7 +103,7 @@ class Rating extends ExtendedActiveRecord
                     /** @var $model Rating */
                     return date('Y-m-d', $model->created_at);
                 },
-            ]);
+            ]),][0];
     }
 
     /**
