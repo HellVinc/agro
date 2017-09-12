@@ -97,11 +97,22 @@ class Tag extends ExtendedActiveRecord
 
     public function fields()
     {
-        return [
-            'id',
-            'name' => 'Name',
-            'category_id'
-        ];
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return [
+                    'id',
+                    'name' => 'Name',
+                    'category_id'
+                ];
+
+            case 'v2':
+                return [
+                    'id',
+                    'name' => 'Name',
+                    'category_id',
+                    'status'
+                ];
+        }
     }
 
 

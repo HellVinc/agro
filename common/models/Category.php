@@ -38,7 +38,7 @@ class Category extends ExtendedActiveRecord
     const TYPE_TRADE = 1;
     const TYPE_CHAT = 2;
 
-    const DEF_F = ['id', 'Name', 'category_id'];
+//    const DEF_F = ['id', 'Name', 'category_id'];
 
     /**
      * @inheritdoc
@@ -120,7 +120,7 @@ class Category extends ExtendedActiveRecord
             'name' => 'Name',
             'tags' => function ($model) {
                 /** @var $model Category */
-                return Tag::getFields($model->tags, self::DEF_F);
+                return Tag::getFields($model->tags);
                 // return $model->getTags()->select('name')->column();
             },
             'created_at' => function($model) {
