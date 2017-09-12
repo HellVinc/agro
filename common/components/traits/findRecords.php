@@ -2,7 +2,6 @@
 
 namespace common\components\traits;
 
-use Yii;
 use yii\debug\models\timeline\DataProvider;
 
 trait findRecords
@@ -11,20 +10,20 @@ trait findRecords
 
     /**
      * @param null $request
+     * @param bool $all
      * @return DataProvider
      */
-    public function searchAll($request = null)
+    public function searchAll($request = null, $all = false)
     {
-        $this->status = 10;
-        if ($request && (!$this->load([soft::lastNameClass(static::className()) => $request]) || !$this->validate())) {
+        if ($request && (!$this->load([$this->formName() => $request]) || !$this->validate())) {
             return null;
         }
-        return $this->search();
-//        return [
-//            'models' => $models,
-////            'count_page' => $dataProvider->pagination->pageCount,
-//            'count_model' => $dataProvider->getTotalCount()
-//        ];
 
+        //if ($onlyActive || $this->status === null) {
+        if (!$all) {
+            $this->status = self::STATUS_ACTIVE;
+        }
+
+        return $this->search();
     }
 }

@@ -46,5 +46,6 @@ return [
             ]
         ]
     ],
+    'params' => $params,
 ];
 
