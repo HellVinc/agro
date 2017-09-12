@@ -119,6 +119,29 @@ class UserController extends Controller
                 $model->setStatus($post['status']);
             }
 
+
+            if (array_key_exists('blocked', $post)) {
+                $post['blocked'] = (int) $post['blocked'];
+
+                if ($model->role !== User::ROLE_ADMIN) {
+                    switch ($model['role']) {
+                        case User::ROLE_ADMIN:
+                            break;
+                        case User::ROLE_CLIENT:
+                        case User::ROLE_CLIENT_NEW:
+                            if ($post['blocked']) {
+                                $model->role = User::ROLE_CLIENT_BLOCKED;
+                            }
+                            break;
+                        case User::ROLE_CLIENT_BLOCKED:
+                            if (!$post['blocked']) {
+                                $model->role = $model->isUserEmpty ? User::ROLE_CLIENT_NEW : User::ROLE_CLIENT;
+                            }
+                            break;
+                    }
+                }
+            }
+
 //             if ($post['password'] && $model->validate(['password'])) {
 //                 $model->setPassword($post['password']);
 //

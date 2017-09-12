@@ -17,6 +17,7 @@ class UserSearch extends User
         'id' => SORT_ASC,
     ];
     public $count_reports;
+    public $blocked;
     /**
      * @inheritdoc
      */
@@ -25,7 +26,7 @@ class UserSearch extends User
         return [
             [['id', 'phone', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['first_name', 'middle_name', 'last_name'], 'safe'],
-            ['count_reports', 'in', 'range' => [0,1]],
+            [['count_reports', 'blocked'], 'in', 'range' => [0,1]],
         ];
     }
 
@@ -68,6 +69,10 @@ class UserSearch extends User
         $query->leftJoin('report', 'report.object_id = user.id AND report.status = 10 AND report.table = "user"');
         $query->addGroupBy('user.id');
 
+        if (null !== $this->blocked) {
+            $query->andFilterWhere([$this->blocked ? '=' : '!=', 'user.role', self::ROLE_CLIENT_BLOCKED]);
+        }
+
         // grid filtering conditions
         $query->andFilterWhere([
             'user.id' => $this->id,
@@ -86,6 +91,7 @@ class UserSearch extends User
         if (!empty($this->count_reports)) {
             $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
         }
+
         return $dataProvider;
     }
 }

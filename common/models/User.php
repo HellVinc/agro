@@ -15,6 +15,7 @@ use common\components\traits\findRecords;
 use common\components\UploadBase;
 use common\components\UploadModel;
 use common\models\search\RoomSearch;
+use phpDocumentor\Reflection\Types\Boolean;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\BlameableBehavior;
@@ -52,6 +53,7 @@ use yii\web\IdentityInterface;
  * @property mixed photoDir
  *
  * @property Report reports
+ * @property Boolean isUserEmpty
  */
 class User extends ExtendedActiveRecord implements IdentityInterface
 {
@@ -163,7 +165,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function getPhone()
     {
-        return '+380' . $this->phone;
+        return $this->phone;
     }
 
     public function getPhotoPath()
@@ -173,6 +175,14 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         }
         return 'http://agro.grassbusinesslabs.tk' . '/photo/user/empty.jpg';
 
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsUserEmpty()
+    {
+        return empty($this->first_name) || empty($this->last_name) || empty($this->photo);
     }
 
     public function getPhotoDir()
@@ -230,6 +240,10 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                 /** @var User $model */
                 return (int)$model->getReports()->count();
             },
+            'blocked' => function ($model) {
+                /** @var User $model */
+                return (int)((int)$model->role === self::ROLE_CLIENT_BLOCKED);
+            },
         ];
     }
 
@@ -253,7 +267,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             case 'v2':
                 return self::getFields($this, [
                     'id',
-                    //'role',
+                    'role',
+                    'blocked',
                     'phone',
                     'photo',
                     'first_name',
@@ -287,7 +302,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                     'first_name',
                     'last_name',
                     'count_reports',
-                    //'role',
+                    'role',
+                    'blocked',
                     'photo',
                     'phone',
                     'status',
