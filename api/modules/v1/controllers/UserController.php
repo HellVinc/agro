@@ -37,40 +37,46 @@ class UserController extends Controller
             'class' => QueryParamAuth::className(),
             'tokenParam' => 'auth_key',
             'only' => [
-                'check',
+                'all',
+                'one',
+                'pass-reset',
+                'create',
+                'add-feedback',
                 'update',
                 'delete',
-                'add-feedback'
+                'check',
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => [
-//                        '@'
-//                    ],
-//                ],
-//                [
-//                    'actions' => [
-//                        'create',
-//
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['admin'],
-//
-//                ],
-//            ],
-//        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'create',
+                'update',
+                'add-feedback',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'update',
+                        'delete',
+                        'add-feedback'
+                    ],
+                    'allow' => true,
+                    'roles' => [
+                        'client'
+                    ],
+                ],
+                [
+                    'actions' => [
+                        'create',
+                    ],
+                    'allow' => true,
+                    'roles' => ['admin'],
+
+                ],
+            ],
+        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
@@ -166,7 +172,10 @@ class UserController extends Controller
         $model = new User();
         $model->scenario = 'signUp';
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            return $model->signup();
+            return [
+               'model' => $model->signup(),
+                'counts' => User::menu()
+            ];
         }
         return $model->errors;
     }

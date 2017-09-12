@@ -131,7 +131,7 @@ class Message extends ExtendedActiveRecord
     {
         switch (\Yii::$app->controller->module->id) {
             case 'v1':
-                /*return self::responseAll($result, [
+                return self::responseAll($result, [
                     'id',
                     'room_id',
                     'text',
@@ -142,7 +142,7 @@ class Message extends ExtendedActiveRecord
                     'updated_at',
                     'created_by',
                     'attachments'
-                ]);*/
+                ]);
             case 'v2':
                 return self::getFields($result, [
                     'id',

@@ -5,6 +5,7 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Rating;
 use common\models\search\RatingSearch;
+use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -22,30 +23,39 @@ class RatingController extends Controller
             'class' => QueryParamAuth::className(),
             'tokenParam' => 'auth_key',
             'only' => [
+                'all',
                 'create',
+                'update',
+                'delete'
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
-//                ],
-//            ],
-//        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => ['client', 'admin'],
+                ],
+            ],
+        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
             'actions' => [
+                'all' => ['get'],
                 'create' => ['post'],
+                'update' => ['post'],
+                'delete' => ['post'],
             ],
         ];
 
@@ -64,16 +74,6 @@ class RatingController extends Controller
             'models' => Rating::allFields($dataProvider->getModels()),
             'count_model' => $dataProvider->getTotalCount()
         ];
-    }
-
-    /**
-     * Displays a single Rating model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->findModel($id)->oneFields();
     }
 
     /**

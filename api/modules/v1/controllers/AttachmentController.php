@@ -7,6 +7,7 @@ use common\models\Advertisement;
 use Yii;
 use common\models\Attachment;
 use common\models\search\AttachmentSearch;
+use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -29,31 +30,31 @@ class AttachmentController extends Controller
             'tokenParam' => 'auth_key',
             'only' => [
                 'all',
+                'one',
                 'update',
                 'create',
                 'delete',
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
-//                ],
-//            ],
-//        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => ['client', 'admin'],
+                ],
+            ],
+        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),

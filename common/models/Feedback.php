@@ -103,7 +103,7 @@ class Feedback extends ExtendedActiveRecord
                 },
                 'updated_at',
             ]),
-        ];
+        ][0];
     }
 
     /**

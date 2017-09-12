@@ -5,6 +5,7 @@ namespace api\modules\v1\controllers;
 use Yii;
 use common\models\Report;
 use common\models\search\ReportSearch;
+use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -31,32 +32,30 @@ class ReportController extends Controller
                 'delete',
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
-//                ],
-//            ],
-//        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => ['client', 'admin'],
+                ],
+            ],
+        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
             'actions' => [
                 'all' => ['get'],
-                'one' => ['get'],
                 'create' => ['post'],
                 'update' => ['post'],
                 'delete' => ['post'],
@@ -81,16 +80,6 @@ class ReportController extends Controller
             'page_count' => $dataProvider->pagination->pageCount,
             'page' => $dataProvider->pagination->page + 1
         ];
-    }
-
-    /**
-     * Displays a single Report model.
-     * @return mixed
-     */
-    public function actionOne()
-    {
-        $model = $this->findModel(Yii::$app->request->get('id'));
-        return $model->oneFields();
     }
 
     /**

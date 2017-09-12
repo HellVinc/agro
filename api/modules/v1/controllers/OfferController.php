@@ -26,31 +26,25 @@ class OfferController extends Controller
             'class' => QueryParamAuth::className(),
             'tokenParam' => 'auth_key',
             'only' => [
-                'update',
+                'all',
                 'create',
-                'delete',
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
-//                ],
-//            ],
-//        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'create',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                    ],
+                    'allow' => true,
+                    'roles' => ['client', 'admin'],
+                ],
+            ],
+        ];
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
@@ -105,23 +99,6 @@ class OfferController extends Controller
         return ['errors' => $model->errors];
     }
 
-//    /**
-//     * Updates an existing Offer model.
-//     * If update is successful, the browser will be redirected to the 'view' page.
-//     * @param integer $id
-//     * @return mixed
-//     */
-//    public function actionUpdate($id)
-//    {
-//        $model = $this->findModel($id);
-//
-//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-//            return [
-//                strtolower($model->getClassName()) => $model
-//            ];
-//        }
-//            return ['errors' => $model->errors()];
-//        }
 
 
     /**

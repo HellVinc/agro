@@ -6,6 +6,7 @@ use common\models\User;
 use Yii;
 use common\models\Room;
 use common\models\search\RoomSearch;
+use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -32,33 +33,31 @@ class RoomController extends Controller
                 'delete',
             ],
         ];
-//        $behaviors['access'] = [
-//            'class' => AccessControl::className(),
-//            'only' => [
-//                'create',
-//                'update',
-//                'delete',
-//            ],
-//            'rules' => [
-//                [
-//                    'actions' => [
-//                        'create',
-//                        'update',
-//                        'delete',
-//                    ],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//
-//                ],
-//            ],
-//        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => [
+                'update',
+                'create',
+                'delete',
+            ],
+            'rules' => [
+                [
+                    'actions' => [
+                        'create',
+                        'update',
+                        'delete',
+                    ],
+                    'allow' => true,
+                    'roles' => ['client', 'admin'],
+                ],
+            ],
+        ];
 
 
         $behaviors['verbFilter'] = [
             'class' => VerbFilter::className(),
             'actions' => [
                 'all' => ['get'],
-                'one' => ['get'],
                 'create' => ['post'],
                 'update' => ['post'],
                 'delete' => ['post'],

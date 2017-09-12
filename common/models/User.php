@@ -69,6 +69,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     const ROLE_ADMIN = 1;
     const ROLE_CLIENT = 2;
+    const ROLE_CLIENT_BLOCKED = 3;
+    const ROLE_CLIENT_NEW = 4;
 
     /**
      * @inheritdoc
@@ -167,9 +169,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function getPhotoPath()
     {
         if ($this->photo) {
-            return Yii::$app->request->hostInfo . '/photo/user/' . $this->id . '/' . $this->photo;
+            return 'http://agro.grassbusinesslabs.tk' . '/photo/user/' . $this->id . '/' . $this->photo;
         }
-        return Yii::$app->request->hostInfo . '/photo/user/empty.jpg';
+        return 'http://agro.grassbusinesslabs.tk' . '/photo/user/empty.jpg';
 
     }
 
