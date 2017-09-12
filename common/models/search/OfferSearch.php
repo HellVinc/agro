@@ -3,6 +3,7 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
+use common\models\User;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -20,6 +21,9 @@ class OfferSearch extends Offer
         'id' => SORT_ASC,
     ];
     public $description;
+    public $phone;
+    public $first_name;
+    public $last_name;
 
     /**
      * @inheritdoc
@@ -29,7 +33,7 @@ class OfferSearch extends Offer
         return [
             [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
-            [['text', 'description'], 'safe'], // text = description
+            [['text', 'description', 'phone', 'first_name', 'last_name'], 'safe'], // text = description
         ];
     }
 
@@ -61,7 +65,7 @@ class OfferSearch extends Offer
             'sort' => [
                 'defaultOrder' => $this->sort
             ],
-        ]);;
+        ]);
 
 
         if (!$this->validate()) {
@@ -70,15 +74,22 @@ class OfferSearch extends Offer
             return $dataProvider;
         }
 
+        $query->leftJoin(User::tableName(), 'user.id = offer.created_by');
+
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
+            'offer.id' => $this->id,
+            'offer.status' => $this->status,
+            'offer.created_at' => $this->created_at,
+            'offer.updated_at' => $this->updated_at,
+            'offer.created_by' => $this->created_by,
+            'offer.updated_by' => $this->updated_by,
         ]);
+
+        $query
+            ->andFilterWhere(['like', 'user.phone', $this->phone])
+            ->andFilterWhere(['like', 'user.first_name', $this->first_name])
+            ->andFilterWhere(['like', 'user.last_name', $this->last_name]);
 
         $query->andFilterWhere(['or',
             ['like', 'text', $this->text],
