@@ -6,6 +6,11 @@ use yii\helpers\Html;
 
 ?>
 <div class="offer">
-    <h1>The Agro received a new offer:</h1>
+    <b>
+        <?= Html::encode($offer->creator->first_name . ' ' . $offer->creator->last_name) ?>,
+        <?= Html::encode($offer->creator->Phone) ?>
+    </b>
+    <p><?= date('d.m.Y H:i', $offer->created_at) ?></p>
+    <hr>
     <pre><?= Html::encode($offer->text) ?></pre>
 </div>

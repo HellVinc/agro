@@ -1,10 +1,12 @@
 <?php
-use yii\helpers\Html;
-
 /* @var $this yii\web\View */
 /* @var $offer common\models\Offer */
 
+echo $offer->creator->first_name .' '. $offer->creator->last_name .', '. $offer->creator->Phone;
 ?>
-The Agro received a new offer:
+
+<?= date('d.m.Y H:i', $offer->created_at) ?>
+
+----------------------------
 
 <?= $offer->text ?>
