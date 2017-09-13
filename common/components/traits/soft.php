@@ -82,20 +82,14 @@ trait soft
 
     public function getUserInfo()
     {
-        $user = User::findOne($this->created_by);
-        if ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->first_name,
-                'surname' => $user->last_name,
-                'photo' => $user->photoPath,
-                'phone' => $user->getPhone()
-            ];
-        }
+        $user = $this->creator ?: new User();
+
         return [
-            'name' => null,
-            'surname' => null,
-            'photo' => $user->photoPath
+            'id' => $user->id,
+            'name' => $user->first_name,
+            'surname' => $user->last_name,
+            'photo' => $user->photoPath,
+            'phone' => $user->Phone
         ];
     }
 

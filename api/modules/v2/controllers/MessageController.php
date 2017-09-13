@@ -70,9 +70,9 @@ class MessageController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
-        } else {
-            return ['errors' => $model->errors];
         }
+
+        return ['errors' => $model->errors];
     }
 
     /**

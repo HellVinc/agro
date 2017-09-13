@@ -102,6 +102,7 @@ class Message extends ExtendedActiveRecord
                 /** @var $model Message */
                 return date('Y-m-d', $model->created_at);
             },
+            'user' => 'userInfo',
         ];
     }
 
@@ -116,10 +117,10 @@ class Message extends ExtendedActiveRecord
             'text',
             'viewed',
             'status',
-            'user' => 'UserInfo',
+            'user',
             'created_at',
             'updated_at',
-            'attachments'
+            'attachments',
         ]);
     }
 
@@ -137,31 +138,23 @@ class Message extends ExtendedActiveRecord
                     'text',
                     'viewed',
                     'status',
-                    'user' => 'UserInfo',
+                    'user',
                     'created_at',
                     'updated_at',
                     'created_by',
-                    'attachments'
+                    'attachments',
                 ]);
             case 'v2':
-                return self::getFields($result, [
+                return self::responseAll($result, [
                     'id',
                     'room_id',
                     'text',
                     'viewed',
                     'status',
-                    'user' => 'UserInfo',
                     'created_at',
                     'updated_at',
-                    'created_by' => function ($model) {
-                        return User::getFields($model->creator, [
-                            'id',
-                            'phone',
-                            'first_name',
-                            'last_name',
-                        ]);
-                    },
-                    'attachments'
+                    'created_by' => 'userInfo',
+                    'attachments',
                 ]);
         }
     }

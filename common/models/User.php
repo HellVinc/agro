@@ -48,7 +48,7 @@ use yii\web\IdentityInterface;
  * @property  $image_file
  * @property  $extension
  *
- * @property  $photoPath
+ * @property string $photoPath
  * @property Rating[] $ratings
  * @property mixed photoDir
  *
@@ -171,9 +171,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     public function getPhotoPath()
     {
         if ($this->photo) {
-            return 'http://agro.grassbusinesslabs.tk' . '/photo/user/' . $this->id . '/' . $this->photo;
+            return Yii::$app->request->hostInfo . '/photo/user/' . $this->id . '/' . $this->photo;
         }
-        return 'http://agro.grassbusinesslabs.tk' . '/photo/user/empty.jpg';
+        return Yii::$app->request->hostInfo . '/photo/user/empty.jpg';
 
     }
 
