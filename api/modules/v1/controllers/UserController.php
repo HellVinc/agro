@@ -39,7 +39,6 @@ class UserController extends Controller
             'only' => [
                 'all',
                 'one',
-                'pass-reset',
                 'create',
                 'add-feedback',
                 'update',
@@ -64,7 +63,7 @@ class UserController extends Controller
                     ],
                     'allow' => true,
                     'roles' => [
-                        'client'
+                        'client', 'client_new'
                     ],
                 ],
                 [
@@ -214,11 +213,6 @@ class UserController extends Controller
     {
         $model = User::findOne(['auth_key' => Yii::$app->request->get('auth_key')]);
         if ($model->load( Yii::$app->request->post())) {
-            if($_FILES){
-                $file = new UploadModel(['scenario' => UploadModel::ONE_FILE]);
-                $file->imageFile = UploadedFile::getInstanceByName('file');
-                $model->photo = $file->upload($model->id, 'photo/user');
-            }
             $model->image_file = Yii::$app->request->post('file');
             $model->saveUpdate();
             return $model->oneFields();
@@ -226,16 +220,16 @@ class UserController extends Controller
         return ['errors' => $model->errors];
     }
 
-    /**
-     * Deletes an existing Advertisement model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionDelete($id)
-    {
-        return $this->findModel($id)->delete();
-    }
+//    /**
+//     * Deletes an existing Advertisement model.
+//     * If deletion is successful, the browser will be redirected to the 'index' page.
+//     * @param integer $id
+//     * @return mixed
+//     */
+//    public function actionDelete($id)
+//    {
+//        return $this->findModel($id)->delete();
+//    }
 
 
     protected function findModel($id)

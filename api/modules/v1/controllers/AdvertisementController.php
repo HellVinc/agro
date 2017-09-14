@@ -17,6 +17,7 @@ use common\models\Advertisement;
 use common\models\search\AdvertisementSearch;
 use yii\filters\AccessControl;
 use yii\filters\auth\QueryParamAuth;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -80,7 +81,12 @@ class AdvertisementController extends Controller
 //
 //    public function actionTest()
 //    {
-//        return Advertisement::unreadCount();
+//        $model = Advertisement::findAll(['trade_type' => 2]);
+//        return ArrayHelper::toArray($model, [
+//            Advertisement::className() => [
+//                'id'
+//            ]
+//        ]);
 //    }
 
 

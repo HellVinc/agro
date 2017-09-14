@@ -26,7 +26,6 @@ use common\components\traits\findRecords;
  * @property integer $updated_by
  *
  * @property Tag[] $tags
- * @property Room[] $rooms
  * @property Advertisement[] $advertisementsBuy
 
  */
@@ -200,7 +199,6 @@ class Category extends ExtendedActiveRecord
                 }
                 break;
         }
-
         return parent::beforeDelete();
     }
 }

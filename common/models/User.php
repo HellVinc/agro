@@ -157,6 +157,9 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         if ($this->image_file) {
             return $this->savePhoto();
         }
+        if ($this->getIsUserEmpty()){
+            $this->role = User::ROLE_CLIENT;
+        }
         if ($this->save()) {
             return $this;
         }
@@ -185,6 +188,14 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return empty($this->first_name) || empty($this->last_name) || empty($this->photo);
     }
 
+    /**
+     * @return bool
+     */
+    public function getIsUserEmpty()
+    {
+        return empty($this->first_name) || empty($this->last_name) || empty($this->photo);
+    }
+
     public function getPhotoDir()
     {
         return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;
@@ -192,7 +203,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function savePhoto()
     {
-        $result = UploadModel::uploadBase($this->image_file, $this->id, 'photo/user');
+        $result = UploadModel::uploadBase($this->image_file, $this->id, '/photo/user/');
         if (!$result) {
             return $this->addError('error', 'Image not saved');
         }
@@ -294,7 +305,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                     'role',
                     'photoPath',
                     'phone',
-                    'rating'
+                    'rating',
+                    'IsUserEmpty'
                 ]);
             case 'v2':
                 return self::responseAll($result, [

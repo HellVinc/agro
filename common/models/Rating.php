@@ -111,7 +111,7 @@ class Rating extends ExtendedActiveRecord
                     /** @var $model Rating */
                     return date('Y-m-d', $model->created_at);
                 },
-            ]),][0];
+            ])][0];
     }
 
     /**
