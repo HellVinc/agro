@@ -74,7 +74,15 @@ class Tag extends ExtendedActiveRecord
             [['category_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['name', 'category_id'], 'unique', 'targetAttribute' => ['name', 'category_id']],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
+            [['category_id'], 'exist',
+                'filter' => [
+                    'category_type' => Category::TYPE_TRADE,
+                    'status' => self::STATUS_ACTIVE,
+                ], 'targetClass' => Category::className(),
+                'targetAttribute' => [
+                    'category_id' => 'id',
+                ]
+            ],
         ];
     }
 

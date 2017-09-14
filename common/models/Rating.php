@@ -67,9 +67,17 @@ class Rating extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['user_id'], 'required'],
-            [['rating', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            ['text', 'string']
+            [['rating', 'user_id'], 'required'],
+            [['rating', 'user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['text'], 'string'],
+            [['user_id'], 'exist',
+                'filter' => [
+                    'status' => self::STATUS_ACTIVE,
+                ], 'targetClass' => User::className(),
+                'targetAttribute' => [
+                    'user_id' => 'id',
+                ]
+            ],
         ];
     }
 

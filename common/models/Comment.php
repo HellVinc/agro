@@ -72,7 +72,14 @@ class Comment extends ExtendedActiveRecord
             [['advertisement_id', 'viewed', 'status'], 'integer'],
             [['text', 'advertisement_id'], 'required'],
             [['text'], 'string'],
-            [['advertisement_id'], 'exist', 'skipOnError' => true, 'targetClass' => Advertisement::className(), 'targetAttribute' => ['advertisement_id' => 'id']],
+            [['advertisement_id'], 'exist',
+                'filter' => [
+                    'status' => self::STATUS_ACTIVE,
+                ], 'targetClass' => Advertisement::className(),
+                'targetAttribute' => [
+                    'advertisement_id' => 'id',
+                ]
+            ],
         ];
     }
 

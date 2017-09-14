@@ -98,7 +98,14 @@ class Advertisement extends ExtendedActiveRecord
             [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],
             [['viewed'], 'in', 'range' => [self::TYPE_VIEWED, self::TYPE_UNVIEWED]],
             [['closed'], 'in', 'range' => [0, 1]],
-            [['tag_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tag::className(), 'targetAttribute' => ['tag_id' => 'id']],
+            [['tag_id'], 'exist',
+                'filter' => [
+                    'status' => self::STATUS_ACTIVE,
+                ], 'targetClass' => Tag::className(),
+                'targetAttribute' => [
+                    'tag_id' => 'id',
+                ]
+            ],
         ];
     }
 
