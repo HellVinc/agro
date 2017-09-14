@@ -488,11 +488,11 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ->from(Tag::tableName())->count();
 
         $result['news_all'] = (int) (new Query())
-            ->where(['status' => News::TYPE_NEWS])
+            ->where(['type' => News::TYPE_NEWS])
             ->from(News::tableName())->count();
 
         $result['ads_all'] = (int) (new Query())
-            ->where(['status' => News::TYPE_SERVICES])
+            ->where(['type' => News::TYPE_SERVICES])
             ->from(News::tableName())->count();
 
         $result['offers_all'] = (int) (new Query())
