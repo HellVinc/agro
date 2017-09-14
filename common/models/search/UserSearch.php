@@ -14,7 +14,7 @@ class UserSearch extends User
 {
     public $size = 10;
     public $sort = [
-        'id' => SORT_ASC,
+        'id' => SORT_DESC,
     ];
     public $count_reports;
     public $blocked;

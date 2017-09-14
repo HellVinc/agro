@@ -14,7 +14,7 @@ class NewsSearch extends News
 {
     public $size = 10;
     public $sort = [
-        'id' => SORT_ASC,
+        'id' => SORT_DESC,
     ];
     /**
      * @inheritdoc

@@ -18,7 +18,7 @@ class OfferSearch extends Offer
 
     public $size = 10;
     public $sort = [
-        'id' => SORT_ASC,
+        'id' => SORT_DESC,
     ];
     public $description;
     public $phone;

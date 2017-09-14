@@ -14,7 +14,7 @@ class FeedbackSearch extends Feedback
 {
     public $size = 10;
     public $sort = [
-        'id' => SORT_ASC,
+        'id' => SORT_DESC,
     ];
 
     /**

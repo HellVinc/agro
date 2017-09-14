@@ -17,7 +17,7 @@ class MessageSearch extends Message
 
     public $size = 100;
     public $sort = [
-        'id' => SORT_ASC,
+        'id' => SORT_DESC,
     ];
     /**
      * @inheritdoc
