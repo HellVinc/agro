@@ -95,7 +95,7 @@ trait soft
         return [
             'name' => null,
             'surname' => null,
-            'photo' => $user->photoPath
+            'photo' => 'http://agro.grassbusinesslabs.tk' . '/photo/user/empty.jpg'
         ];
     }
 

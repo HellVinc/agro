@@ -119,7 +119,7 @@ class Comment extends ExtendedActiveRecord
         return [
             'date' => 'created_at',
             'avatar' => function ($model) {
-                return $model->getCreator()->photoPath;
+                return User::findOne(['id' => $this->created_by])->photoPath;
             },
             'user' => function ($model) {
                 $user = $model->creator;
@@ -139,6 +139,7 @@ class Comment extends ExtendedActiveRecord
                 return self::responseAll($result, [
                     'id',
                     'text',
+                    'advertisement_id',
                     'viewed',
                     'created_at' => function($model){
                     return date('Y-m-d', $model->created_at);
@@ -178,7 +179,7 @@ class Comment extends ExtendedActiveRecord
             $advertisement = Advertisement::findOne($model['advertisement_id']);
             if($advertisement->created_by === Yii::$app->user->id){
                 $comment = Comment::findOne($model['id']);
-                $comment->viewed = Comment::VIEWED;
+                $comment->viewed = Comment::TYPE_VIEWED;
                 $comment->save();
             }
         }

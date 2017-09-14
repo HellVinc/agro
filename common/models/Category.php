@@ -164,7 +164,7 @@ class Category extends ExtendedActiveRecord
      */
     public function getName()
     {
-        return '#'.$this->name;
+        return $this->name;
     }
 
     /**

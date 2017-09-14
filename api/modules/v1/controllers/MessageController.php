@@ -96,11 +96,11 @@ class MessageController extends Controller
         $model = new Message();
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && $model->checkFiles() && !$model->getErrors()) {
-//            $context = new \ZMQContext();
-//            $socket = $context->getSocket(\ZMQ::SOCKET_PUSH, $model->created_by);
-//            $socket->connect("tcp://localhost:5555");
-//
-//            $socket->send(json_encode($model));
+
+            $context = new \ZMQContext();
+            $socket = $context->getSocket(\ZMQ::SOCKET_PUSH, $model->created_by);
+            $socket->connect("tcp://localhost:5555");
+            $socket->send(json_encode($model->toArray()));
             return $model->oneFields();
         }
         return ['errors' => $model->errors];

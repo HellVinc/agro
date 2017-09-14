@@ -74,7 +74,7 @@ class Offer extends ExtendedActiveRecord
         return [
             [['text'], 'required'],
             [['viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['title', 'text'], 'string', 'max' => 255],
+            [['text'], 'string', 'max' => 255],
             [['status'], 'default', 'value' => self::STATUS_ACTIVE],
             [['status'], 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['viewed'], 'default', 'value' => self::TYPE_UNVIEWED],

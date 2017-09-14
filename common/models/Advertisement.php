@@ -127,7 +127,7 @@ class Advertisement extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return self::getFields($this, [
+        return [
             'id',
             'tag' => function ($model) {
                 /** @var $model Advertisement */
@@ -148,7 +148,7 @@ class Advertisement extends ExtendedActiveRecord
             'updated_at',
             'attachments',
 
-        ]);
+        ];
     }
 
     /**
