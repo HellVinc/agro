@@ -388,6 +388,11 @@ class Advertisement extends ExtendedActiveRecord
         foreach ($this->reports as $report) {
             $report->delete();
         }
+
+        foreach ($this->comments as $comment) {
+            $comment->delete();
+        }
+
         return parent::beforeDelete();
     }
 }

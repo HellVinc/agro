@@ -26,6 +26,7 @@ use common\components\traits\findRecords;
  * @property integer $updated_by
  *
  * @property Tag[] $tags
+ * @property Room[] $rooms
  * @property Advertisement[] $advertisementsBuy
 
  */
@@ -172,7 +173,7 @@ class Category extends ExtendedActiveRecord
      */
     public function getTags()
     {
-        return $this->hasMany(Tag::className(), ['category_id' => 'id']);
+        return $this->hasMany(Tag::className(), ['category_id' => 'id'])->andOnCondition(['tag.status' => self::STATUS_ACTIVE]);
     }
 
     public function getRooms()
@@ -181,16 +182,25 @@ class Category extends ExtendedActiveRecord
     }
 
     /**
-     * Delete rooms in category
+     * Delete rooms/tags in category
+     * @throws \Exception
      */
     public function beforeDelete()
     {
-        if ($this->category_type == self::TYPE_CHAT) {
-            foreach ($this->rooms as $room) {
-                $room->delete();
-            }
+        switch ($this->category_type) {
+            case self::TYPE_CHAT:
+                foreach ($this->rooms as $room) {
+                    $room->delete();
+                }
+                break;
+
+            case self::TYPE_TRADE:
+                foreach ($this->tags as $tag) {
+                    $tag->delete();
+                }
+                break;
         }
+
         return parent::beforeDelete();
     }
-
 }

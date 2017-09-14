@@ -147,4 +147,16 @@ class Tag extends ExtendedActiveRecord
     {
         return $this->hasOne(Category::className(), ['id' => 'category_id']);
     }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function beforeDelete()
+    {
+        foreach ($this->advertisements as $adv) {
+            $adv->delete();
+        }
+        return parent::beforeDelete();
+    }
 }

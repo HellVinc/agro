@@ -177,7 +177,8 @@ class Attachment extends ExtendedActiveRecord
                 }
             return $this;
         }
-            return self::uploadOne($model->id, $model->tableName());
+
+        return self::uploadOne($model->id, $model->tableName());
     }
 
     public static function removeWithParent($all)
@@ -223,4 +224,6 @@ class Attachment extends ExtendedActiveRecord
             'updated_by' => 'Updated By',
         ];
     }
+
+
 }
