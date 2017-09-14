@@ -188,14 +188,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         return empty($this->first_name) || empty($this->last_name) || empty($this->photo);
     }
 
-    /**
-     * @return bool
-     */
-    public function getIsUserEmpty()
-    {
-        return empty($this->first_name) || empty($this->last_name) || empty($this->photo);
-    }
-
     public function getPhotoDir()
     {
         return dirname(Yii::getAlias('@app')) . '/photo/users/' . $this->id . '/' . $this->photo;

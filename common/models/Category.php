@@ -172,12 +172,12 @@ class Category extends ExtendedActiveRecord
      */
     public function getTags()
     {
-        return $this->hasMany(Tag::className(), ['category_id' => 'id'])->andOnCondition(['tag.status' => self::STATUS_ACTIVE]);
+        return $this->hasMany(Tag::className(), ['category_id' => 'id']);//->andOnCondition(['tag.status' => self::STATUS_ACTIVE]);
     }
 
     public function getRooms()
     {
-        return $this->hasMany(Room::className(), ['category_id' => 'id'])->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
+        return $this->hasMany(Room::className(), ['category_id' => 'id']);//->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
     }
 
     /**
