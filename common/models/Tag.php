@@ -129,7 +129,12 @@ class Tag extends ExtendedActiveRecord
      */
     public function getName()
     {
-        return '#'.$this->name;
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return '#' . $this->name;
+            case 'v2':
+                return $this->name;
+        }
     }
 
     /**
