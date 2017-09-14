@@ -88,7 +88,7 @@ class UserSearch extends User
             ->andFilterWhere(['like', 'middle_name', $this->middle_name])
             ->andFilterWhere(['like', 'last_name', $this->last_name]);
 
-        if (!empty($this->count_reports)) {
+        if (null !== $this->count_reports) {
             $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
         }
 

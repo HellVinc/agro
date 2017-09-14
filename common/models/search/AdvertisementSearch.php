@@ -110,7 +110,7 @@ class AdvertisementSearch extends Advertisement
             ->andFilterWhere(['like', 'advertisement.longitude', $this->longitude])
             ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
 
-        if (!empty($this->count_reports)) {
+        if (null !== $this->count_reports) {
             $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
         }
 
