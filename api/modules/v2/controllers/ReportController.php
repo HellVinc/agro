@@ -71,34 +71,36 @@ class ReportController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
-        } else {
-            return ['errors' => $model->errors];
         }
+
+        return ['errors' => $model->errors];
     }
 
     /**
      * Updates an existing Report model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionUpdate()
     {
-        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
-
+        $id = Yii::$app->request->get('id') ?: Yii::$app->request->post('id');
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
-        } else {
-            return ['errors' => $model->errors()];
         }
+
+        return ['errors' => $model->errors()];
     }
 
     /**
      * Deletes an existing Report model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
+     * @param $id
      * @return mixed
+     * @throws \Exception
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionDelete($id)
     {

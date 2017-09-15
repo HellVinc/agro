@@ -81,6 +81,8 @@ class CommentController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
      * @return mixed
+     * @throws \Exception
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionDelete($id)
     {

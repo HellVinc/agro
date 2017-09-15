@@ -55,7 +55,7 @@ class CategoryController extends Controller
     public function actionAll()
     {
         $model = new CategorySearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
+        $dataProvider = $model->searchAll(Yii::$app->request->get());
 
         return Category::allFields($dataProvider);
     }
@@ -81,27 +81,27 @@ class CategoryController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
-        } else {
-            return ['errors' => $model->errors];
         }
+
+        return ['errors' => $model->errors];
     }
 
     /**
      * Updates an existing Category model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionUpdate()
     {
-        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
-
+        $id = Yii::$app->request->get('id') ?: Yii::$app->request->post('id');
         $model = $this->findModel($id, true);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
-        } else {
-            return ['errors' => $model->errors()];
         }
+
+        return ['errors' => $model->errors()];
     }
 
     /**
@@ -109,6 +109,8 @@ class CategoryController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
      * @return mixed
+     * @throws \Exception
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionDelete($id)
     {

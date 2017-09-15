@@ -75,10 +75,22 @@ class TagController extends Controller
      * Creates a new Tag model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionCreate()
     {
+        $post = Yii::$app->request->post();
         $model = new Tag();
+        $modelFind = Tag::findOne([
+            'name' => $post['name'],
+            'category_id' => $post['category_id'],
+            'status' => Tag::STATUS_DELETED,
+        ]);
+
+        if ($modelFind) {
+            $modelFind->status = Tag::STATUS_ACTIVE;
+            $model = $modelFind;
+        }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
@@ -91,18 +103,18 @@ class TagController extends Controller
      * Updates an existing Tag model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionUpdate()
     {
-        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
-
+        $id = Yii::$app->request->get('id') ?: Yii::$app->request->post('id');
         $model = $this->findModel($id, true);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $model->oneFields();
-        } else {
-            return ['errors' => $model->errors()];
         }
+
+        return ['errors' => $model->errors()];
     }
 
     /**
@@ -110,10 +122,12 @@ class TagController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
+     * @throws \Exception
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionDelete($id)
     {
-        return $this->findModel($id)->delete(true);
+        return $this->findModel($id)->delete();
     }
 
     /**

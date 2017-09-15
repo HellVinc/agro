@@ -106,11 +106,11 @@ class UserController extends Controller
     /**
      * Updates an existing User model.
      * @return mixed
+     * @throws \yii\web\NotFoundHttpException
      */
    public function actionUpdate()
     {
-        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
-
+        $id = Yii::$app->request->get('id') ?: Yii::$app->request->post('id');
         $model = $this->findModel($id, true);
         $post = Yii::$app->request->post();
 
@@ -118,7 +118,6 @@ class UserController extends Controller
             if (array_key_exists('status', $post)) {
                 $model->setStatus($post['status']);
             }
-
 
             if (array_key_exists('blocked', $post)) {
                 $post['blocked'] = (int) $post['blocked'];
@@ -142,10 +141,9 @@ class UserController extends Controller
                 }
             }
 
-//             if ($post['password'] && $model->validate(['password'])) {
-//                 $model->setPassword($post['password']);
-//
-//             }
+            // if ($post['password'] && $model->validate(['password'])) {
+            //     $model->setPassword($post['password']);
+            // }
 
             // if ($post['phone'] && preg_match('/^((?:(?:\+?3)?8)?0)\d{9}$/', $post['phone'])) {
             //     // remove +380
@@ -156,14 +154,15 @@ class UserController extends Controller
         if (array_key_exists('status', $post) && $model->save($post)) {//  && $model->saveModel() && $model->checkFiles()
             return $model->oneFields();
         }
-        return ['errors' => $model->errors];
 
+        return ['errors' => $model->errors];
     }
 
     /**
      * Deletes the reports associated with the current model
      * @param integer $id
      * @return mixed
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionDeleteReports($id)
     {
@@ -180,6 +179,8 @@ class UserController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
      * @return mixed
+     * @throws \Exception
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionDelete($id)
     {

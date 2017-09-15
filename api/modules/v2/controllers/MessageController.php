@@ -59,11 +59,11 @@ class MessageController extends Controller
         return Message::allFields($dataProvider);
     }
 
-//    /**
-//     * Creates a new Message model.
-//     * If creation is successful, the browser will be redirected to the 'view' page.
-//     * @return mixed
-//     */
+    /**
+     * Creates a new Message model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
     public function actionCreate()
     {
         $model = new Message();
@@ -79,11 +79,11 @@ class MessageController extends Controller
      * Updates an existing Message model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionUpdate()
     {
-        $id = Yii::$app->request->get('id') ? Yii::$app->request->get('id') : Yii::$app->request->post('id');
-
+        $id = Yii::$app->request->get('id') ?: Yii::$app->request->post('id');
         $model = $this->findModel($id, true);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
@@ -98,6 +98,8 @@ class MessageController extends Controller
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param $id
      * @return mixed
+     * @throws \Exception
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionDelete($id)
     {
