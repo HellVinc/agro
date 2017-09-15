@@ -123,6 +123,7 @@ class Attachment extends ExtendedActiveRecord
     public function fields()
     {
         return [
+            'id',
             'url' => 'filePath',
         ];
     }
@@ -168,18 +169,18 @@ class Attachment extends ExtendedActiveRecord
         return $this->save();
     }
 
-    public function saveModel($model)
-    {
-        if (is_array($_FILES)) {
-                $file = self::uploadOne($model->id, $model->tableName());
-                if ($file && $file->getErrors()) {
-                    return $file;
-                }
-            return $this;
-        }
-
-        return self::uploadOne($model->id, $model->tableName());
-    }
+//    public function saveModel($model)
+//    {
+//        if (is_array($_FILES)) {
+//                $file = self::uploadOne($model->id, $model->tableName());
+//                if ($file && $file->getErrors()) {
+//                    return $file;
+//                }
+//            return $this;
+//        }
+//
+//        return self::uploadOne($model->id, $model->tableName());
+//    }
 
     public static function removeWithParent($all)
     {
@@ -224,6 +225,4 @@ class Attachment extends ExtendedActiveRecord
             'updated_by' => 'Updated By',
         ];
     }
-
-
 }

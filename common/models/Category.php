@@ -3,6 +3,8 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
+use common\components\traits\modelWithFiles;
+use common\components\UploadModel;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -12,6 +14,7 @@ use yii\helpers\ArrayHelper;
 use common\components\traits\errors;
 use common\components\traits\soft;
 use common\components\traits\findRecords;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "category".
@@ -27,7 +30,8 @@ use common\components\traits\findRecords;
  *
  * @property Tag[] $tags
  * @property Advertisement[] $advertisementsBuy
-
+ * @property Attachment attachment
+ * @property Room[] rooms
  */
 class Category extends ExtendedActiveRecord
 {
@@ -100,23 +104,25 @@ class Category extends ExtendedActiveRecord
 
     public function oneFields()
     {
-
-        $result = [
-            'id' => $this->id,
-            'name' => $this->name,
-            'category_type' => $this->category_type,
-            'status' => $this->status,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
-        return $result;
+        return self::getFields($this, [
+            'id',
+            'name',
+            'category_type',
+            'status',
+            'img',
+            'created_by',
+            'updated_by',
+            'created_at',
+            'updated_at',
+        ])[0];
     }
 
     public function extraFields()
     {
         return [
+            'img' => function($model) {
+                return $model->getAttachment()->one() ? $model->getAttachment()->one()->getFilePath() : null;
+            },
             'name' => 'Name',
             'tags' => function ($model) {
                 /** @var $model Category */
@@ -145,6 +151,7 @@ class Category extends ExtendedActiveRecord
                     'name',
                     'category_type',
                     'tags',
+                    'img',
                 ]);
 
             case 'v2':
@@ -154,10 +161,47 @@ class Category extends ExtendedActiveRecord
                     'category_type',
                     'tags',
                     'status',
+                    'img',
                 ]);
         }
     }
 
+    public function uploadFile()
+    {
+        if ((int)$this->category_type !== self::TYPE_TRADE) {
+            return true;
+        }
+
+        $file = new UploadModel(['scenario' => UploadModel::CATEGORY_FILE]);
+        $file->imageFile = UploadedFile::getInstanceByName('file');
+        $old_image = $this->attachment;
+
+        if (null !== $file->imageFile && $file->validate()) {
+            $model = new Attachment();
+
+            $model->url = $file->upload(
+                $this->id,
+                'files/' . self::tableName()
+            );
+
+            $model->extension = $file->imageFile->extension;
+            $model->object_id = $this->id;
+            $model->table = self::tableName();
+
+            if ($model->save() && $old_image) {
+                $old_image->delete();
+            }
+            else {
+                $this->addError('file', $model->errors);
+            }
+        }
+
+        if (!empty($file->errors) && !empty($file->errors['imageFile'])) {
+            $this->addError('file', $file->errors['imageFile']);
+        }
+
+        return !$this->errors;
+    }
 
     /**
      * @return string
@@ -172,14 +216,28 @@ class Category extends ExtendedActiveRecord
      */
     public function getTags()
     {
-        return $this->hasMany(Tag::className(), ['category_id' => 'id'])->andOnCondition(['tag.status' => self::STATUS_ACTIVE]);
+        return $this->hasMany(Tag::className(), ['category_id' => 'id'])
+            ->andOnCondition(['tag.status' => self::STATUS_ACTIVE]);
     }
 
     public function getRooms()
     {
-        return $this->hasMany(Room::className(), ['category_id' => 'id'])->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
+        return $this->hasMany(Room::className(), ['category_id' => 'id'])
+            ->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
     }
 
+    /**
+     * @return Attachment|\yii\db\ActiveQuery
+     */
+    public function getAttachment()
+    {
+        return $this->hasOne(Attachment::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'table' => self::tableName(),
+                'status' => self::STATUS_ACTIVE
+            ]);
+    }
+    
     /**
      * Delete rooms/tags in category
      * @throws \Exception

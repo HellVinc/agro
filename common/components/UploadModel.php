@@ -18,22 +18,24 @@ class UploadModel extends Model
     public $imageFile;
 
     const ONE_FILE = 'oneFile';
+    const CATEGORY_FILE = 'categoryFile';
 
     public function rules()
     {
         return [
             [['files'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg', 'maxFiles' => 3, 'on' => 'default'],
             [['imageFile'], 'file', 'extensions' => 'png, jpg', 'on' => 'oneFile'],
+            [['imageFile'], 'file', 'extensions' => 'png', 'maxFiles' => 1, 'on' => 'categoryFile'],//, 'skipOnError'=> false, 'skipOnEmpty' => false
         ];
     }
 
     public function upload($id, $path)
     {
-        $dir = dirname(Yii::getAlias('@app')) . '/' . $path  . '/' . $id;
-        if (!is_dir($dir)) {
-            FileHelper::createDirectory($dir);
-        }
         if ($this->validate()) {
+            $dir = dirname(Yii::getAlias('@app')) . '/' . $path  . '/' . $id;
+            if (!is_dir($dir)) {
+                FileHelper::createDirectory($dir);
+            }
             $name = hash_file('crc32', $this->imageFile->tempName);
             $this->imageFile->saveAs($dir . '/' . $name . '.' . $this->imageFile->extension);
             return  $name . '.' . $this->imageFile->extension;

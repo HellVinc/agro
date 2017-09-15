@@ -79,7 +79,7 @@ class CategoryController extends Controller
     {
         $model = new Category();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->uploadFile()) {
             return $model->oneFields();
         }
 
@@ -97,7 +97,7 @@ class CategoryController extends Controller
         $id = Yii::$app->request->get('id') ?: Yii::$app->request->post('id');
         $model = $this->findModel($id, true);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->uploadFile()) {
             return $model->oneFields();
         }
 

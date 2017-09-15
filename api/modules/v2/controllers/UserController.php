@@ -151,7 +151,7 @@ class UserController extends Controller
             // }
         }
 
-        if (array_key_exists('status', $post) && $model->save($post)) {//  && $model->saveModel() && $model->checkFiles()
+        if (!empty($post) && $model->save($post)) {//  && $model->saveModel() && $model->checkFiles()
             return $model->oneFields();
         }
 

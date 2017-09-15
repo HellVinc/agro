@@ -114,7 +114,6 @@ class News extends ExtendedActiveRecord
             return $this->attachment->getFilePath();
         }
         return Yii::$app->request->getHostInfo() . '/photo/user/empty.jpg';
-
     }
 
     public function oneFields()

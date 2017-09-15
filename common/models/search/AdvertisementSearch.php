@@ -54,6 +54,9 @@ class AdvertisementSearch extends Advertisement
     public function search()
     {
         $query = Advertisement::find();
+        if (Yii::$app->controller->module->id === 'v2') {
+            $this->size = 10;
+        }
 
         // add conditions that should always apply here
 
