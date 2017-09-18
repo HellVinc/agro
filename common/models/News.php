@@ -189,7 +189,11 @@ class News extends ExtendedActiveRecord
 
     public function getAttachments()
     {
-        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])->andOnCondition(['attachment.status' => self::STATUS_ACTIVE]);
+        return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
+            ->andOnCondition([
+                'table' => self::tableName(),
+                'status' => self::STATUS_ACTIVE
+            ]);
     }
 
     /**

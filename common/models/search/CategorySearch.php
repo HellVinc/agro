@@ -44,6 +44,9 @@ class CategorySearch extends Category
     public function search()
     {
         $query = Category::find();
+        if (Yii::$app->controller->module->id === 'v2') {
+            $this->size = 0;
+        }
 
         // add conditions that should always apply here
 

@@ -121,7 +121,10 @@ class Category extends ExtendedActiveRecord
     {
         return [
             'img' => function($model) {
-                return $model->getAttachment()->one() ? $model->getAttachment()->one()->getFilePath() : null;
+                // this is kostyl
+                // $model->attachment show older photo after update
+                $attachment = $model->getAttachment()->one();
+                return $attachment ? $attachment->getFilePath() : null;
             },
             'name' => 'Name',
             'tags' => function ($model) {

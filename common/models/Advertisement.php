@@ -329,10 +329,9 @@ class Advertisement extends ExtendedActiveRecord
     public function getAttachments()
     {
         return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
-            ->andWhere(['status' => Attachment::STATUS_ACTIVE])
             ->andOnCondition([
-                'attachment.table' => 'advertisement',
-                'table' => self::tableName()
+                'table' => self::tableName(),
+                'status' => self::STATUS_ACTIVE
             ]);
     }
 
