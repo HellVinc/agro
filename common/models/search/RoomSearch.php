@@ -27,7 +27,7 @@ class RoomSearch extends Room
     public function rules()
     {
         return [
-            [['id', 'status', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['id', 'status', 'viewed', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
             [['title', 'text', 'description'], 'safe'],
         ];
@@ -78,6 +78,7 @@ class RoomSearch extends Room
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
+            'viewed' => $this->viewed,
         ]);
 
         if ($this->category_id == 3) {

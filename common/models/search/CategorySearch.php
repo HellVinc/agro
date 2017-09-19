@@ -14,7 +14,7 @@ class CategorySearch extends Category
 {
     public $size = 10;
     public $sort = [
-        'id' => SORT_DESC,
+        'id' => SORT_ASC,
     ];
     /**
      * @inheritdoc
@@ -44,8 +44,10 @@ class CategorySearch extends Category
     public function search()
     {
         $query = Category::find();
+
         if (Yii::$app->controller->module->id === 'v2') {
             $this->size = 0;
+            $this->sort['id'] = SORT_DESC;
         }
 
         // add conditions that should always apply here
