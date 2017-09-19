@@ -77,7 +77,7 @@ class Smsru {
   public function getStatus($id) {
     $url = $this->protocol . '://' . $this->domain . '/sms/status';
 
-    $post = new stdClass();
+    $post = new \stdClass();
     $post->sms_id = $id;
 
     $request = $this->Request($url, $post);
@@ -148,7 +148,7 @@ class Smsru {
   public function addStopList($phone, $text = "") {
     $url = $this->protocol . '://' . $this->domain . '/stoplist/add';
 
-    $post = new stdClass();
+    $post = new \stdClass();
     $post->stoplist_phone = $phone;
     $post->stoplist_text = $text;
 
@@ -164,7 +164,7 @@ class Smsru {
   public function delStopList($phone) {
       $url = $this->protocol . '://' . $this->domain . '/stoplist/del';
 
-      $post = new stdClass();
+      $post = new \stdClass();
       $post->stoplist_phone = $phone;
 
       $request = $this->Request($url, $post);
@@ -236,14 +236,14 @@ class Smsru {
     curl_setopt($ch, CURLOPT_VERBOSE, 1);
 
     if (!$post) {
-      $post = new stdClass();
+      $post = new \stdClass();
     }
 
-    if ($post->api_id && $post->api_id == 'none') {
-    }
-    else {
+//    if ($post->api_id && $post->api_id == 'none') {
+//    }
+//    else {
       $post->api_id = $this->ApiKey;
-    }
+//    }
 
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query((array) $post));
@@ -266,7 +266,7 @@ class Smsru {
   private function CheckReplyError($res, $action) {
 
     if (!$res) {
-      $temp = new stdClass();
+      $temp = new \stdClass();
       $temp->status = "ERROR";
       $temp->status_code = "000";
       $temp->status_text = "Невозможно установить связь с сервером.";
@@ -276,7 +276,7 @@ class Smsru {
     $result = json_decode($res);
 
     if (!$result || !$result->status) {
-      $temp = new stdClass();
+      $temp = new \stdClass();
       $temp->status = "ERROR";
       $temp->status_code = "000";
       $temp->status_text = "Невозможно установить связь с сервером.";

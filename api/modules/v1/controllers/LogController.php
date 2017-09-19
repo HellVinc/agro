@@ -6,6 +6,7 @@ use Yii;
 use common\models\Log;
 use common\models\search\LogSearch;
 use yii\filters\auth\QueryParamAuth;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -46,8 +47,14 @@ class LogController extends Controller
     {
         $model = new LogSearch();
         $dataProvider = $model->searchAll(Yii::$app->request->get());
+        $res = array();
+        foreach (Log::allFields($dataProvider->getModels()) as $model){
+            if($model['Message']['id'] !== 'DELETED'){
+                $res[] = $model;
+            }
+        }
         return [
-            'models' => Log::allFields($dataProvider->getModels()),
+            'models' => $res,
             'count_model' => $dataProvider->getTotalCount()
         ];
     }

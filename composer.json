@@ -19,7 +19,8 @@
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "cboden/ratchet": "^0.3.6",
-        "kop/yii2-turbosms": "dev-master"
+        "kop/yii2-turbosms": "dev-master",
+        "twilio/sdk": "^5.14"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

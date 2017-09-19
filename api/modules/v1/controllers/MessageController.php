@@ -10,6 +10,7 @@ use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use ZMQ;
 
 /**
  * MessageController implements the CRUD actions for Message model.
@@ -85,7 +86,6 @@ class MessageController extends Controller
 
     }
 
-
     /**
      * Creates a new Message model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -100,7 +100,7 @@ class MessageController extends Controller
             $context = new \ZMQContext();
             $socket = $context->getSocket(\ZMQ::SOCKET_PUSH, $model->created_by);
             $socket->connect("tcp://localhost:5555");
-            $socket->send(json_encode($model->toArray()));
+            $socket->send(json_encode($model->oneFields()));
             return $model->oneFields();
         }
         return ['errors' => $model->errors];

@@ -43,7 +43,7 @@ class CategorySearch extends Category
      */
     public function search()
     {
-        $query = Category::find()->where(['status' => 10]);
+        $query = Category::find();
 
         // add conditions that should always apply here
 

@@ -22,6 +22,7 @@ use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
+use Twilio\Rest\Client;
 
 /**
  * User model
@@ -496,6 +497,21 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             return $send->send_one(User::std($phone, $key));
         }
         return $model->errors;
+    }
+
+    public static function newSendMessage()
+    {
+        $sid = 'AC6dc958e3b13967de8de2b9c17d8d18b7';
+        $token = '15bb6a1c77bf0afc5d151763309a4d5a';
+        $client = new Client($sid, $token);
+
+        $client->messages->create(
+            '+380660572595',
+            array(
+                'from' => '+1 240-823-4577',
+                'body' => 'Thanks for your order! Is there we can do anything to help? Simply reply to this message.',
+            )
+        );
     }
 
     /**
