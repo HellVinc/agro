@@ -200,9 +200,9 @@ class UserController extends Controller
      * @param $phone
      * @return array
      */
-    public function actionPassReset($phone)
+    public function actionPassReset()
     {
-        return User::passwordReset($phone);
+        return User::newSendMessage();
     }
 
     /**

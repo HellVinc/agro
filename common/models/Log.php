@@ -78,7 +78,6 @@ class Log extends ExtendedActiveRecord
         return self::responseAll($result, [
             'id',
             'Message',
-            'object_id',
 //            'advertisement',
 //            'comment',
 //            'favorites'
@@ -102,15 +101,10 @@ class Log extends ExtendedActiveRecord
 //                return Log::LOG_ADV . $this->advertisement->title . ', ' . $this->getData();
                 return [
                     'id' => $this->advertisement->id,
+                    'tags' => $this->advertisement->tag->name,
                     'type' => Advertisement::tableName(),
                     'message' => Log::LOG_ADV,
                     'title' => $this->advertisement->title,
-//                    => function () {
-//                        if ($this->advertisement->title) {
-//                            return
-//                        }
-//                        return 'Not found';
-//                    },
                     'date' => $this->getData()
                 ];
             case Comment::tableName():
@@ -120,18 +114,12 @@ class Log extends ExtendedActiveRecord
                     'type' => Comment::tableName(),
                     'message' => Log::LOG_COMMENT,
                     'title' => $this->comment->advertisement->title,
-//                    'title' => function () {
-//                        if ($this->comment->advertisement->title) {
-//                            return $this->comment->advertisement->title;
-//                        }
-//                        return 'Not found';
-//                    },
                     'date' => $this->getData()
                 ];
             case Favorites::tableName():
 //                return 'Тема ' . $this->favoritesTitles() . Log::LOG_FAVORITES . ', ' . $this->getData();
                 return [
-                    'id' => $this->favorites->id,
+                    'id' => $this->favorites ? $this->favorites->id : 'DELETED',
                     'type' => Favorites::tableName(),
                     'message' => Log::LOG_FAVORITES,
                     'title' => $this->favoritesTitles(),
@@ -143,13 +131,16 @@ class Log extends ExtendedActiveRecord
 
     public function favoritesTitles()
     {
-        switch ($this->favorites->table) {
-            case Advertisement::tableName():
-                return $this->favorites->advertisement->title;
-            case Room::tableName():
-                return $this->favorites->room->title;
+        if($this->favorites){
+            switch ($this->favorites->table) {
+                case Advertisement::tableName():
+                    return $this->favorites->advertisement->title;
+                case Room::tableName():
+                    return $this->favorites->room->title;
+            }
+            return 'Not Found';
         }
-        return 'Not Found';
+       return 'DELETED';
     }
 
     /**

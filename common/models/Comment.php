@@ -149,7 +149,7 @@ class Comment extends ExtendedActiveRecord
                     'advertisement_id',
                     'viewed',
                     'created_at' => function($model){
-                    return date('Y-m-d', $model->created_at);
+                    return date('d-m-Y', $model->created_at);
                     },
                     'user'=> 'UserInfo',
                     'avatar',

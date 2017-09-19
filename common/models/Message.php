@@ -118,17 +118,32 @@ class Message extends ExtendedActiveRecord
      */
     public function oneFields()
     {
-        return self::getFields($this, [
-            'id',
-            'room_id',
-            'text',
-            'viewed',
-            'status',
-            'user',
-            'created_at',
-            'updated_at',
-            'attachments',
-        ]);
+        switch (\Yii::$app->controller->module->id) {
+            case 'v1':
+                return [
+                    'id' => $this->id,
+                    'room_id' => $this->room_id,
+                    'text' => $this->text,
+                    'viewed' => $this->viewed,
+                    'user' => $this->getUserInfo(),
+                    'created_at' => date('d-m-Y', $this->created_at),
+                    'updated_at' => date('d-m-Y', $this->updated_at),
+                    'attachments' => $this->attachments
+                ];
+
+            case 'v2':
+                return self::getFields($this, [
+                    'id',
+                    'room_id',
+                    'text',
+                    'viewed',
+                    'status',
+                    'user',
+                    'created_at',
+                    'updated_at',
+                    'attachments',
+                ]);
+        }
     }
 
     /**
