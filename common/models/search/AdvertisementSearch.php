@@ -60,17 +60,17 @@ class AdvertisementSearch extends Advertisement
 
         // add conditions that should always apply here
 
-        if($this->size || $this->page) {
-            $dataProvider = new ActiveDataProvider([
-                'query' => $query,
-                'pagination' => [
-                    'pageSize' => $this->size,
-                ],
-                'sort' => [
-                    'defaultOrder' => $this->sort
-                ],
-            ]);
-        }
+        //if($this->size || $this->page) {
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => $this->size,
+            ],
+            'sort' => [
+                'defaultOrder' => $this->sort
+            ],
+        ]);
+        //}
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
