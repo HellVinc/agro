@@ -42,6 +42,7 @@ class UserController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'all' => ['get'],
+                    'counts' => ['get'],
                     'update' => ['post'],
                     'login' => ['post'],
                     'delete-reports' => ['delete'],
@@ -101,6 +102,16 @@ class UserController extends Controller
             ])[0],
             'counts' => User::v2_counts(),
         ];
+    }
+
+    /**
+     * Get counters
+     *
+     * @return array
+     */
+    public function actionCounts()
+    {
+        return User::v2_counts();
     }
 
     /**
