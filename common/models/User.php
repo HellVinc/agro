@@ -471,12 +471,14 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         // chat_room
 
         $result['room_all'] = (int) (new Query())
-            ->from(Room::tableName())->count();
+            ->from(Room::tableName())
+            ->andWhere(['status' => self::STATUS_ACTIVE])
+            ->count();
 
         $result['room_not_viewed'] = (int) (new Query())
             ->from(Room::tableName())->where([
                 'status' => self::STATUS_ACTIVE,
-                'viewed' => Advertisement::TYPE_UNVIEWED,
+                'viewed' => Room::TYPE_UNVIEWED,
             ])->count();
 
         $result['room_deleted'] = (int) (new Query())
@@ -487,21 +489,31 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         // Other
 
         $result['category_all'] = (int) (new Query())
-            ->from(Category::tableName())->count();
+            ->from(Category::tableName())
+            ->andWhere(['status' => self::STATUS_ACTIVE])
+            ->count();
 
         $result['tag_all'] = (int) (new Query())
-            ->from(Tag::tableName())->count();
+            ->from(Tag::tableName())
+            ->andWhere(['status' => self::STATUS_ACTIVE])
+            ->count();
 
         $result['news_all'] = (int) (new Query())
             ->where(['type' => News::TYPE_NEWS])
-            ->from(News::tableName())->count();
+            ->from(News::tableName())
+            ->andWhere(['status' => self::STATUS_ACTIVE])
+            ->count();
 
         $result['ads_all'] = (int) (new Query())
             ->where(['type' => News::TYPE_SERVICES])
-            ->from(News::tableName())->count();
+            ->from(News::tableName())
+            ->andWhere(['status' => self::STATUS_ACTIVE])
+            ->count();
 
         $result['offers_all'] = (int) (new Query())
-            ->from(Offer::tableName())->count();
+            ->from(Offer::tableName())
+            ->andWhere(['status' => self::STATUS_ACTIVE])
+            ->count();
 
         return [
             'user' => [

@@ -35,6 +35,9 @@ class Room extends ExtendedActiveRecord
     use findRecords;
     use errors;
 
+    const TYPE_UNVIEWED = 0;
+    const TYPE_VIEWED = 1;
+
     /**
      * @inheritdoc
      */
@@ -161,6 +164,7 @@ class Room extends ExtendedActiveRecord
                     'category_id',
                     'title',
                     'text',
+                    'viewed',
                     'status',
                     'created_at',
                 ]);
@@ -196,6 +200,10 @@ class Room extends ExtendedActiveRecord
      */
     public function beforeDelete()
     {
+        if ((int)$this->viewed === self::TYPE_UNVIEWED) {
+            $this->viewed = self::TYPE_VIEWED;
+        }
+
         foreach ($this->messages as $message) {
             $message->delete();
         }

@@ -88,7 +88,7 @@ class UserController extends Controller
         }
 
         if (Yii::$app->user->identity->role !== User::ROLE_ADMIN) {
-            Yii::$app->user->logout();
+            // Yii::$app->user->logout();
             return ['error' => 'You are not an admin'];
         }
 
@@ -111,7 +111,14 @@ class UserController extends Controller
      */
     public function actionCounts()
     {
-        return User::v2_counts();
+        return [
+            'model' => Yii::$app->user->identity->responseOne([
+                'photo',
+                'first_name',
+                'second_name',
+            ])[0],
+            'counts' => User::v2_counts(),
+        ];
     }
 
     /**
