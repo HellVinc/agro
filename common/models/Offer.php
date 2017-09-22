@@ -182,4 +182,22 @@ class Offer extends ExtendedActiveRecord
     {
         return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('offer_tag', ['offer_id' => 'id']);
     }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($this->isNewRecord) {
+            Yii::$app
+                ->mailer
+                ->compose(
+                    ['html' => 'newOffer-html', 'text' => 'newOffer-text'],
+                    ['offer' => $this]
+                )
+                ->setFrom([Yii::$app->params['supportEmail'] => 'Agro new offer'])
+                ->setTo(Yii::$app->params['offerEmail'])
+                ->setSubject('Received a new offer for Agro')
+                ->send();
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
 }

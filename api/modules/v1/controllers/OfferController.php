@@ -83,17 +83,6 @@ class OfferController extends Controller
         $model = new Offer();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app
-                ->mailer
-                ->compose(
-                    ['html' => 'newOffer-html', 'text' => 'newOffer-text'],
-                    ['offer' => $model]
-                )
-                ->setFrom([Yii::$app->params['supportEmail'] => 'Agro new offer'])
-                ->setTo(Yii::$app->params['offerEmail'])
-                ->setSubject('Received a new offer for Agro')
-                ->send();
-
             return $model->oneFields();
         }
         return ['errors' => $model->errors];
