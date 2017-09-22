@@ -55,20 +55,17 @@ class MessageSearch extends Message
 
         // add conditions that should always apply here
 
-        if (
-            Yii::$app->controller->module->id === 'v1' &&
-            ($this->size || $this->page)
-        ) {
-            $dataProvider = new ActiveDataProvider([
-                'query' => $query,
-                'pagination' => [
-                    'pageSize' => $this->size,
-                ],
-                'sort' => [
-                    'defaultOrder' => $this->sort
-                ],
-            ]);
-        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => $this->size,
+            ],
+            'sort' => [
+                'defaultOrder' => $this->sort
+            ],
+        ]);
+
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails

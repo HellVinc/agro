@@ -55,12 +55,16 @@ class OfferSearch extends Offer
     {
         $query = Offer::find();
 
+        if (Yii::$app->controller->module->id === 'v1') {
+            $this->size = 0;
+        }
+
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-//                'pageSize' => $this->size,
+                'pageSize' => $this->size,
             ],
             'sort' => [
                 'defaultOrder' => $this->sort
