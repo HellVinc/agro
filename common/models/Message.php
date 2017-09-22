@@ -102,17 +102,6 @@ class Message extends ExtendedActiveRecord
         ];
     }
 
-    public function extraFields()
-    {
-        return [
-            'created_at' => function ($model) {
-                /** @var $model Message */
-                return date('Y-m-d', $model->created_at);
-            },
-            'user' => 'userInfo',
-        ];
-    }
-
     /**
      * @return array
      */
@@ -179,6 +168,19 @@ class Message extends ExtendedActiveRecord
                     'attachments',
                 ]);
         }
+    }
+
+    public function extraFields()
+    {
+        return [
+            'created_at' => function ($model) {
+                return date('d.m.Y', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('d.m.Y', $model->updated_at);
+            },
+            'user' => 'userInfo',
+        ];
     }
 
     /**

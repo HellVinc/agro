@@ -244,10 +244,10 @@ class Advertisement extends ExtendedActiveRecord
                 return $model->category->name;
             },
             'created_at' => function ($model) {
-                return date('d-m-Y', $model->created_at);
+                return date('d.m.Y', $model->created_at);
             },
             'updated_at' => function ($model) {
-                return date('d-m-Y', $model->updated_at);
+                return date('d.m.Y', $model->updated_at);
             },
         ];
     }

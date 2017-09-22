@@ -131,7 +131,13 @@ class Comment extends ExtendedActiveRecord
             'user' => function ($model) {
                 $user = $model->creator;
                 return $model->getCreator() ? $user->first_name . ' ' . $user->last_name : '';
-            }
+            },
+            'created_at' => function ($model) {
+                return date('d.m.Y', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('d.m.Y', $model->updated_at);
+            },
         ];
     }
 
@@ -193,14 +199,15 @@ class Comment extends ExtendedActiveRecord
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getUser()
     {
         $var = User::findOne($this->created_by);
         return [
             'user_id' => $var->id,
-            'name' => $var->first_name . ' ' . $var->last_name];
+            'name' => $var->first_name . ' ' . $var->last_name
+        ];
     }
 
     /**

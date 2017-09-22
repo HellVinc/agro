@@ -97,10 +97,7 @@ class Feedback extends ExtendedActiveRecord
                 'viewed',
                 'status',
                 'user' => 'UserInfo',
-                'created_at' => function ($model) {
-                /** @var $model Feedback */
-                    return date('Y-m-d', $model->created_at);
-                },
+                'created_at',
                 'updated_at',
             ]),
         ][0];
@@ -119,11 +116,20 @@ class Feedback extends ExtendedActiveRecord
             'viewed',
             'status',
             'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                /** @var $model Feedback */
-                return date('Y-m-d', $model->created_at);
-            },
+            'created_at',
             'updated_at',
         ]);
+    }
+
+    public function extraFields()
+    {
+        return [
+            'created_at' => function ($model) {
+                return date('d.m.Y', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('d.m.Y', $model->updated_at);
+            },
+        ];
     }
 }

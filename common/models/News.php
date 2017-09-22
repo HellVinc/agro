@@ -78,11 +78,14 @@ class News extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['type', 'text', 'url', 'title'], 'required'],
+            [['type', 'url', 'title'], 'required'],
             [['text'], 'string'],
             [['type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['url'], 'url', 'defaultScheme' => 'http'],
             [['title'], 'string', 'max' => 255],
+            [['text'], 'required', 'when' => function ($model) {
+                return (int)$model->type === self::TYPE_NEWS;
+            }],
             ['type', 'in', 'range' => [self::TYPE_NEWS, self::TYPE_SERVICES]],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
@@ -161,6 +164,7 @@ class News extends ExtendedActiveRecord
                     'url',
                     'type',
                     'created_at',
+                    'updated_at',
                     'resource_url',
                     'status',
                 ]);
@@ -173,12 +177,12 @@ class News extends ExtendedActiveRecord
             'img' => function($model) {
                 return $model->getPhotoPath();
             },
-            'created_at' => function($model) {
-                return date('Y-m-d', $model->created_at);
+            'created_at' => function ($model) {
+                return date('d.m.Y', $model->created_at);
             },
-            // 'url' => function($model) {
-            //     return 'http://192.168.0.118/files/skFHvafJvs0.jpg';
-            // },
+            'updated_at' => function ($model) {
+                return date('d.m.Y', $model->updated_at);
+            },
             'resource_url' => function($model) {
                 /** News @var $model */
                 $url = parse_url($model->url);

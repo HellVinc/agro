@@ -107,8 +107,8 @@ class Favorites extends ExtendedActiveRecord
             'status' => $this->status,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => date('d.m.Y', $this->created_at),
+            'updated_at' => date('d.m.Y', $this->updated_at),
         ];
         return $result;
     }
@@ -124,10 +124,20 @@ class Favorites extends ExtendedActiveRecord
             'status',
             'object' => 'Object',
             'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                return date('Y-m-d', $model->created_at);
-            },
+            'created_at',
         ]);
+    }
+
+    public function extraFields()
+    {
+        return [
+            'created_at' => function ($model) {
+                return date('d.m.Y', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('d.m.Y', $model->updated_at);
+            },
+        ];
     }
 
     public function getTheme()
