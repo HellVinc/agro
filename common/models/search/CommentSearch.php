@@ -23,7 +23,7 @@ class CommentSearch extends Comment
     public function rules()
     {
         return [
-            [['id', 'advertisement_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['size', 'id', 'advertisement_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'safe'],
         ];
     }

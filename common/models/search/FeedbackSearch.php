@@ -23,7 +23,7 @@ class FeedbackSearch extends Feedback
     public function rules()
     {
         return [
-            [['id', 'user_id', 'status', 'created_at', 'updated_at', 'created_by', 'viewed', 'updated_by'], 'integer'],
+            [['size', 'id', 'user_id', 'status', 'created_at', 'updated_at', 'created_by', 'viewed', 'updated_by'], 'integer'],
             [['message'], 'safe'],
         ];
     }

@@ -12,7 +12,7 @@ use common\models\Favorites;
  */
 class FavoritesSearch extends Favorites
 {
-    public $size = 100;
+    public $size = 10;
     public $sort = [
         'id' => SORT_ASC,
     ];
@@ -75,7 +75,7 @@ class FavoritesSearch extends Favorites
             'favorites.status' => $this->status,
             'favorites.created_at' => $this->created_at,
             'favorites.updated_at' => $this->updated_at,
-            'favorites.created_by' => $this->created_by,
+//            'favorites.created_by' => $this->created_by,
             'favorites.updated_by' => $this->updated_by,
         ]);
 
@@ -84,8 +84,9 @@ class FavoritesSearch extends Favorites
         ->andFilterWhere(['like', 'room.category_id', $this->category_id]);
 
         if(!$this->category_id && !$this->trade_type) {
-            $query->andFilterWhere(['not in', 'room.category_id', 3]);
+            $query->andFilterWhere(['!=', 'room.category_id', 3]);
         }
+        $query->andFilterWhere(['like', 'favorites.created_by', $this->created_by]);
 
         return $dataProvider;
     }

@@ -135,25 +135,20 @@ class Advertisement extends ExtendedActiveRecord
     public function oneFields()
     {
         return [
-            'id',
-            'tag' => function ($model) {
-                /** @var $model Advertisement */
-                return $model->tag->name;
-            },
-            'tag_id',
-            'title',
-            'text',
-            'city',
-            'trade_type',
-            'viewed',
-            'closed',
-            'status',
-            'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                return date('Y-m-d', $model->created_at);
-            },
-            'updated_at',
-            'attachments',
+            'id' => $this->id,
+            'tag' => $this->tag->name,
+            'tag_id' => $this->tag_id,
+            'title' => $this->title,
+            'text' =>$this->text,
+            'city' => $this->city,
+            'trade_type' => $this->trade_type,
+            'viewed' => $this->viewed,
+            'closed' => $this->closed,
+            'status' => $this->status,
+            'user' => $this->getUserInfo(),
+            'created_at' => date('Y-m-d', $this->created_at),
+            'updated_at' => $this->updated_at,
+            'attachments' => $this->attachments,
 
         ];
     }

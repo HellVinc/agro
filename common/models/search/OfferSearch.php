@@ -31,7 +31,7 @@ class OfferSearch extends Offer
     public function rules()
     {
         return [
-            [['id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['size', 'id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
             [['text', 'description', 'phone', 'first_name', 'last_name'], 'safe'], // text = description
         ];

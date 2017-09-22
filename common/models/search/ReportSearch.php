@@ -22,7 +22,7 @@ class ReportSearch extends Report
     public function rules()
     {
         return [
-            [['id', 'object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'size'], 'integer'],
+            [['size', 'id', 'object_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'size'], 'integer'],
             [['table', 'text'], 'safe'],
         ];
     }

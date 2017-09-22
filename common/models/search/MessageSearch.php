@@ -17,7 +17,7 @@ class MessageSearch extends Message
 
     public $size = 100;
     public $sort = [
-        'id' => SORT_DESC,
+        'id' => SORT_ASC,
     ];
     /**
      * @inheritdoc
@@ -25,7 +25,7 @@ class MessageSearch extends Message
     public function rules()
     {
         return [
-            [['id', 'room_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['size', 'id', 'room_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
             [['text'], 'safe'],
         ];
@@ -48,18 +48,27 @@ class MessageSearch extends Message
     public function search()
     {
         $query = Message::find();
+        if (Yii::$app->controller->module->id === 'v2') {
+            $this->size = $this->size ?: 10;
+            $this->sort = SORT_DESC;
+        }
 
         // add conditions that should always apply here
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => [
-                'pageSize' => $this->size,
-            ],
-            'sort' => [
-                'defaultOrder' => $this->sort
-            ],
-        ]);
+        if (
+            Yii::$app->controller->module->id === 'v1' &&
+            ($this->size || $this->page)
+        ) {
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => $this->size,
+                ],
+                'sort' => [
+                    'defaultOrder' => $this->sort
+                ],
+            ]);
+        }
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails

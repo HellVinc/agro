@@ -27,7 +27,7 @@ class RoomSearch extends Room
     public function rules()
     {
         return [
-            [['id', 'status', 'viewed', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['size', 'id', 'status', 'viewed', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
             [['title', 'text', 'description'], 'safe'],
         ];
@@ -81,11 +81,14 @@ class RoomSearch extends Room
             'viewed' => $this->viewed,
         ]);
 
-        if ($this->category_id == 3) {
-            $query->andFilterWhere(['category_id' => 3]);
-        } else {
-            $query->andFilterWhere(['not in', 'category_id', 3]);
+        if (Yii::$app->controller->module->id === 'v1') {
+            if ($this->category_id == 3) {
+                $query->andFilterWhere(['category_id' => 3]);
+            } else {
+                $query->andFilterWhere(['not in', 'category_id', 3]);
+            }
         }
+
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'text', $this->text])
             ->andFilterWhere(['like', 'description', $this->description]);

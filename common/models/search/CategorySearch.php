@@ -22,7 +22,7 @@ class CategorySearch extends Category
     public function rules()
     {
         return [
-            [['id', 'category_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['size', 'id', 'category_type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'safe'],
         ];
     }
@@ -46,7 +46,7 @@ class CategorySearch extends Category
         $query = Category::find();
 
         if (Yii::$app->controller->module->id === 'v2') {
-            $this->size = 0;
+            $this->size = $this->size ?: 10;
             $this->sort['id'] = SORT_DESC;
         }
 

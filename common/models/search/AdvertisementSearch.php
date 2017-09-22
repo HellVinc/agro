@@ -30,7 +30,7 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['id', 'phone', 'closed', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['size', 'id', 'phone', 'closed', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
             [['title', 'city', 'text', 'latitude', 'longitude'], 'safe'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
             [['count_reports'], 'in', 'range' => [0,1]],
@@ -55,7 +55,7 @@ class AdvertisementSearch extends Advertisement
     {
         $query = Advertisement::find();
         if (Yii::$app->controller->module->id === 'v2') {
-            $this->size = 10;
+            $this->size = $this->size ?: 10;
         }
 
         // add conditions that should always apply here

@@ -24,7 +24,7 @@ class UserSearch extends User
     public function rules()
     {
         return [
-            [['id', 'phone', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['size', 'id', 'phone', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['first_name', 'middle_name', 'last_name'], 'safe'],
             [['count_reports', 'blocked'], 'in', 'range' => [0,1]],
         ];
