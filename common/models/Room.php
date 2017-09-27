@@ -113,6 +113,18 @@ class Room extends ExtendedActiveRecord
             'updated_at' => function ($model) {
                 return date('d.m.Y', $model->updated_at);
             },
+            'created_by' => function ($model) {
+                if ($model->creator) {
+                    return User::getFields($model->creator, [
+                        'id',
+                        'phone',
+                        'first_name',
+                        'last_name',
+                        'photo'
+                    ]);
+                }
+                return null;
+            },
         ];
     }
 
@@ -164,16 +176,21 @@ class Room extends ExtendedActiveRecord
                     'category_id',
                     'title',
                     'text',
-                    'viewed',
                     'status',
+                    'viewed',
                     'created_at',
+                    'created_by',
                 ]);
         }
     }
 
     public function getMsgUnread()
     {
-        return (int) Message::find()->where(['room_id' => $this->id, 'message.viewed' => Message::TYPE_UNVIEWED])->count();
+        return (int)Message::find()->where([
+            'room_id' => $this->id,
+            'viewed' => Comment::TYPE_UNVIEWED,
+            'status' => Message::STATUS_ACTIVE
+        ])->count();
     }
 
     /**
