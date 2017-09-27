@@ -3,6 +3,7 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
+use common\models\User;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -19,6 +20,8 @@ class RoomSearch extends Room
     public $sort = [
         'id' => SORT_DESC,
     ];
+    public $phone;
+    public $full_name;
     public $description;
 
     /**
@@ -29,7 +32,7 @@ class RoomSearch extends Room
         return [
             [['size', 'id', 'status', 'viewed', 'category_id', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
-            [['title', 'text', 'description'], 'safe'],
+            [['title', 'text', 'description', 'phone', 'full_name'], 'safe'],
         ];
     }
 
@@ -69,6 +72,8 @@ class RoomSearch extends Room
             return $dataProvider;
         }
 
+        $query->leftJoin(User::tableName(), 'user.id = room.created_by');
+
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
@@ -80,6 +85,10 @@ class RoomSearch extends Room
             'updated_by' => $this->updated_by,
             'viewed' => $this->viewed,
         ]);
+
+        $query
+            ->andFilterWhere(['like', 'user.phone', $this->phone])
+            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
 
         if (Yii::$app->controller->module->id === 'v1') {
             if ($this->category_id == 3) {

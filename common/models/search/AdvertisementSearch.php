@@ -80,19 +80,7 @@ class AdvertisementSearch extends Advertisement
             return $dataProvider;
         }
 
-
-        if (!empty($this->phone) || !empty($this->full_name)) {
-            $user = User::find()
-                ->andFilterWhere(['phone' => $this->phone])
-                ->andFilterWhere(['like', 'CONCAT(first_name, \' \', last_name)', $this->full_name])
-                ->one();
-
-            if (!$user) {
-                $query->where('0=1');
-                return $dataProvider;
-            }
-            $this->created_by = $user->id;
-        }
+        $query->leftJoin(User::tableName(), 'user.id = advertisement.created_by');
 
         $query->joinWith(Tag::tableName());
         $query->leftJoin(
@@ -115,9 +103,13 @@ class AdvertisementSearch extends Advertisement
             'advertisement.status' => $this->status,
             'advertisement.created_at' => $this->created_at,
             'advertisement.updated_at' => $this->updated_at,
-            'advertisement.created_by' => $this->created_by,
+            'advertiselolment.created_by' => $this->created_by,
             'advertisement.updated_by' => $this->updated_by,
         ]);
+
+        $query
+            ->andFilterWhere(['like', 'user.phone', $this->phone])
+            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
 
         $query->andFilterWhere(['like', 'advertisement.title', $this->title])
             ->andFilterWhere(['like', 'advertisement.text', $this->text])

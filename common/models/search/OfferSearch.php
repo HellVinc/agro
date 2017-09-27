@@ -22,8 +22,7 @@ class OfferSearch extends Offer
     ];
     public $description;
     public $phone;
-    public $first_name;
-    public $last_name;
+    public $full_name;
 
     /**
      * @inheritdoc
@@ -33,7 +32,7 @@ class OfferSearch extends Offer
         return [
             [['size', 'id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
-            [['text', 'description', 'phone', 'first_name', 'last_name'], 'safe'], // text = description
+            [['text', 'description', 'phone', 'full_name'], 'safe'], // text = description
         ];
     }
 
@@ -92,8 +91,7 @@ class OfferSearch extends Offer
 
         $query
             ->andFilterWhere(['like', 'user.phone', $this->phone])
-            ->andFilterWhere(['like', 'user.first_name', $this->first_name])
-            ->andFilterWhere(['like', 'user.last_name', $this->last_name]);
+            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
 
         $query->andFilterWhere(['or',
             ['like', 'text', $this->text],
