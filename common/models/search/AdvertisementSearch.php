@@ -3,6 +3,7 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
+use common\models\Category;
 use common\models\Tag;
 use Yii;
 use yii\base\Model;
@@ -22,6 +23,7 @@ class AdvertisementSearch extends Advertisement
         'id' => SORT_DESC,
     ];
     public $phone;
+    public $full_name;
     public $count_reports;
 
     /**
@@ -30,8 +32,8 @@ class AdvertisementSearch extends Advertisement
     public function rules()
     {
         return [
-            [['size', 'id', 'phone', 'closed', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
-            [['title', 'city', 'text', 'latitude', 'longitude'], 'safe'],
+            [['size', 'category_id', 'id', 'phone', 'closed', 'size', 'tag_id', 'trade_type', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by', 'category_id'], 'integer'],
+            [['full_name', 'title', 'city', 'text', 'latitude', 'longitude'], 'safe'],
             [['date_from', 'date_to', 'created_from', 'created_to', 'updated_from', 'updated_to'], 'safe'],
             [['count_reports'], 'in', 'range' => [0,1]],
         ];
@@ -60,17 +62,17 @@ class AdvertisementSearch extends Advertisement
 
         // add conditions that should always apply here
 
-        //if($this->size || $this->page) {
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => [
-                'pageSize' => $this->size,
-            ],
-            'sort' => [
-                'defaultOrder' => $this->sort
-            ],
-        ]);
-        //}
+        if ($this->size || $this->page) {
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => $this->size,
+                ],
+                'sort' => [
+                    'defaultOrder' => $this->sort
+                ],
+            ]);
+        }
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -79,8 +81,12 @@ class AdvertisementSearch extends Advertisement
         }
 
 
-        if (!empty($this->phone)) {
-            $user = User::findOne(['phone' => $this->phone]);
+        if (!empty($this->phone) || !empty($this->full_name)) {
+            $user = User::find()
+                ->andFilterWhere(['phone' => $this->phone])
+                ->andFilterWhere(['like', 'CONCAT(first_name, \' \', last_name)', $this->full_name])
+                ->one();
+
             if (!$user) {
                 $query->where('0=1');
                 return $dataProvider;
@@ -89,6 +95,10 @@ class AdvertisementSearch extends Advertisement
         }
 
         $query->joinWith(Tag::tableName());
+        $query->leftJoin(
+            Category::tableName(),
+            'category.status = 10 AND category.id = tag.category_id'
+        );
 
         $query->addSelect('advertisement.*, COUNT(report.id) AS count_reports')->from(self::tableName());
         $query->leftJoin( 'report', 'report.object_id = advertisement.id AND report.status = 10 AND report.table = "advertisement"');
@@ -97,11 +107,11 @@ class AdvertisementSearch extends Advertisement
         // grid filtering conditions
         $query->andFilterWhere([
             'advertisement.id' => $this->id,
-            'tag_id' => $this->tag_id,
-            'city' => $this->city,
-            'trade_type' => $this->trade_type,
+            'advertisement.tag_id' => $this->tag_id,
+            //'advertisement.city' => $this->city,
+            'advertisement.trade_type' => $this->trade_type,
             'advertisement.viewed' => $this->viewed,
-            'closed' => $this->closed,
+            'advertisement.closed' => $this->closed,
             'advertisement.status' => $this->status,
             'advertisement.created_at' => $this->created_at,
             'advertisement.updated_at' => $this->updated_at,
@@ -111,6 +121,7 @@ class AdvertisementSearch extends Advertisement
 
         $query->andFilterWhere(['like', 'advertisement.title', $this->title])
             ->andFilterWhere(['like', 'advertisement.text', $this->text])
+            ->andFilterWhere(['like', 'advertisement.city', $this->city])
             ->andFilterWhere(['like', 'advertisement.latitude', $this->latitude])
             ->andFilterWhere(['like', 'advertisement.longitude', $this->longitude])
             ->andFilterWhere(['like', 'tag.category_id', $this->category_id]);
