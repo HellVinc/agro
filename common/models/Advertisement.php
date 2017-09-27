@@ -193,11 +193,18 @@ class Advertisement extends ExtendedActiveRecord
                     'status',
                     'closed',
                     'category',
+                    'category_id',
                     'tag',
                     'count_reports',
                     'created_by' => function ($model) {
                         if ($model->creator) {
-                            return User::getFields($model->creator, ['id', 'phone']);
+                            return User::getFields($model->creator, [
+                                'id',
+                                'phone',
+                                'first_name',
+                                'last_name',
+                                'photo'
+                            ]);
                         }
                         return null;
                     },
@@ -242,6 +249,9 @@ class Advertisement extends ExtendedActiveRecord
             },
             'category' => function ($model) {
                 return $model->category->name;
+            },
+            'category_id' => function ($model) {
+                return $model->category->id;
             },
             'created_at' => function ($model) {
                 return date('d.m.Y', $model->created_at);
