@@ -17,6 +17,7 @@ class UserSearch extends User
         'id' => SORT_DESC,
     ];
     public $count_reports;
+    public $full_name;
     public $blocked;
     /**
      * @inheritdoc
@@ -25,7 +26,7 @@ class UserSearch extends User
     {
         return [
             [['size', 'id', 'phone', 'status', 'count_reports', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['first_name', 'middle_name', 'last_name'], 'safe'],
+            [['first_name', 'middle_name', 'last_name', 'full_name'], 'safe'],
             [['count_reports', 'blocked'], 'in', 'range' => [0,1]],
         ];
     }
@@ -76,7 +77,7 @@ class UserSearch extends User
         // grid filtering conditions
         $query->andFilterWhere([
             'user.id' => $this->id,
-            'phone' => $this->phone,
+            // 'phone' => $this->phone,
             'user.status' => $this->status,
             'user.created_at' => $this->created_at,
             'user.updated_at' => $this->updated_at,
@@ -87,6 +88,11 @@ class UserSearch extends User
         $query->andFilterWhere(['like', 'first_name', $this->first_name])
             ->andFilterWhere(['like', 'middle_name', $this->middle_name])
             ->andFilterWhere(['like', 'last_name', $this->last_name]);
+
+        $query
+            ->andFilterWhere(['like', 'user.phone', $this->phone])
+            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
+
 
         if (null !== $this->count_reports) {
             $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);
