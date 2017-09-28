@@ -125,11 +125,18 @@ class Room extends ExtendedActiveRecord
                 }
                 return null;
             },
-            'msgCount' =>  function ($model) {
-                return (int) $model->getMessages()->count();
+            'msgCount' => function ($model) {
+                $messages = $model->getMessages();
+
+                return [
+                    'all' => (int) $messages->count(),
+                    'deleted' => (int) $messages
+                        ->andOnCondition(['status' => self::STATUS_DELETED])
+                        ->count(),
+                ];
             },
             'category' =>  function ($model) {
-                return (int) $model->category->name;
+                return $model->category->name;
             },
         ];
     }
@@ -215,8 +222,8 @@ class Room extends ExtendedActiveRecord
      */
     public function getCategory()
     {
-        return $this->hasMany(Category::className(), ['id' => 'category_id']);
-            //->andOnCondition(['status' => self::STATUS_ACTIVE]);
+        return $this->hasOne(Category::className(), ['id' => 'category_id']);
+        //->andOnCondition(['status' => self::STATUS_ACTIVE]);
     }
 
     /**
