@@ -128,6 +128,9 @@ class Room extends ExtendedActiveRecord
             'msgCount' =>  function ($model) {
                 return (int) $model->getMessages()->count();
             },
+            'category' =>  function ($model) {
+                return (int) $model->category->name;
+            },
         ];
     }
 
@@ -177,6 +180,7 @@ class Room extends ExtendedActiveRecord
             case 'v2':
                 return self::responseAll($result, [
                     'id',
+                    'category',
                     'category_id',
                     'title',
                     'text',
@@ -204,6 +208,15 @@ class Room extends ExtendedActiveRecord
     public function getMessages()
     {
         return $this->hasMany(Message::className(), ['room_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategory()
+    {
+        return $this->hasMany(Category::className(), ['id' => 'category_id']);
+            //->andOnCondition(['status' => self::STATUS_ACTIVE]);
     }
 
     /**
