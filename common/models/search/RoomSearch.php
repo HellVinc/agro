@@ -76,14 +76,14 @@ class RoomSearch extends Room
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'category_id' => $this->category_id,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
-            'viewed' => $this->viewed,
+            'room.id' => $this->id,
+            'room.category_id' => $this->category_id,
+            'room.status' => $this->status,
+            'room.created_at' => $this->created_at,
+            'room.updated_at' => $this->updated_at,
+            'room.created_by' => $this->created_by,
+            'room.updated_by' => $this->updated_by,
+            'room.viewed' => $this->viewed,
         ]);
 
         $query
@@ -92,15 +92,15 @@ class RoomSearch extends Room
 
         if (Yii::$app->controller->module->id === 'v1') {
             if ($this->category_id == 3) {
-                $query->andFilterWhere(['category_id' => 3]);
+                $query->andFilterWhere(['room.category_id' => 3]);
             } else {
-                $query->andFilterWhere(['not in', 'category_id', 3]);
+                $query->andFilterWhere(['not in', 'room.category_id', 3]);
             }
         }
 
-        $query->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'text', $this->text])
-            ->andFilterWhere(['like', 'description', $this->description]);
+        $query->andFilterWhere(['like', 'room.title', $this->title])
+            ->andFilterWhere(['like', 'room.text', $this->text])
+            ->andFilterWhere(['like', 'room.description', $this->description]);
 
 
         $this->initDateSearch($query);

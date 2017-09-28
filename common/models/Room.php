@@ -125,6 +125,9 @@ class Room extends ExtendedActiveRecord
                 }
                 return null;
             },
+            'msgCount' =>  function ($model) {
+                return (int) $model->getMessages()->count();
+            },
         ];
     }
 
@@ -135,15 +138,16 @@ class Room extends ExtendedActiveRecord
     {
         switch (\Yii::$app->controller->module->id) {
             case 'v1':
-                return self::getFields($this, [
-                    'id',
-                    'category_id',
-                    'title',
-                    'text',
-                    'status',
-                    'user' => 'UserInfo',
-                    'updated_at',
-                ]);
+                return [
+                    'id' => $this->id,
+                    'category_id' => $this->category_id,
+                    'title' => $this->title,
+                    'text' => $this->text,
+                    'status' => $this->status,
+                    'user' => $this->getUserInfo(),
+                    'created_at' => date('d.m.Y', $this->created_at),
+                    'updated_at' => date('d.m.Y', $this->updated_at),
+                ];
             case 'v2':
                 return self::getFields($this, []);
         }
@@ -178,6 +182,7 @@ class Room extends ExtendedActiveRecord
                     'text',
                     'status',
                     'viewed',
+                    'msgCount',
                     'created_at',
                     'created_by',
                 ]);
