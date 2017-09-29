@@ -190,8 +190,16 @@ class Offer extends ExtendedActiveRecord
         return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('offer_tag', ['offer_id' => 'id']);
     }
 
-    public function afterSave($insert, $changedAttributes)
+    /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
     {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
         if ($this->isNewRecord) {
             Yii::$app
                 ->mailer
@@ -205,6 +213,6 @@ class Offer extends ExtendedActiveRecord
                 ->send();
         }
 
-        return parent::afterSave($insert, $changedAttributes);
+        return true;
     }
 }
