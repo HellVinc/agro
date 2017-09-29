@@ -432,7 +432,13 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
         $result['user_active'] = (int) (new Query())
             ->from(User::tableName())
-            ->where(['status' => self::STATUS_ACTIVE])
+            //->where(['status' => self::STATUS_ACTIVE])
+            ->where(['!=', 'role', self::ROLE_CLIENT_BLOCKED])
+            ->count();
+
+        $result['user_blocked'] = (int) (new Query())
+            ->from(User::tableName())
+            ->where(['role' => self::ROLE_CLIENT_BLOCKED])
             ->count();
 
         $result['user_deleted'] = (int) (new Query())
@@ -526,7 +532,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                 'all' => $result['user_all'],
                 'active' => $result['user_active'],
                 'reported' => $result['user_reported'],
-                'deleted' => $result['user_deleted'], //$result['user_all'] - $result['user_active'],
+                'blocked' => $result['user_blocked'],
+                'deleted' => $result['user_deleted'],
             ],
             'post' => [
                 'all' => $result['post_all'],

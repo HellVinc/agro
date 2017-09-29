@@ -78,13 +78,13 @@ class News extends ExtendedActiveRecord
     public function rules()
     {
         return [
-            [['type', 'url', 'title'], 'required'],
+            [['type', 'url'], 'required'],
             [['text'], 'string'],
             [['type', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['url'], 'url', 'defaultScheme' => 'http'],
             [['title'], 'string', 'max' => 255],
-            [['text'], 'required', 'when' => function ($model) {
-                return (int)$model->type === self::TYPE_NEWS;
+            [['text', 'title'], 'required', 'when' => function ($model) {
+                return (int) $model->type === self::TYPE_NEWS;
             }],
             ['type', 'in', 'range' => [self::TYPE_NEWS, self::TYPE_SERVICES]],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
