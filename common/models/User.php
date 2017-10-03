@@ -270,8 +270,8 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                     'first_name' => $this->first_name,
                     'middle_name' => $this->middle_name,// middle_name
                     'last_name' => $this->last_name,
-                    'created_at' =>$this->created_at,
-                    'updated_at' => $this->updated_at,
+                    'created_at' => date('d.m.Y', $this->created_at),
+                    'updated_at' => date('d.m.Y', $this->updated_at),
                     'rating' => $this->getRating()
                 ];
             case 'v2':
@@ -304,8 +304,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
                     'role',
                     'photoPath',
                     'phone',
-                    'rating',
-                    'IsUserEmpty'
+                    'rating'
                 ]);
             case 'v2':
                 return self::responseAll($result, [
@@ -407,10 +406,12 @@ class User extends ExtendedActiveRecord implements IdentityInterface
     {
         $result['buy'] = (new Query())
             ->from('advertisement')
-            ->where(['trade_type' => Advertisement::TYPE_SELL])->count();
+            ->where(['trade_type' => Advertisement::TYPE_SELL, 'status' => Advertisement::STATUS_ACTIVE])
+            ->count();
         $result['sell'] = (new Query())
             ->from('advertisement')
-            ->where(['trade_type' => Advertisement::TYPE_BUY])->count();
+            ->where(['trade_type' => Advertisement::TYPE_BUY, 'status' => Advertisement::STATUS_ACTIVE])
+            ->count();
         $result['chat'] = Room::find()->where(['status' => Room::STATUS_ACTIVE])->count();
         $result['news'] = News::find()
             ->where(['status' => News::STATUS_ACTIVE, 'type' => News::TYPE_NEWS])->count();
@@ -428,22 +429,24 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         // User
 
         $result['user_all'] = (int) (new Query())
-            ->from(User::tableName())->count();
+            ->from(User::tableName())
+            //->andWhere(['!=', 'role', self::ROLE_ADMIN])
+            ->count();
 
         $result['user_active'] = (int) (new Query())
             ->from(User::tableName())
             //->where(['status' => self::STATUS_ACTIVE])
-            ->where(['!=', 'role', self::ROLE_CLIENT_BLOCKED])
+            ->andWhere(['!=', 'role', self::ROLE_CLIENT_BLOCKED])
             ->count();
 
         $result['user_blocked'] = (int) (new Query())
             ->from(User::tableName())
-            ->where(['role' => self::ROLE_CLIENT_BLOCKED])
+            ->andWhere(['role' => self::ROLE_CLIENT_BLOCKED])
             ->count();
 
         $result['user_deleted'] = (int) (new Query())
             ->from(User::tableName())
-            ->where(['status' => self::STATUS_DELETED])
+            ->andWhere(['status' => self::STATUS_DELETED])
             ->count();
 
         $result['user_reported'] = (int) (new Query())
@@ -477,14 +480,14 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
         $result['post_deleted'] = (int) (new Query())
             ->from(Advertisement::tableName())
-            ->where(['status' => self::STATUS_DELETED])
+            ->andWhere(['status' => self::STATUS_DELETED])
             ->count();
 
         // chat_room
 
         $result['room_all'] = (int) (new Query())
             ->from(Room::tableName())
-            ->andWhere(['status' => self::STATUS_ACTIVE])
+            //->andWhere(['status' => self::STATUS_ACTIVE])
             ->count();
 
         $result['room_not_viewed'] = (int) (new Query())
@@ -495,7 +498,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
         $result['room_deleted'] = (int) (new Query())
             ->from(Room::tableName())
-            ->where(['status' => self::STATUS_DELETED])
+            ->andWhere(['status' => self::STATUS_DELETED])
             ->count();
 
         // Other
