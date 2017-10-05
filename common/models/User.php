@@ -430,23 +430,26 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
         $result['user_all'] = (int) (new Query())
             ->from(User::tableName())
-            //->andWhere(['!=', 'role', self::ROLE_ADMIN])
+            ->andWhere(['!=', 'role', self::ROLE_ADMIN])
             ->count();
 
         $result['user_active'] = (int) (new Query())
             ->from(User::tableName())
             //->where(['status' => self::STATUS_ACTIVE])
             ->andWhere(['!=', 'role', self::ROLE_CLIENT_BLOCKED])
+            ->andWhere(['!=', 'role', self::ROLE_ADMIN])
             ->count();
 
         $result['user_blocked'] = (int) (new Query())
             ->from(User::tableName())
             ->andWhere(['role' => self::ROLE_CLIENT_BLOCKED])
+            ->andWhere(['!=', 'role', self::ROLE_ADMIN])
             ->count();
 
         $result['user_deleted'] = (int) (new Query())
             ->from(User::tableName())
             ->andWhere(['status' => self::STATUS_DELETED])
+            ->andWhere(['!=', 'role', self::ROLE_ADMIN])
             ->count();
 
         $result['user_reported'] = (int) (new Query())
@@ -456,6 +459,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ->from(User::tableName())
             ->leftJoin('report', 'report.object_id = user.id AND report.status = 10 AND report.table = "user"')
             ->addGroupBy('user.id')
+            ->andWhere(['!=', 'user.role', self::ROLE_ADMIN])
             ->count();
 
         // Advertisement (post)

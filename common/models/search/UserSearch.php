@@ -48,6 +48,10 @@ class UserSearch extends User
     {
         $query = User::find();
 
+        if (Yii::$app->controller->module->id === 'v2') {
+            $query->andWhere(['!=', 'role', self::ROLE_ADMIN]);
+        }
+
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([

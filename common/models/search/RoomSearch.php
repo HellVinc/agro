@@ -19,6 +19,7 @@ class RoomSearch extends Room
     public $size = 10;
     public $sort = [
         'id' => SORT_DESC,
+        //'count_messages' => SORT_DESC
     ];
     public $phone;
     public $full_name;
@@ -49,6 +50,7 @@ class RoomSearch extends Room
      * Creates data provider instance with search query applied
      *
      * @return ActiveDataProvider
+     * @throws \yii\base\InvalidParamException
      */
     public function search()
     {
@@ -72,7 +74,17 @@ class RoomSearch extends Room
             return $dataProvider;
         }
 
+
         $query->leftJoin(User::tableName(), 'user.id = room.created_by');
+
+        //$query->addSelect('room.*, COUNT(message.id) AS count_messages')->from(self::tableName());
+        //$query->leftJoin('message', 'message.room_id = room.id AND message.status = 10');
+        //$query->addGroupBy('room.id');
+
+        //$dataProvider->sort->attributes['count_messages'] = [
+        //    'asc' => ['count_messages' => SORT_ASC],
+        //    'desc' => ['count_messages' => SORT_DESC],
+        //];
 
         // grid filtering conditions
         $query->andFilterWhere([
