@@ -61,7 +61,7 @@ class News extends ExtendedActiveRecord
 
     public function getNewsCount()
     {
-        return News::find()->count();
+        return self::find()->count();
     }
 
     /**
@@ -175,6 +175,7 @@ class News extends ExtendedActiveRecord
     {
         return [
             'img' => function($model) {
+                /** @var self $model */
                 return $model->getPhotoPath();
             },
             'created_at' => function ($model) {

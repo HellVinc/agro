@@ -113,8 +113,11 @@ class Attachment extends ExtendedActiveRecord
     public function extraFields()
     {
         return [
-            'created_at' => function($model) {
-                return date('Y-m-d', $model->created_at);
+            'created_at' => function ($model) {
+                return date('d.m.Y', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('d.m.Y', $model->updated_at);
             },
             'url' => 'filePath',
         ];
@@ -133,10 +136,11 @@ class Attachment extends ExtendedActiveRecord
         $model = new UploadModel();
         $model->files = UploadedFile::getInstancesByName('file');
         $oldFiles = Attachment::find()->where(['object_id' => $id, 'table' => $table, 'status' => Attachment::STATUS_ACTIVE])->count();
-        if((count(UploadedFile::getInstancesByName('file')) + $oldFiles) > 3 ){
-            return  $model->getErrors('You can load a total of 3 files');
+        if ((count(UploadedFile::getInstancesByName('file')) + $oldFiles) > 3) {
+            /** @var self $model */
+            return $model->addError('file', 'You can load a total of 3 files');
         }
-        if($model->uploads($id, $table)){
+        if ($model->uploads($id, $table)) {
             return $model;
         }
     }
@@ -197,14 +201,14 @@ class Attachment extends ExtendedActiveRecord
 
     public function getFilePath()
     {
-        return Yii::$app->request->hostInfo . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
+        return Yii::$app->request->hostInfo . '/files/' . $this->table . '/' . $this->object_id . '/' . $this->url;
     }
 
 
     public function getFileDir()
     {
 
-        return dirname(Yii::getAlias('@app')) . '/files/' . $this->table . '/' . $this->object_id .'/'. $this->url;
+        return dirname(Yii::getAlias('@app')) . '/files/' . $this->table . '/' . $this->object_id . '/' . $this->url;
     }
 
     /**

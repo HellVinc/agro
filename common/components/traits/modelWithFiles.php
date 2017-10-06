@@ -3,6 +3,7 @@
 namespace common\components\traits;
 
 use common\models\Attachment;
+use common\models\News;
 use Yii;
 
 trait modelWithFiles
@@ -12,6 +13,12 @@ trait modelWithFiles
     public function checkFiles()
     {
         if ($_FILES) {
+            if ($this->tablename() === News::tableName()) {
+                foreach ($this->attachments as $img) {
+                    $img->delete();
+                }
+            }
+
             return Attachment::uploadFiles($this->id, $this->tablename());
         }
         return $this;
