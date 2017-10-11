@@ -121,7 +121,6 @@ class Category extends ExtendedActiveRecord
     {
         return [
             'img' => function($model) {
-                // this is kostyl
                 // $model->attachment show older photo after update
                 $attachment = $model->getAttachment()->one();
                 return $attachment ? $attachment->getFilePath() : null;
@@ -133,10 +132,10 @@ class Category extends ExtendedActiveRecord
                 // return $model->getTags()->select('name')->column();
             },
             'created_at' => function($model) {
-                return date('d-m-Y', $model->created_at);
+                return date('d.m.Y', $model->created_at);
             },
             'updated_at' => function($model) {
-                return date('d-m-Y', $model->updated_at);
+                return date('d.m.Y', $model->updated_at);
             },
         ];
     }
@@ -171,9 +170,9 @@ class Category extends ExtendedActiveRecord
 
     public function uploadFile()
     {
-        if ((int)$this->category_type !== self::TYPE_TRADE) {
-            return true;
-        }
+//        if ((int)$this->category_type !== self::TYPE_TRADE) {
+//            return true;
+//        }
 
         $file = new UploadModel(['scenario' => UploadModel::CATEGORY_FILE]);
         $file->imageFile = UploadedFile::getInstanceByName('file');

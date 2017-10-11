@@ -7,6 +7,9 @@ trait dateSearch
 {
     use dateHelper;
 
+    public $from;
+    public $to;
+
     public $date_from;
     public $date_to;
 
@@ -17,36 +20,62 @@ trait dateSearch
     public $updated_to;
 
     /**
+     * Search on create or update time
+     *
+     * @param $query
+     */
+//    public function initDateSearch(ActiveQuery $query)
+//    {
+//        $this->created_from = $this->strToTsAM($this->created_from);
+//        $this->created_to   = $this->strToTsPM($this->created_to);
+//
+//        $this->updated_from = $this->strToTsAM($this->updated_from);
+//        $this->updated_to   = $this->strToTsPM($this->updated_to);
+//
+//        $this->date_from = $this->strToTsAM($this->date_from);
+//        $this->date_to   = $this->strToTsPM($this->date_to);
+//
+//
+//        if (!empty($this->date_from)) {
+//            $this->created_from = $this->updated_from = $this->date_from;
+//        }
+//        if (!empty($this->date_to)) {
+//            $this->created_to = $this->updated_to = $this->date_to;
+//        }
+//
+//        $query->andFilterWhere(['or',
+//            ['>=', self::tableName() . '.created_at', $this->created_from],
+//            ['>=', self::tableName() . '.updated_at', $this->updated_from],
+//        ]);
+//
+//        $query->andFilterWhere(['or',
+//            ['<=', self::tableName() . '.created_at', $this->created_to],
+//            ['<=', self::tableName() . '.updated_at', $this->updated_to],
+//        ]);
+//    }
+
+    /**
+     * Search on create time
+     *
      * @param $query
      */
     public function initDateSearch(ActiveQuery $query)
     {
-        $this->created_from = $this->strToTsAM($this->created_from);
-        $this->created_to   = $this->strToTsPM($this->created_to);
+        $this->from = $this->strToTsAM($this->date_from);
+        $this->to   = $this->strToTsPM($this->date_to);
 
-        $this->updated_from = $this->strToTsAM($this->updated_from);
-        $this->updated_to   = $this->strToTsPM($this->updated_to);
-
-        $this->date_from = $this->strToTsAM($this->date_from);
-        $this->date_to   = $this->strToTsPM($this->date_to);
-
-
-        if (!empty($this->date_from)) {
-            $this->created_from = $this->updated_from = $this->date_from;
-        }
-        if (!empty($this->date_to)) {
-            $this->created_to = $this->updated_to = $this->date_to;
+        if (!empty($this->from)) {
+            $this->created_from = $this->from;
         }
 
+        if (!empty($this->to)) {
+            $this->created_to = $this->to;
+        }
+        //elseif ($this->from) {
+        //    $this->created_to = $this->strToTsPM($this->date_from);
+        //}
 
-        $query->andFilterWhere(['or',
-            ['>=', self::tableName() . '.created_at', $this->created_from],
-            ['>=', self::tableName() . '.updated_at', $this->updated_from],
-        ]);
-
-        $query->andFilterWhere(['or',
-            ['<=', self::tableName() . '.created_at', $this->created_to],
-            ['<=', self::tableName() . '.updated_at', $this->updated_to],
-        ]);
+        $query->andFilterWhere(['>=', self::tableName() . '.created_at', $this->created_from]);
+        $query->andFilterWhere(['<=', self::tableName() . '.created_at', $this->created_to]);
     }
 }

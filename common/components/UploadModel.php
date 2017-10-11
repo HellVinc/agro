@@ -67,8 +67,7 @@ class UploadModel extends Model
 
     public static function uploadBase($name, $id, $table)
     {
-        $data = str_replace('data:image/jpg;base64,', '', $name);
-        $data = str_replace(' ', '+', $data);
+        $data = str_replace(array('data:image/jpg;base64,', ' '), array('', '+'), $name);
         $data = base64_decode($data); // Decode image using base64_decode
         $file = mt_rand(10000, 900000) . '.jpg';
 

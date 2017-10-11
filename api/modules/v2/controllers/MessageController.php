@@ -2,6 +2,7 @@
 
 namespace api\modules\v2\controllers;
 
+use common\models\Room;
 use Yii;
 use common\models\Message;
 use common\models\search\MessageSearch;
@@ -55,8 +56,26 @@ class MessageController extends Controller
     public function actionAll()
     {
         $model = new MessageSearch();
-        $dataProvider = $model->searchAll(Yii::$app->request->get(), true);
-        return Message::allFields($dataProvider);
+        $get = Yii::$app->request->get();
+        $dataProvider = $model->searchAll($get, true);
+        $ret = Message::allFields($dataProvider);
+
+        if (!empty($dataProvider->models) && !empty($get['room_id'])) {
+            $room = Room::findOne($get['room_id']);
+            $ret = array_merge([
+                'room' => $room->responseOne([
+                    'id',
+                    'category',
+                    'category_id',
+                    'title',
+                    'text',
+                    'viewed',
+                    'created_at',
+                    'created_by',
+                ])
+            ], $ret);
+        }
+        return $ret;
     }
 
     /**
