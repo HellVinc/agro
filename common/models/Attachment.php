@@ -145,6 +145,24 @@ class Attachment extends ExtendedActiveRecord
         }
     }
 
+    public static function uploadFile64($data, $id, $table)
+    {
+        $file = UploadModel::uploadDataURL($data, $id, $table);
+
+        if ($file) {
+            $model = new self();
+            $model->object_id = $id;
+            $model->table = $table;
+            $model->extension = $file['extension'];
+            $model->url = $file['name'];
+            if ($model->save()) {
+                return $model;
+            }
+        }
+
+        return false;
+    }
+
 
 //    public static function uploadOne($name, $id, $table)
 //    {

@@ -146,8 +146,8 @@ class Advertisement extends ExtendedActiveRecord
             'closed' => $this->closed,
             'status' => $this->status,
             'user' => $this->getUserInfo(),
-            'created_at' => date('Y-m-d', $this->created_at),
-            'updated_at' => $this->updated_at,
+            'created_at' => date('d.m.Y', $this->created_at),
+            'updated_at' => date('d.m.Y', $this->updated_at),
             'attachments' => $this->attachments,
 
         ];
@@ -175,9 +175,7 @@ class Advertisement extends ExtendedActiveRecord
                     'closed',
                     'status',
                     'user' => 'UserInfo',
-                    'created_at' => function ($model) {
-                        return date('Y-m-d', $model->created_at);
-                    },
+                    'created_at',
                     'updated_at',
                     'attachments',
                     'favorites',
@@ -196,21 +194,16 @@ class Advertisement extends ExtendedActiveRecord
                     'category_id',
                     'tag',
                     'count_reports',
-                    'created_by' => function ($model) {
-                        if ($model->creator) {
-                            return User::getFields($model->creator, [
-                                'id',
-                                'phone',
-                                'first_name',
-                                'last_name',
-                                'photo'
-                            ]);
-                        }
-                        return null;
-                    },
+                    'created_by',
                     'created_at',
                     'updated_at',
-                    'attachments'
+                    'attachments' => function ($model) {
+                        return [
+                            'attachments' => $model->attachments,
+                            'count' => count($model->attachments),
+                        ];
+                    },
+                    'comments',
                 ]);
         }
     }
@@ -231,12 +224,7 @@ class Advertisement extends ExtendedActiveRecord
             'count_reports' => function ($model) {
                 return (int)$model->getReports()->count();
             },
-            'attachments' => function ($model) {
-                return [
-                    'attachments' => $model->attachments,
-                    'count' => count($model->attachments),
-                ];
-            },
+
             'trade_type' => function ($model) {
                 switch ($model->trade_type) {
                     case self::TYPE_BUY:
@@ -258,6 +246,24 @@ class Advertisement extends ExtendedActiveRecord
             },
             'updated_at' => function ($model) {
                 return date('d.m.Y', $model->updated_at);
+            },
+            'created_by' => function ($model) {
+                if ($model->creator) {
+                    return User::getFields($model->creator, [
+                        'id',
+                        'phone',
+                        'first_name',
+                        'last_name',
+                        'photo'
+                    ]);
+                }
+                return null;
+            },
+            'comments' => function ($model) {
+                return [
+                    'models' => Comment::allFields($model->comments),
+                    'count' => count($model->comments),
+                ];
             },
         ];
     }
@@ -340,6 +346,11 @@ class Advertisement extends ExtendedActiveRecord
             ]);
     }
 
+    public function getTagName()
+    {
+        return $this->tag->name;
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -361,7 +372,8 @@ class Advertisement extends ExtendedActiveRecord
      */
     public function getComments()
     {
-        return $this->hasMany(Comment::className(), ['advertisement_id' => 'id']);
+        return $this->hasMany(Comment::className(), ['advertisement_id' => 'id'])
+            ->andFilterWhere(['status' => self::STATUS_ACTIVE]);
     }
 
     /**

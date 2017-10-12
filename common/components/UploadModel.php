@@ -4,6 +4,7 @@ namespace common\components;
 
 use common\models\Attachment;
 use Yii;
+use yii\base\ErrorException;
 use yii\base\Model;
 use yii\helpers\FileHelper;
 use yii\web\UploadedFile;
@@ -76,11 +77,57 @@ class UploadModel extends Model
             FileHelper::createDirectory($dir);
         }
 
-        $dir = dirname(Yii::getAlias('@app')) . $table . $id . "/" . $file;
+        $dir = dirname(Yii::getAlias('@app')) . $table . $id . '/' . $file;
         if (!file_put_contents($dir, $data)) {
             return false;
         }
-        return  $file;
+        return $file;
+    }
 
+    public static function uploadDataURL($data, $id, $table)
+    {
+        $file = [];
+        if (!preg_match('/data:([^;]*);base64,(.*)/', $data, $matches)) {
+            throw new ErrorException('Wrong Data URL', 400);
+        }
+
+        switch ($matches[1]) {
+            case 'image/png':
+                $file['extension'] = 'png';
+                break;
+
+            case 'image/jpg':
+            case 'image/jpeg':
+                $file['extension'] = 'jpg';
+                break;
+
+            default:
+                throw new ErrorException('Unsupported mime type', 400);
+        }
+
+        $hash = hash('sha1', $matches[2]); // base64 hash
+        $file['name'] = $hash . '.' . $file['extension'];
+        $dir = dirname(Yii::getAlias('@app')) . '/files/' . $table . '/' . $id;
+        $path = $dir . '/' . $file['name'];
+
+        if (!file_exists($path)) {
+            $content = base64_decode(
+                str_replace(' ', '+', $matches[2])
+            );
+
+            if (!$content) { // || !imagecreatefromstring($content)
+                throw new ErrorException('Invalid base64', 400);
+            }
+
+            if (!is_dir($dir)) {
+                FileHelper::createDirectory($dir);
+            }
+
+            if (!file_put_contents($path, $content)) {
+                return false;
+            }
+        }
+
+        return $file;
     }
 }

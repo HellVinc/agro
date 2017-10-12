@@ -157,6 +157,7 @@ class Report extends ExtendedActiveRecord
             'updated_at' => function ($model) {
                 return date('d.m.Y', $model->updated_at);
             },
+            'created_by' => 'userInfo',
         ];
     }
 }
