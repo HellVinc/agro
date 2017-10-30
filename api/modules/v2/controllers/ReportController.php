@@ -95,8 +95,8 @@ class ReportController extends Controller
     }
 
     /**
-     * Deletes an existing Report model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * Deletes an existing Report models.
+     *
      * @param $id
      * @return mixed
      * @throws \Exception
@@ -104,7 +104,13 @@ class ReportController extends Controller
      */
     public function actionDelete($id)
     {
-        return $this->findModel($id)->delete();
+        $ids = explode(',', $id);
+        foreach ($ids as $i) {
+            if (!$this->findModel($i)->delete()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

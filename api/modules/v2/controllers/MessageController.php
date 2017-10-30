@@ -59,9 +59,15 @@ class MessageController extends Controller
         $get = Yii::$app->request->get();
         $dataProvider = $model->searchAll($get, true);
         $ret = Message::allFields($dataProvider);
+        $room = false;
 
-        if (!empty($dataProvider->models) && !empty($get['room_id'])) {
+        if (!empty($get['room_id'])) {
             $room = Room::findOne($get['room_id']);
+        }
+
+        if ($room) {
+            $category = $room->category;
+
             $ret = array_merge([
                 'room' => $room->responseOne([
                     'id',
@@ -72,7 +78,8 @@ class MessageController extends Controller
                     'viewed',
                     'created_at',
                     'created_by',
-                ])
+                ]),
+                'category' => $category->oneFields(),
             ], $ret);
         }
         return $ret;

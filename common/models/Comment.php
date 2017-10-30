@@ -112,7 +112,7 @@ class Comment extends ExtendedActiveRecord
             'advertisement_id' => $this->advertisement_id,
             'text' => $this->text,
             'viewed' => $this->viewed,
-            'date' => $this->created_at,
+            'created_at' => date('d.m.Y', $this->created_at),
             'user' => $this->userInfo,
             'avatar' => User::findOne(['id' => $this->created_by])->photoPath,
         ];
@@ -126,7 +126,7 @@ class Comment extends ExtendedActiveRecord
         return [
             'date' => 'created_at',
             'avatar' => function ($model) {
-                return User::findOne(['id' => $this->created_by])->photoPath;
+                return User::findOne(['id' => $model->created_by])->photoPath;
             },
             'user' => function ($model) {
                 $user = $model->creator;
@@ -154,9 +154,7 @@ class Comment extends ExtendedActiveRecord
                     'text',
                     'advertisement_id',
                     'viewed',
-                    'created_at' => function($model){
-                    return date('d-m-Y', $model->created_at);
-                    },
+                    'created_at',
                     'user'=> 'UserInfo',
                     'avatar',
                 ]);
@@ -171,6 +169,7 @@ class Comment extends ExtendedActiveRecord
                         return User::getFields($model->creator, [
                             'id',
                             'phone',
+                            'photo',
                             'first_name',
                             'last_name',
                         ]);

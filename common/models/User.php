@@ -15,7 +15,6 @@ use common\components\traits\findRecords;
 use common\components\UploadBase;
 use common\components\UploadModel;
 use common\models\search\RoomSearch;
-use phpDocumentor\Reflection\Types\Boolean;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\BlameableBehavior;
@@ -24,7 +23,6 @@ use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
-use Twilio\Rest\Client;
 
 /**
  * User model
@@ -169,7 +167,7 @@ class User extends ExtendedActiveRecord implements IdentityInterface
 
     public function getPhone()
     {
-        return $this->phone;
+        return 0 . $this->phone;
     }
 
     public function getPhotoPath()
@@ -179,14 +177,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         }
         return Yii::$app->request->hostInfo . '/photo/user/empty.jpg';
 
-    }
-
-    /**
-     * @return bool
-     */
-    public function getIsUserEmpty()
-    {
-        return empty($this->first_name) || empty($this->last_name) || empty($this->photo);
     }
 
     public function getPhotoDir()
@@ -218,6 +208,14 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         }
         return $this->errors;
 
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsUserEmpty()
+    {
+        return empty($this->first_name) || empty($this->last_name) || empty($this->photo);
     }
 
     public function getAttachments()
@@ -427,7 +425,6 @@ class User extends ExtendedActiveRecord implements IdentityInterface
         $result = [];
 
         // User
-
         $result['user_all'] = (int) (new Query())
             ->from(User::tableName())
             ->andWhere(['!=', 'role', self::ROLE_ADMIN])
@@ -459,7 +456,10 @@ class User extends ExtendedActiveRecord implements IdentityInterface
             ->from(User::tableName())
             ->leftJoin('report', 'report.object_id = user.id AND report.status = 10 AND report.table = "user"')
             ->addGroupBy('user.id')
-            ->andWhere(['!=', 'user.role', self::ROLE_ADMIN])
+            ->andWhere(['not in', 'user.role', [
+                self::ROLE_ADMIN,
+                self::ROLE_CLIENT_BLOCKED
+            ]])
             ->count();
 
         // Advertisement (post)

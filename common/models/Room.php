@@ -27,6 +27,7 @@ use yii\db\ActiveRecord;
  * @property integer $viewed
  *
  * @property Message[] $messages
+ * @property Category $category
  */
 class Room extends ExtendedActiveRecord
 {
