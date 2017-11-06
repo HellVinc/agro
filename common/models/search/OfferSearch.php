@@ -3,6 +3,7 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
+use common\components\traits\fullNameSearch;
 use common\models\User;
 use Yii;
 use yii\base\Model;
@@ -15,6 +16,7 @@ use common\models\Offer;
 class OfferSearch extends Offer
 {
     use dateSearch;
+    use fullNameSearch;
 
     public $size = 10;
     public $sort = [
@@ -22,7 +24,6 @@ class OfferSearch extends Offer
     ];
     public $description;
     public $phone;
-    public $full_name;
 
     /**
      * @inheritdoc
@@ -89,9 +90,8 @@ class OfferSearch extends Offer
             'offer.updated_by' => $this->updated_by,
         ]);
 
-        $query
-            ->andFilterWhere(['like', 'user.phone', $this->phone])
-            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
+        $query->andFilterWhere(['like', 'user.phone', $this->phone]);
+        $this->fullNameSearch($query);
 
         $query->andFilterWhere(['or',
             ['like', 'text', $this->text],

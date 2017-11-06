@@ -2,6 +2,7 @@
 
 namespace common\models\search;
 
+use common\components\traits\fullNameSearch;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -12,12 +13,13 @@ use common\models\User;
  */
 class UserSearch extends User
 {
+    use fullNameSearch;
+
     public $size = 10;
     public $sort = [
         'id' => SORT_DESC,
     ];
     public $count_reports;
-    public $full_name;
     public $blocked;
     /**
      * @inheritdoc
@@ -93,10 +95,8 @@ class UserSearch extends User
             ->andFilterWhere(['like', 'middle_name', $this->middle_name])
             ->andFilterWhere(['like', 'last_name', $this->last_name]);
 
-        $query
-            ->andFilterWhere(['like', 'user.phone', $this->phone])
-            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
-
+        $query->andFilterWhere(['like', 'user.phone', $this->phone]);
+        $this->fullNameSearch($query);
 
         if (null !== $this->count_reports) {
             $query->having([$this->count_reports == 0 ? '=' : '>', 'count_reports', '0']);

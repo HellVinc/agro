@@ -3,6 +3,7 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
+use common\components\traits\fullNameSearch;
 use common\models\Category;
 use common\models\Tag;
 use Yii;
@@ -17,13 +18,13 @@ use common\models\User;
 class AdvertisementSearch extends Advertisement
 {
     use dateSearch;
+    use fullNameSearch;
 
     public $size = 10;
     public $sort = [
         'id' => SORT_DESC,
     ];
     public $phone;
-    public $full_name;
     public $count_reports;
 
     /**
@@ -103,13 +104,13 @@ class AdvertisementSearch extends Advertisement
             'advertisement.status' => $this->status,
             'advertisement.created_at' => $this->created_at,
             'advertisement.updated_at' => $this->updated_at,
-            'advertiselolment.created_by' => $this->created_by,
+            'advertisement.created_by' => $this->created_by,
             'advertisement.updated_by' => $this->updated_by,
         ]);
 
-        $query
-            ->andFilterWhere(['like', 'user.phone', $this->phone])
-            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
+        $query->andFilterWhere(['like', 'user.phone', $this->phone]);
+
+        $this->fullNameSearch($query);
 
         $query->andFilterWhere(['like', 'advertisement.title', $this->title])
             ->andFilterWhere(['like', 'advertisement.text', $this->text])

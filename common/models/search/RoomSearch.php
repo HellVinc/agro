@@ -3,6 +3,7 @@
 namespace common\models\search;
 
 use common\components\traits\dateSearch;
+use common\components\traits\fullNameSearch;
 use common\models\User;
 use Yii;
 use yii\base\Model;
@@ -15,14 +16,13 @@ use common\models\Room;
 class RoomSearch extends Room
 {
     use dateSearch;
+    use fullNameSearch;
 
     public $size = 10;
     public $sort = [
         'id' => SORT_DESC,
-        //'count_messages' => SORT_DESC
     ];
     public $phone;
-    public $full_name;
     public $description;
 
     /**
@@ -77,15 +77,6 @@ class RoomSearch extends Room
 
         $query->leftJoin(User::tableName(), 'user.id = room.created_by');
 
-        //$query->addSelect('room.*, COUNT(message.id) AS count_messages')->from(self::tableName());
-        //$query->leftJoin('message', 'message.room_id = room.id AND message.status = 10');
-        //$query->addGroupBy('room.id');
-
-        //$dataProvider->sort->attributes['count_messages'] = [
-        //    'asc' => ['count_messages' => SORT_ASC],
-        //    'desc' => ['count_messages' => SORT_DESC],
-        //];
-
         // grid filtering conditions
         $query->andFilterWhere([
             'room.id' => $this->id,
@@ -98,9 +89,8 @@ class RoomSearch extends Room
             'room.viewed' => $this->viewed,
         ]);
 
-        $query
-            ->andFilterWhere(['like', 'user.phone', $this->phone])
-            ->andFilterWhere(['like', 'CONCAT(user.first_name, \' \', user.last_name)', $this->full_name]);
+        $query->andFilterWhere(['like', 'user.phone', $this->phone]);
+        $this->fullNameSearch($query);
 
         if (Yii::$app->controller->module->id === 'v1') {
             if ($this->category_id == 3) {
