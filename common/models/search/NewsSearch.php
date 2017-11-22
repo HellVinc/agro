@@ -12,7 +12,7 @@ use common\models\News;
  */
 class NewsSearch extends News
 {
-    public $size = 10;
+    public $size = 11;
     public $sort = [
         'id' => SORT_DESC,
     ];

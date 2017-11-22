@@ -14,7 +14,7 @@ class CommentSearch extends Comment
 {
     public $size = 10;
     public $sort = [
-        'id' => SORT_DESC,
+        'id' => SORT_ASC,
     ];
 
     /**

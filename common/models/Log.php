@@ -91,7 +91,7 @@ class Log extends ExtendedActiveRecord
 
     public function getData()
     {
-        return date('Y-m-d, H:i:s', $this->created_at);
+        return date('d.m.Y', $this->created_at);
     }
 
     public function getMessage()
@@ -100,20 +100,32 @@ class Log extends ExtendedActiveRecord
             case Advertisement::tableName():
 //                return Log::LOG_ADV . $this->advertisement->title . ', ' . $this->getData();
                 return [
-                    'id' => $this->advertisement->id,
-                    'tags' => $this->advertisement->tag->name,
+                    'id' => $this->advertisement ? $this->advertisement->id : 'DELETED',
+                    'tags' => $this->advertisement ? $this->advertisement->tag->name : 'DELETED',
                     'type' => Advertisement::tableName(),
                     'message' => Log::LOG_ADV,
-                    'title' => $this->advertisement->title,
+                    'title' => $this->advertisement ? $this->advertisement->title : 'DELETED',
+//                    => function () {
+//                        if ($this->advertisement->title) {
+//                            return
+//                        }
+//                        return 'Not found';
+//                    },
                     'date' => $this->getData()
                 ];
             case Comment::tableName():
 //                return Log::LOG_COMMENT . $this->comment->advertisement->title . ', ' . $this->getData();
                 return [
-                    'id' => $this->comment->id,
+                    'id' => $this->comment ? $this->comment->id : 'DELETED',
                     'type' => Comment::tableName(),
                     'message' => Log::LOG_COMMENT,
-                    'title' => $this->comment->advertisement->title,
+//                    'title' => $this->comment->advertisement->title,
+                    'title' => function () {
+                        if ($this->comment->advertisement->title) {
+                            return $this->comment->advertisement->title;
+                        }
+                        return 'Not found';
+                    },
                     'date' => $this->getData()
                 ];
             case Favorites::tableName():
@@ -131,7 +143,7 @@ class Log extends ExtendedActiveRecord
 
     public function favoritesTitles()
     {
-        if($this->favorites){
+        if ($this->favorites) {
             switch ($this->favorites->table) {
                 case Advertisement::tableName():
                     return $this->favorites->advertisement->title;
@@ -140,7 +152,7 @@ class Log extends ExtendedActiveRecord
             }
             return 'Not Found';
         }
-       return 'DELETED';
+        return 'DELETED';
     }
 
     /**
@@ -149,7 +161,8 @@ class Log extends ExtendedActiveRecord
     public function getAdvertisement()
     {
         return $this->hasOne(Advertisement::className(), ['id' => 'object_id'])
-            ->andOnCondition(['created_by' => Yii::$app->user->id]);
+            ->andOnCondition(['created_by' => Yii::$app->user->id])
+            ->andOnCondition(['status' => 10]);
     }
 
     /**
@@ -158,7 +171,8 @@ class Log extends ExtendedActiveRecord
     public function getComment()
     {
         return $this->hasOne(Comment::className(), ['id' => 'object_id'])
-            ->andOnCondition(['created_by' => Yii::$app->user->id]);
+            ->andOnCondition(['created_by' => Yii::$app->user->id])
+            ->andOnCondition(['status' => 10]);
     }
 
     /**
@@ -167,6 +181,7 @@ class Log extends ExtendedActiveRecord
     public function getFavorites()
     {
         return $this->hasOne(Favorites::className(), ['id' => 'object_id'])
-            ->andOnCondition(['created_by' => Yii::$app->user->id]);
+            ->andOnCondition(['created_by' => Yii::$app->user->id])
+            ->andOnCondition(['status' => 10]);
     }
 }

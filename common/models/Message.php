@@ -115,8 +115,8 @@ class Message extends ExtendedActiveRecord
                     'text' => $this->text,
                     'viewed' => $this->viewed,
                     'user' => $this->getUserInfo(),
-                    'created_at' => date('d-m-Y', $this->created_at),
-                    'updated_at' => date('d-m-Y', $this->updated_at),
+                    'created_at' => date('d.m.Y', $this->created_at),
+                    'updated_at' => date('d.m.Y', $this->updated_at),
                     'attachments' => $this->attachments
                 ];
 
@@ -141,33 +141,17 @@ class Message extends ExtendedActiveRecord
      */
     public static function allFields($result)
     {
-        switch (\Yii::$app->controller->module->id) {
-            case 'v1':
-                return self::responseAll($result, [
-                    'id',
-                    'room_id',
-                    'text',
-                    'viewed',
-                    'status',
-                    'user',
-                    'created_at',
-                    'updated_at',
-                    'created_by',
-                    'attachments',
-                ]);
-            case 'v2':
-                return self::responseAll($result, [
-                    'id',
-                    'room_id',
-                    'text',
-                    'viewed',
-                    'status',
-                    'created_at',
-                    'updated_at',
-                    'created_by' => 'userInfo',
-                    'attachments',
-                ]);
-        }
+        return self::responseAll($result, [
+            'id',
+            'room_id',
+            'text',
+            'viewed',
+            'status',
+            'user',
+            'created_at',
+            'created_by',
+            'attachments'
+        ]);
     }
 
     public function extraFields()
@@ -202,6 +186,27 @@ class Message extends ExtendedActiveRecord
     /**
      * @return int|string
      */
+    public static function unreadFinanceCount()
+    {
+        return Room::find()
+            ->leftJoin('message', 'message.room_id = room.id')
+            ->where([
+                'room.created_by' => Yii::$app->user->id,
+                'room.status' => Room::STATUS_ACTIVE,
+                'message.viewed' => Message::TYPE_UNVIEWED,
+                'message.status' => Message::STATUS_ACTIVE
+            ])
+            ->andFilterWhere(['!=', 'message.created_by', Yii::$app->user->id])
+            ->andFilterWhere(['like', 'room.category_id', 3])
+            ->count();
+
+//        return Message::find()
+//            ->where([
+//                'created_by' => Yii::$app->user->id,
+//                'viewed' => Message::UNVIEWED
+//            ])->count();
+    }
+
     public static function unreadCount()
     {
         return Room::find()
@@ -213,6 +218,7 @@ class Message extends ExtendedActiveRecord
                 'message.status' => Message::STATUS_ACTIVE
             ])
             ->andFilterWhere(['not in', 'message.created_by', Yii::$app->user->id])
+            ->andFilterWhere(['not in', 'room.category_id', 3])
             ->count();
 
 //        return Message::find()

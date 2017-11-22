@@ -100,6 +100,17 @@ class Offer extends ExtendedActiveRecord
         ];
     }
 
+    public function sendEmail($message)
+    {
+        return Yii::$app->mailer->compose()
+            ->setFrom('agro@support.com')
+//            ->setTo('vinc_666@mail.ru')
+            ->setTo('marie.lelyukh@gmail.com')
+            ->setSubject('Новое предложение')
+            ->setHtmlBody($message)
+            ->send();
+    }
+
     public function extraFields()
     {
         return [

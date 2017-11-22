@@ -100,18 +100,28 @@ class Rating extends ExtendedActiveRecord
 
     public function oneFields()
     {
-        return [self::getFields($this, [
-                'id',
-                'rating',
-                'text',
-                'viewed',
-                'status',
-                'user' => 'UserInfo',
-                'created_at' => function ($model) {
-                    /** @var $model Rating */
-                    return date('Y-m-d', $model->created_at);
-                },
-            ])][0];
+        switch (Yii::$app->controller->module->id) {
+            case 'v1':
+                return [
+                    'id' => $this->id,
+                    'rating' => $this->rating,
+                    'text' => $this->text,
+                    'status' => $this->status,
+                    'user' => $this->getUserInfo(),
+                    'created_at' => date('d.m.Y', $this->created_at),
+                    'updated_at' => date('d.m.Y', $this->updated_at),
+                ];
+            case 'v2':
+                return self::getFields($this, [
+                    'id',
+                    'rating',
+                    'text',
+                    'viewed',
+                    'status',
+                    'user' => 'UserInfo',
+                    'created_at',
+                ])[0];
+        }
     }
 
     /**
@@ -127,11 +137,20 @@ class Rating extends ExtendedActiveRecord
             'viewed',
             'status',
             'user' => 'UserInfo',
-            'created_at' => function ($model) {
-                /** @var $model Rating */
-                return date('Y-m-d', $model->created_at);
-            },
+            'created_at',
         ]);
+    }
+
+    public function extraFields()
+    {
+        return [
+            'created_at' => function ($model) {
+                return date('d.m.Y', $model->created_at);
+            },
+            'updated_at' => function ($model) {
+                return date('d.m.Y', $model->updated_at);
+            },
+        ];
     }
 
     /**

@@ -123,7 +123,6 @@ class Tag extends ExtendedActiveRecord
         }
     }
 
-
     /**
      * @return string
      */
