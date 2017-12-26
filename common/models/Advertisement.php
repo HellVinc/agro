@@ -99,6 +99,9 @@ class Advertisement extends ExtendedActiveRecord
             [['viewed'], 'in', 'range' => [self::TYPE_VIEWED, self::TYPE_UNVIEWED]],
             [['closed'], 'in', 'range' => [0, 1]],
             [['tag_id'], 'exist',
+                'when' => function ($model) {
+                    return $model->isNewRecord;
+                },
                 'filter' => [
                     'status' => self::STATUS_ACTIVE,
                 ], 'targetClass' => Tag::className(),

@@ -74,6 +74,9 @@ class Message extends ExtendedActiveRecord
             [['room_id', 'viewed', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'string'],
             [['room_id'], 'exist',
+                'when' => function ($model) {
+                    return $model->isNewRecord;
+                },
                 'filter' => [
                     'status' => self::STATUS_ACTIVE,
                 ], 'targetClass' => Room::className(),

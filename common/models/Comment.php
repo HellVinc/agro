@@ -73,6 +73,9 @@ class Comment extends ExtendedActiveRecord
             [['text', 'advertisement_id'], 'required'],
             [['text'], 'string'],
             [['advertisement_id'], 'exist',
+                'when' => function ($model) {
+                    return $model->isNewRecord;
+                },
                 'filter' => [
                     'status' => self::STATUS_ACTIVE,
                 ], 'targetClass' => Advertisement::className(),

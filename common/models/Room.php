@@ -77,6 +77,9 @@ class Room extends ExtendedActiveRecord
             [['title'], 'string', 'max' => 255],
             ['viewed', 'in', 'range' => [0, 1]],
             [['category_id'], 'exist',
+                'when' => function ($model) {
+                    return $model->isNewRecord;
+                },
                 'filter' => [
                     'category_type' => Category::TYPE_CHAT,
                     'status' => self::STATUS_ACTIVE,

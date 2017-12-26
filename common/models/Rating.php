@@ -71,6 +71,9 @@ class Rating extends ExtendedActiveRecord
             [['rating', 'user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['text'], 'string'],
             [['user_id'], 'exist',
+                'when' => function ($model) {
+                    return $model->isNewRecord;
+                },
                 'filter' => [
                     'status' => self::STATUS_ACTIVE,
                 ], 'targetClass' => User::className(),

@@ -75,6 +75,9 @@ class Tag extends ExtendedActiveRecord
             [['name'], 'string', 'max' => 255],
             [['name', 'category_id'], 'unique', 'targetAttribute' => ['name', 'category_id']],
             [['category_id'], 'exist',
+                'when' => function ($model) {
+                    return $model->isNewRecord;
+                },
                 'filter' => [
                     'category_type' => Category::TYPE_TRADE,
                     'status' => self::STATUS_ACTIVE,
