@@ -12,7 +12,7 @@ use common\models\News;
  */
 class NewsSearch extends News
 {
-    public $size = 11;
+    public $size = 10;
     public $sort = [
         'id' => SORT_DESC,
     ];
@@ -46,6 +46,10 @@ class NewsSearch extends News
     public function search()
     {
         $query = News::find();
+
+        if (Yii::$app->controller->module->id === 'v2') {
+            $this->size = 11;
+        }
 
         // add conditions that should always apply here
 

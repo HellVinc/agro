@@ -12,7 +12,7 @@ use common\models\Category;
  */
 class CategorySearch extends Category
 {
-    public $size = 10;
+    public $size;
     public $sort = [
         'id' => SORT_ASC,
     ];
@@ -46,8 +46,11 @@ class CategorySearch extends Category
         $query = Category::find();
 
         if (Yii::$app->controller->module->id === 'v2') {
-            $this->size = $this->size ?: 10;
+            $this->size = $this->size ?: 11;
             $this->sort['id'] = SORT_DESC;
+        }
+        else {
+            $this->size = 10;
         }
 
         // add conditions that should always apply here
