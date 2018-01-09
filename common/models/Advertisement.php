@@ -57,6 +57,9 @@ class Advertisement extends ExtendedActiveRecord
     const TYPE_UNVIEWED = 0;
     const TYPE_VIEWED = 1;
 
+    // advertisement directory has been banned by adblock
+    const FILES_DIR = 'post';
+
     public function behaviors()
     {
         return [
@@ -300,7 +303,7 @@ class Advertisement extends ExtendedActiveRecord
         return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
             ->where([
                 'advertisement.created_by' => Yii::$app->user->id,
-                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'advertisement.status' => self::STATUS_ACTIVE,
                 'comment.viewed' => Comment::TYPE_UNVIEWED,
                 'comment.status' => Comment::STATUS_ACTIVE
             ])
@@ -313,10 +316,10 @@ class Advertisement extends ExtendedActiveRecord
         return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
             ->where([
                 'advertisement.created_by' => Yii::$app->user->id,
-                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'advertisement.status' => self::STATUS_ACTIVE,
                 'comment.viewed' => Comment::TYPE_UNVIEWED,
                 'comment.status' => 10,
-                'trade_type' => Advertisement::TYPE_BUY
+                'trade_type' => self::TYPE_BUY
             ])->count();
     }
 
@@ -325,17 +328,17 @@ class Advertisement extends ExtendedActiveRecord
         return Comment::find()->leftJoin('advertisement', 'advertisement.id = comment.advertisement_id')
             ->where([
                 'advertisement.created_by' => Yii::$app->user->id,
-                'advertisement.status' => Advertisement::STATUS_ACTIVE,
+                'advertisement.status' => self::STATUS_ACTIVE,
                 'comment.viewed' => Comment::TYPE_UNVIEWED,
                 'comment.status' => 10,
-                'trade_type' => Advertisement::TYPE_SELL
+                'trade_type' => self::TYPE_SELL
             ])->count();
     }
 
     public function getPhotoPath()
     {
         if ($this->photo) {
-            return Yii::$app->request->getHostInfo() . '/files/advertisement/' . $this->id . '/' . $this->photo;
+            return Yii::$app->request->getHostInfo() . '/files/' . self::FILES_DIR . '/' . $this->id . '/' . $this->photo;
         }
         return Yii::$app->request->getHostInfo() . '/photo/users/empty_book.jpg';
     }
@@ -344,7 +347,7 @@ class Advertisement extends ExtendedActiveRecord
     {
         return $this->hasMany(Attachment::className(), ['object_id' => 'id'])
             ->andOnCondition([
-                'table' => self::tableName(),
+                'table' => self::FILES_DIR,
                 'status' => self::STATUS_ACTIVE
             ]);
     }

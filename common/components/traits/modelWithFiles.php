@@ -2,6 +2,7 @@
 
 namespace common\components\traits;
 
+use common\models\Advertisement;
 use common\models\Attachment;
 use common\models\News;
 use Yii;
@@ -24,12 +25,16 @@ trait modelWithFiles
             }
         }
 
-        if ($_FILES) {
+        if (!empty($_FILES['file'])) {
 //            if ($this->tablename() === News::tableName()) {
 //                foreach ($this->attachments as $img) {
 //                    $img->delete();
 //                }
 //            }
+            if ($this->tablename() === Advertisement::tableName()) {
+                return Attachment::uploadFiles($this->id, Advertisement::FILES_DIR);
+            }
+
             return Attachment::uploadFiles($this->id, $this->tablename());
         }
 
