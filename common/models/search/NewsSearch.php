@@ -48,7 +48,7 @@ class NewsSearch extends News
         $query = News::find();
 
         if (Yii::$app->controller->module->id === 'v2') {
-            $this->size = 11;
+            $this->size = 8;
         }
 
         // add conditions that should always apply here
