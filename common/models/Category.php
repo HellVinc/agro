@@ -3,13 +3,11 @@
 namespace common\models;
 
 use common\components\helpers\ExtendedActiveRecord;
-use common\components\traits\modelWithFiles;
 use common\components\UploadModel;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use common\components\traits\errors;
 use common\components\traits\soft;
@@ -29,7 +27,6 @@ use yii\web\UploadedFile;
  * @property integer $updated_by
  *
  * @property Tag[] $tags
- * @property Advertisement[] $advertisementsBuy
  * @property Attachment attachment
  * @property Room[] rooms
  */
@@ -164,6 +161,7 @@ class Category extends ExtendedActiveRecord
                     'tags',
                     'status',
                     'img',
+                    'postsCount',
                 ]);
         }
     }
@@ -228,6 +226,19 @@ class Category extends ExtendedActiveRecord
             ->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
     }
 
+    public function getPostsCount()
+    {
+        if ((int) $this->category_type !== self::TYPE_TRADE || empty($this->tags)) {
+            return 0;
+        }
+
+        $tagIds = ArrayHelper::getColumn($this->tags, 'id');
+
+        return (int) Advertisement::find()->where(['in', 'tag_id', $tagIds])
+            ->andOnCondition(['status' => self::STATUS_ACTIVE])
+            ->count();
+    }
+
     /**
      * @return Attachment|\yii\db\ActiveQuery
      */
@@ -246,6 +257,11 @@ class Category extends ExtendedActiveRecord
      */
     public function beforeDelete()
     {
+        if ($this->postsCount) {
+            $this->addError('', 'This category is not empty');
+            return false;
+        }
+
         switch ($this->category_type) {
             case self::TYPE_CHAT:
                 foreach ($this->rooms as $room) {
