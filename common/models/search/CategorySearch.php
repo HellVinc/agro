@@ -50,7 +50,7 @@ class CategorySearch extends Category
             $this->sort['id'] = SORT_DESC;
         }
         else {
-            $this->size = 10;
+            $this->size = 0;
         }
 
         // add conditions that should always apply here
