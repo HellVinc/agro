@@ -162,6 +162,7 @@ class Category extends ExtendedActiveRecord
                     'status',
                     'img',
                     'postsCount',
+                    'roomsCount',
                 ]);
         }
     }
@@ -226,6 +227,9 @@ class Category extends ExtendedActiveRecord
             ->andOnCondition(['room.status' => self::STATUS_ACTIVE]);
     }
 
+    /**
+     * @return int
+     */
     public function getPostsCount()
     {
         if ((int) $this->category_type !== self::TYPE_TRADE || empty($this->tags)) {
@@ -237,6 +241,23 @@ class Category extends ExtendedActiveRecord
         return (int) Advertisement::find()->where(['in', 'tag_id', $tagIds])
             ->andOnCondition(['status' => self::STATUS_ACTIVE])
             ->count();
+    }
+
+    /**
+     * @return int
+     */
+    public function getRoomsCount()
+    {
+        if ((int) $this->category_type !== self::TYPE_CHAT || empty($this->rooms)) {
+            return 0;
+        }
+        return count($this->rooms);
+
+//        $tagIds = ArrayHelper::getColumn($this->tags, 'id');
+//
+//        return (int) Advertisement::find()->where(['in', 'tag_id', $tagIds])
+//            ->andOnCondition(['status' => self::STATUS_ACTIVE])
+//            ->count();
     }
 
     /**
@@ -257,7 +278,7 @@ class Category extends ExtendedActiveRecord
      */
     public function beforeDelete()
     {
-        if ($this->postsCount) {
+        if ($this->postsCount || $this->roomsCount) {
             $this->addError('', 'This category is not empty');
             return false;
         }

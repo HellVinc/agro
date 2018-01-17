@@ -46,7 +46,7 @@ class CategorySearch extends Category
         $query = Category::find();
 
         if (Yii::$app->controller->module->id === 'v2') {
-            $this->size = $this->size ?: 11;
+            $this->size = is_int($this->size) || $this->size === '0' ? $this->size : 11;
             $this->sort['id'] = SORT_DESC;
         }
         else {
